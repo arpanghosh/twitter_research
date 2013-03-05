@@ -1,4 +1,4 @@
-twitter_collectors
+twitter_research
 ==================
 
-Tweet collectors for my research
+All the code for my Twitter research
