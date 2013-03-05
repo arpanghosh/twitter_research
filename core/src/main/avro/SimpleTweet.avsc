@@ -1,0 +1,144 @@
+{
+  "type" : "record",
+  "namespace" : "com.edge.twitter_research.core",
+  "name" : "SimpleTweet",
+  "description" : "A simpler representation of a Twitter4j Status object",
+  "fields" : [
+    { "name" : "contributors", 
+      "type" : { 
+          "type" : "array", 
+          "items" : { 
+              "type" : "long" 
+          } 
+      } 
+    },
+    { "type" : ["string", "null"], 
+      "name" : "createdAt" 
+    },
+    { "type" : "long", 
+      "name" : "currentUserRetweetId" 
+    },
+    { "type" : "long", 
+      "name" : "id" 
+    },
+    { "type" : ["string", "null"], 
+      "name" : "inReplyToScreenName" 
+    },
+    { "type" : "long", 
+      "name" : "inReplyToStatusId" 
+    },
+    { "type" : "long", 
+      "name" : "inReplyToUserId" 
+    },
+    { "type" : "long", 
+      "name" : "retweetCount" 
+    },
+    /*See if we can insert another SimpleTweet here */
+    { "type" : ["string", "null"], 
+      "name" : "source" 
+    },
+    { "type" : ["string", "null"], 
+      "name" : "text" 
+    },
+    { "type" : "long", 
+      "name" : "userId" 
+    },
+    { "type" : "boolean", 
+      "name" : "isFavorited" 
+    },
+    { "type" : "boolean", 
+      "name" : "isPossiblySensitive" 
+    },
+    { "type" : "boolean", 
+      "name" : "isRetweet" 
+    },
+    { "type" : "boolean", 
+      "name" : "isRetweetedByMe" 
+    },
+    { "type" : "boolean", 
+      "name" : "isTruncated" 
+    },
+    { "name" : "hashTagEntities", 
+      "type" : { 
+          "type" : "array", 
+          "items" : { 
+              "type" : "record", 
+              "name" : "SimpleHashtagEntity",
+              "description" : "A simpler representation of a Twitter4j HashtagEntity object", 
+              "fields" : [
+                  { "type" : "int", 
+                    "name" : "end"},
+                  { "type" : "int", 
+                    "name" : "start"},
+                  { "type" : ["string", "null"], 
+                    "name" : "text" }
+              ]
+          }
+      }
+    },
+    { "name" : "mediaEntities",
+      "type" : {
+          "type" : "array",
+          "items" : {
+              "type" : "record",
+              "name" : "SimpleMediaEntity",
+              "description" : "A simpler representation of a Twitter4j MediaEntity object",
+              "fields" : [
+                  { "type" : "long", 
+                    "name" : "id"},
+                  { "type" : ["string", "null"], 
+                    "name" : "mediaURL" },
+                  { "type" : ["string", "null"],
+                    "name" : "mediaURLHttps" },
+                  { "type" : ["string", "null"],
+                    "name" : "type" }
+              ]
+          }
+      }
+    },
+    { "name" : "urlEntities",
+      "type" : {
+          "type" : "array",
+          "items" : {
+              "type" : "record",
+              "name" : "SimpleURLEntity",
+              "description" : "A simpler representation of a Twitter4j URLEntity object",
+              "fields" : [
+                  { "type" : ["string", "null"], 
+                    "name" : "displayURL" },
+                  { "type" : "int", 
+                    "name" : "end"},
+                  { "type" : "int", 
+                    "name" : "start"},
+                  { "type" : ["string", "null"], 
+                    "name" : "URL" },
+                  { "type" : ["string", "null"], 
+                    "name" : "expandedURL" }
+              ]
+          }
+      }
+    },
+    { "name" : "userMentionEntities",
+      "type" : {
+          "type" : "array",
+          "items" : {
+              "type" : "record",
+              "name" : "SimpleUserMentionEntity",
+              "description" : "A simpler representation of a Twitter4j UserMentionEntity object",
+              "fields" : [
+                  { "type" : "int", 
+                    "name" : "end"},
+                  { "type" : "int", 
+                    "name" : "start"},
+                  { "type" : ["string", "null"], 
+                    "name" : "name" },
+                  { "type" : ["string", "null"], 
+                    "name" : "screenName" },
+                  { "type" : "long", 
+                    "name" : "id" }
+              ]
+          }
+      }
+    }
+  ]
+}

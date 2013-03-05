@@ -1,0 +1,30 @@
+{
+  name  : "users_last_tweet_id",
+  keys_format : {
+    encoding : "HASH",
+    hash_type : "MD5",
+    hash_size : 16
+  },
+  locality_groups : [{
+    name : "last_tweet_id",
+    description : "This locality group stores a user's last seen since_id",
+    in_memory : false,
+    max_versions : 10,
+    ttl_seconds : 2147483647,
+    compression_type : "NONE",
+    families : [{
+      name : "last_since_id",
+      description : "This column family stores each user's last since_id",
+      columns : [{
+        name : "since_id",
+        description : "long value: user's last since_id",
+        column_schema : {
+          storage : "UID",
+          type : "INLINE",
+          value : '"long"'
+        }
+      }]
+    }]
+  }],
+  version : "layout-1.1"
+}
