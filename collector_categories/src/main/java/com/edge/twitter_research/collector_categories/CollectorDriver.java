@@ -71,7 +71,7 @@ public class CollectorDriver {
         Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
                                         categoryTweetStoreLayoutFilePath,
-                                        GlobalConstants.TWEET_STORAGE_TABLE_NAME);
+                                        GlobalConstants.CATEGORY_TWEET_STORAGE_TABLE_NAME);
 
         Thread queueMeasurementThread =
                 new QueueMeasurement(categoryFetchingQueue,

@@ -34,7 +34,8 @@ public class GlobalConstants {
 
 
     /*Kiji table names*/
-    public static final String TWEET_STORAGE_TABLE_NAME = "category_tweet_store";
+    public static final String CATEGORY_TWEET_STORAGE_TABLE_NAME = "category_tweet_store";
     public static final String USER_LAST_TWEET_ID_TABLE_NAME = "users_last_tweet_id";
+    public static final String SAMPLE_TWEET_STORAGE_TABLE_NAME = "sample_tweet_store";
 
 }

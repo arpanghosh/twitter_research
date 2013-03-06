@@ -1,4 +1,4 @@
-package com.edge.twitter_collectors.categories;
+package com.edge.twitter_research.collector_categories;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
