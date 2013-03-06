@@ -1,0 +1,30 @@
+{
+  name  : "sample_tweet_store",
+  keys_format : {
+    encoding : "HASH",
+    hash_type : "MD5",
+    hash_size : 16
+  },  
+  locality_groups : [{
+    name : "tweet_as_object",
+    description : "This locality group stores each tweet as an object",
+    in_memory : false,
+    max_versions : 10,
+    ttl_seconds : 2147483647,
+    compression_type : "NONE",
+    families : [{
+      name : "tweet_object",
+      description : "This column family stores each tweet as an object",
+      columns : [{
+        name : "tweet",
+        description : "object representation of a tweet",
+        column_schema : {
+          storage : "UID",
+          type : "CLASS",
+          value : "com.edge.twitter_research.core.SimpleTweet"
+        }
+      }]
+    }]
+  }],
+  version : "layout-1.1"
+}

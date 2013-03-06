@@ -11,6 +11,7 @@
   <modules>
     <module>core</module>
     <module>collector_categories</module>
+    <module>collector_streaming</module>
     <module>relevance_filter</module>
   </modules>
 
