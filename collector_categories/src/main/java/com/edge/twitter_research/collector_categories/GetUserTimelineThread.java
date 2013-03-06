@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import org.kiji.schema.KijiTableWriter;
+
 import twitter4j.*;
 
 import com.edge.twitter_research.core.*;
@@ -58,7 +59,6 @@ public class GetUserTimelineThread extends Thread {
             try{
                 userCategoryMessage = inputQueue.take();
                 if (timeToStop(userCategoryMessage)){
-                    System.out.println("Stopping the GetUserTimelineThread");
                     outputQueue.add(new TweetCategoryMessage(null, ""));
                     break;
                 }
@@ -72,11 +72,10 @@ public class GetUserTimelineThread extends Thread {
                 continue;
             }
 
-            int i = 0;
-            do{
+            for (int i = 1; i <= 10; i++){
                 try{
                     Paging paging =
-                            new Paging(++i,
+                            new Paging(i,
                                         Constants.MAX_TWEETS_IN_ONE_REQUEST,
                                         userCategoryMessage.since_id);
 
@@ -85,14 +84,14 @@ public class GetUserTimelineThread extends Thread {
                     numRequests++;
 
                     if (statuses.isEmpty()){
-                        System.out.println("No new tweets");
+                        //System.out.println("No new tweets");
                         break;
                     }
 
                     for (Status status : statuses){
                         outputQueue.add(new TweetCategoryMessage(status,
                                                                 userCategoryMessage.category_slug));
-                        System.out.println("Fetched statuses for " + userCategoryMessage.user_id);
+                        //System.out.println("Fetched statuses for " + userCategoryMessage.user_id);
                     }
 
                     if (i == 1){
@@ -104,18 +103,18 @@ public class GetUserTimelineThread extends Thread {
                             twitterException.getRateLimitStatus() != null){
                         System.out.println("GetUserTimelineThread" + " Rate Limit Reached");
                         System.out.println("Number of requests in this window: " + numRequests);
-                        CollectorDriver.putToSleep(Constants.RATE_LIMIT_WINDOW);
+                        CollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
                         i--;
                         numRequests = 0;
                     }else{
                         twitterException.printStackTrace();
                         crisisMailer.sendEmailAlert(twitterException);
                         CollectorDriver
-                                .putToSleep(Constants
+                                .putToSleep(GlobalConstants
                                             .BACKOFF_AFTER_TWITTER_API_FAILURE);
                     }
                 }
-            }while (true);
+            }
         }
         System.out.println("GetUserTimelineThread ended");
     }

@@ -3,11 +3,11 @@ package com.edge.twitter_research.collector_categories;
 import org.kiji.schema.EntityId;
 import org.kiji.schema.KijiTableWriter;
 import org.kiji.schema.KijiTable;
+
 import twitter4j.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
 import java.util.concurrent.LinkedBlockingQueue;
 
 import  com.edge.twitter_research.core.*;

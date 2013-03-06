@@ -26,8 +26,8 @@ public class UserCategoryMessage implements Comparable<UserCategoryMessage> {
 
 
     @Override public boolean equals(Object object){
-        if (object instanceof UserCategoryMessage &&
-                object != null){
+        if (object != null &&
+                object instanceof UserCategoryMessage){
             UserCategoryMessage userCategoryMessage =
                     (UserCategoryMessage)object;
             return ((this.since_id == userCategoryMessage.since_id) &&

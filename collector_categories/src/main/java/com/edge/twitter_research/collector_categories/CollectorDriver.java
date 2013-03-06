@@ -61,17 +61,17 @@ public class CollectorDriver {
                                                     categoryFetchingQueue,
                                                     userFetchingQueue,
                                                     usersLastTweetIdLayoutFilePath,
-                                                    Constants.USER_LAST_TWEET_ID_TABLE_NAME);
+                                                    GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME);
         Thread tweetsForUserThread =
                 new GetUserTimelineThread(twitterFactory,
                                             userFetchingQueue,
                                             tweetStorageQueue,
                                             usersLastTweetIdLayoutFilePath,
-                                            Constants.USER_LAST_TWEET_ID_TABLE_NAME);
+                                            GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME);
         Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
                                         categoryTweetStoreLayoutFilePath,
-                                        Constants.TWEET_STORAGE_TABLE_NAME);
+                                        GlobalConstants.TWEET_STORAGE_TABLE_NAME);
 
         Thread queueMeasurementThread =
                 new QueueMeasurement(categoryFetchingQueue,
@@ -88,8 +88,6 @@ public class CollectorDriver {
         tweetsForUserThread.start();
         tweetStorageThread.start();
         queueMeasurementThread.start();
-
-
 
         try{
             suggestedCategoryThread.join();

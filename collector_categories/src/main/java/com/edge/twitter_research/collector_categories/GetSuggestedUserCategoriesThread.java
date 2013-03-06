@@ -41,13 +41,12 @@ public class GetSuggestedUserCategoriesThread extends Thread {
                 if (twitterException.exceededRateLimitation() &&
                         twitterException.getRateLimitStatus() != null){
                     System.out.println("GetSuggestedUserCategoriesThread" + " Rate Limit Reached");
-
-                    CollectorDriver.putToSleep(Constants.RATE_LIMIT_WINDOW);
+                    CollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
                 }else{
                     twitterException.printStackTrace();
                     crisisMailer.sendEmailAlert(twitterException);
                     CollectorDriver
-                            .putToSleep(Constants
+                            .putToSleep(GlobalConstants
                                     .BACKOFF_AFTER_TWITTER_API_FAILURE);
                 }
             }

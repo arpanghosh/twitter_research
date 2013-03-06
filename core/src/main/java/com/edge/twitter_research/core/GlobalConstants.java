@@ -1,7 +1,7 @@
 package com.edge.twitter_research.core;
 
 
-public class Constants {
+public class GlobalConstants {
 
     /* Twitter endpoints*/
     public static final String USERS_SUGGESTIONS_ENDPOINT = "/users/suggestions";
@@ -14,10 +14,8 @@ public class Constants {
     public static final String STATUSES_RESOURCE = "statuses";
 
 
-    /*Time intervals*/
-    public static final int COLLECTION_INTERVAL_IN_SECS = 3600;
+    /*Time Intervals*/
     public static final int BACKOFF_AFTER_TWITTER_API_FAILURE = 900;
-    public static final int MAX_TWEETS_IN_ONE_REQUEST = 200;
     public static final int RATE_LIMIT_WINDOW = 900;
 
 
@@ -38,16 +36,5 @@ public class Constants {
     /*Kiji table names*/
     public static final String TWEET_STORAGE_TABLE_NAME = "category_tweet_store";
     public static final String USER_LAST_TWEET_ID_TABLE_NAME = "users_last_tweet_id";
-
-
-    /*Twitter authentication stuff*/
-    public static final String OAUTH_CONSUMER_KEY =
-            "0Haydyg1GCJnR08o3HEJw";
-    public static final String OAUTH_CONSUMER_SECRET =
-            "wYIvPbxJBNPGzsaNP0H1ya9HbukoB8pTTVnEb6X0";
-    public static final String OAUTH_ACCESS_TOKEN =
-            "377194808-h9vmTsUeCpRG5YMdSFgkyki2dCEzMPbV8GfJZ1po";
-    public static final String OAUTH_ACCESS_TOKEN_SECRET =
-            "dLn5F5VFeahhl9Qx1FleZ30JKbzxmt7mbGSfW5NwiN8";
 
 }
