@@ -16,6 +16,27 @@ public class KijiConnection extends Configured {
     public KijiTable kijiTable = null;
     private CrisisMailer crisisMailer;
 
+
+    public KijiConnection(String tableName){
+        Kiji kiji;
+        crisisMailer = CrisisMailer.getCrisisMailer();
+
+        try{
+            setConf(HBaseConfiguration
+                    .addHbaseResources(new Configuration(true)));
+            kiji = Kiji.Factory.open(
+                    KijiURI.newBuilder()
+                            .withInstanceName(KConstants.DEFAULT_INSTANCE_NAME)
+                            .build(),
+                    getConf());
+            kiji.openTable(tableName);
+        } catch (IOException ioException){
+            ioException.printStackTrace();
+            crisisMailer.sendEmailAlert(ioException);
+        }
+    }
+
+
     public KijiConnection(String tableLayoutPath, String tableName){
         Kiji kiji = null;
         crisisMailer = CrisisMailer.getCrisisMailer();
