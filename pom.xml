@@ -96,22 +96,19 @@
 
 
   <repositories>
-<!--
-      <repository>
-        <id>maven2</id>
-        <name>maven central repo</name>
-        <url>http://repo1.maven.org/maven2/</url>
-        </repository>
--->
     <repository>
-        <id>kiji-repos</id>
-          <name>kiji-repos</name>
-        <url>https://repo.wibidata.com/artifactory/kiji</url>
+      <id>kiji-repos</id>
+      <name>kiji-repos</name>
+      <url>https://repo.wibidata.com/artifactory/kiji</url>
     </repository>
     <repository>
         <id>kiji-nightly</id>
         <name>kiji-nightly</name>
         <url>https://repo.wibidata.com/artifactory/kiji-nightly</url>
+    </repository>
+    <repository>
+        <id>conjars.org</id>
+        <url>http://conjars.org/repo</url>
     </repository>
   </repositories>
 

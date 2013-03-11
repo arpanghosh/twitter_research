@@ -18,11 +18,15 @@
         <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-        <!-- jsoup HTML parser library @ http://jsoup.org/ -->
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
         <version>1.7.2</version>
-      </dependency>
+    </dependency>
+    <dependency>
+        <groupId>edu.cmu.cs.lti</groupId>
+        <artifactId>ark-tweet-nlp-with-deps</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <repositories>
