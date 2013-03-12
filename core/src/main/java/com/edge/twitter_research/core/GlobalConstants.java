@@ -38,4 +38,14 @@ public class GlobalConstants {
     public static final String USER_LAST_TWEET_ID_TABLE_NAME = "users_last_tweet_id";
     public static final String SAMPLE_TWEET_STORAGE_TABLE_NAME = "sample_tweet_store";
 
+
+    /*Columns in Kiji tweet tables*/
+    public static final String TWEET_COLUMN_FAMILY_NAME = "tweet_object";
+    public static final String TWEET_COLUMN_NAME = "tweet";
+    public static final String LABEL_COLUMN_NAME = "relevance_label";
+
+
+    /*Tweet properties*/
+    public static final long INVALID_TWEET_ID = -1L;
+
 }

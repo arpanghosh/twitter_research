@@ -14,8 +14,7 @@ import  com.edge.twitter_research.core.*;
 
 public class TweetStorageThread extends Thread {
 
-    private static final String COLUMN_FAMILY_NAME = "tweet_object";
-    private static final String COLUMN_NAME = "tweet";
+
 
     private LinkedBlockingQueue<Status> inputQueue;
     private KijiConnection kijiConnection;
@@ -52,10 +51,15 @@ public class TweetStorageThread extends Thread {
                 EntityId tweetId =
                         kijiTable.getEntityId(String.valueOf(tweet.getId()));
                 kijiTableWriter.put(tweetId,
-                                    COLUMN_FAMILY_NAME,
-                                    COLUMN_NAME,
+                                    GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
+                                    GlobalConstants.TWEET_COLUMN_NAME,
                                     System.currentTimeMillis(),
                                     generateSimpleTweet(tweet));
+                kijiTableWriter.put(tweetId,
+                                    GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
+                                    GlobalConstants.LABEL_COLUMN_NAME,
+                                    System.currentTimeMillis(),
+                                    null);
                 System.out.println("Tweet Stored");
             }catch (IOException ioException){
                 ioException.printStackTrace();

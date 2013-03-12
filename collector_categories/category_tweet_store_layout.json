@@ -32,6 +32,14 @@
           type : "CLASS",
           value : "com.edge.twitter_research.core.SimpleTweet"
         }
+      }, {
+        name : "relevance_label",
+        description : "Binary relevance label for a tweet",
+        column_schema : {
+            storage : "UID",
+            type : "INLINE",
+            value : "[\"string\",\"null\"]"
+        }
       }]
     }]
   }],
