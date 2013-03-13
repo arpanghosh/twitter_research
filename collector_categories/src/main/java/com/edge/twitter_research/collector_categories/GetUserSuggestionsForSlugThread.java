@@ -1,5 +1,6 @@
 package com.edge.twitter_research.collector_categories;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.kiji.schema.KijiDataRequest;
 import org.kiji.schema.KijiRowData;
 import org.kiji.schema.KijiTableReader;
@@ -10,6 +11,8 @@ import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import org.apache.log4j.Logger;
+
 import com.edge.twitter_research.core.*;
 
 
@@ -17,6 +20,9 @@ public class GetUserSuggestionsForSlugThread extends Thread {
 
     private static final String COLUMN_FAMILY_NAME = "last_since_id";
     private static final String COLUMN_NAME = "since_id";
+
+    private static Logger logger =
+            Logger.getLogger(GetUserSuggestionsForSlugThread.class);
 
     private TwitterFactory twitterFactory;
     private PriorityBlockingQueue<UserCategoryMessage> outputQueue;
@@ -31,11 +37,13 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                                            LinkedBlockingQueue<String> inputQueue,
                                             PriorityBlockingQueue<UserCategoryMessage> outputQueue,
                                             String tableLayoutPath,
-                                            String tableName){
+                                            String tableName,
+                                            String log4jPropertiesFilePath){
         this.twitterFactory = twitterFactory;
         this.inputQueue = inputQueue;
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
 
         this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
         try{
@@ -44,7 +52,8 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                         kijiConnection.kijiTable.openTableReader();
             }
         }catch (IOException ioException){
-            ioException.printStackTrace();
+            logger.error("Exception while opening KijiTableReader",
+                    ioException);
             crisisMailer.sendEmailAlert(ioException);
         }
     }
@@ -64,7 +73,8 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                 }
 
             }catch (InterruptedException interruptedException){
-                interruptedException.printStackTrace();
+                logger.warn("Exception while 'taking' element from queue",
+                        interruptedException);
                 continue;
             }
 
@@ -79,17 +89,18 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                             outputQueue.add(new UserCategoryMessage(user.getId(),
                                                                     slug,
                                                                     getUserSinceId(user.getId())));
-                            //System.out.println("User: " + user.getScreenName())
                         }
                     }
 
                 }catch (TwitterException twitterException){
                     if (twitterException.exceededRateLimitation() &&
                             twitterException.getRateLimitStatus() != null){
-                        System.out.println("GetUserSuggestionsForSlugThread" + " Rate Limit Reached");
+                        logger.warn("GetUserSuggestionsForSlugThread Rate Limit Reached",
+                                twitterException);
                         CollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
                     }else{
-                        twitterException.printStackTrace();
+                        logger.error("Exception while fetching users for a Slug from Twitter",
+                                twitterException);
                         crisisMailer.sendEmailAlert(twitterException);
                         CollectorDriver
                                 .putToSleep(GlobalConstants
@@ -97,8 +108,8 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                     }
                 }
             }while (!success);
-            System.out.println("GetUserSuggestionsForSlugThread ended");
         }
+        System.out.println("GetUserSuggestionsForSlugThread ended");
     }
 
 
@@ -117,7 +128,8 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                             COLUMN_NAME);
                 }
             }catch (IOException ioException){
-                ioException.printStackTrace();
+                logger.error("Exception while 'getting' row using KijiTableReader",
+                        ioException);
                 crisisMailer.sendEmailAlert(ioException);
             }
         }

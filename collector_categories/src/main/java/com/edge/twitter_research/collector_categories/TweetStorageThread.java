@@ -1,8 +1,11 @@
 package com.edge.twitter_research.collector_categories;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.kiji.schema.EntityId;
 import org.kiji.schema.KijiTableWriter;
 import org.kiji.schema.KijiTable;
+
+import org.apache.log4j.Logger;
 
 import twitter4j.*;
 
@@ -17,13 +20,16 @@ public class TweetStorageThread extends Thread {
     private LinkedBlockingQueue<TweetCategoryMessage> inputQueue;
     private KijiConnection kijiConnection;
     private CrisisMailer crisisMailer;
+    private static Logger logger = Logger.getLogger(TweetStorageThread.class);
 
     public TweetStorageThread(LinkedBlockingQueue<TweetCategoryMessage> inputQueue,
                               String tableLayoutPath,
-                              String tableName){
+                              String tableName,
+                              String log4jPropertiesFilePath){
         this.inputQueue = inputQueue;
         this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
         this.crisisMailer = CrisisMailer.getCrisisMailer();
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
     }
 
     public void run(){
@@ -37,8 +43,8 @@ public class TweetStorageThread extends Thread {
 
                 storeTweet(tweetCategoryMessage);
             }catch (InterruptedException interruptedException){
-                interruptedException.printStackTrace();
-                continue;
+                logger.warn("Exception while 'taking' item from queue",
+                        interruptedException);
             }
         }
         System.out.println("TweetStorageThread ended");
@@ -60,13 +66,14 @@ public class TweetStorageThread extends Thread {
                                     System.currentTimeMillis(),
                                     generateSimpleTweet(tweetCategoryMessage.tweet));
                 kijiTableWriter.put(tweetId,
-                                    GlobalConstants.TWEET_COLUMN_NAME,
+                                    GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
                                     GlobalConstants.LABEL_COLUMN_NAME,
                                     System.currentTimeMillis(),
                                     null);
-                //System.out.println("Tweet Stored");
+                logger.error("Tweet Stored");
             }catch (IOException ioException){
-                ioException.printStackTrace();
+                logger.error("Exception while 'putting' tweet in KijiTable",
+                        ioException);
                 crisisMailer.sendEmailAlert(ioException);
             }
         }

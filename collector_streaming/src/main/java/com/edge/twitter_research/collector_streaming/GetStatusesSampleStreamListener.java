@@ -6,19 +6,27 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.edge.twitter_research.core.*;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
+
 public class GetStatusesSampleStreamListener implements StatusListener {
 
     private LinkedBlockingQueue<Status> outputQueue;
     private CrisisMailer crisisMailer;
+    private static Logger logger =
+            Logger.getLogger(GetStatusesSampleStreamListener.class);
 
-    public GetStatusesSampleStreamListener(LinkedBlockingQueue<Status> outputQueue){
+    public GetStatusesSampleStreamListener(LinkedBlockingQueue<Status> outputQueue,
+                                           String log4jPropertiesFilePath){
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
     }
 
     @Override
     public void onStatus(Status status) {
-        System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText());
+        //System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText());
         outputQueue.add(status);
     }
 
@@ -44,7 +52,8 @@ public class GetStatusesSampleStreamListener implements StatusListener {
 
     @Override
     public void onException(Exception exception) {
-        exception.printStackTrace();
+        logger.error("Exception in Sample Stream Listener",
+                    exception);
         crisisMailer.sendEmailAlert(exception);
     }
 }

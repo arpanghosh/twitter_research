@@ -6,10 +6,16 @@ import twitter4j.conf.ConfigurationBuilder;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 import com.edge.twitter_research.core.*;
 
 
 public class CollectorDriver {
+
+    private static Logger logger =
+            Logger.getLogger(CollectorDriver.class);
 
     public static void putToSleep(int seconds){
         boolean slept = false;
@@ -17,8 +23,9 @@ public class CollectorDriver {
             try{
                 Thread.sleep(seconds * 1000);
                 slept = true;
-            }catch (Exception exception){
-                exception.printStackTrace();
+            }catch (InterruptedException interruptedException){
+                logger.warn("Exception while trying to sleep",
+                        interruptedException);
             }
         }while(!slept);
     }
@@ -26,16 +33,20 @@ public class CollectorDriver {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 1){
             System.out.println("Usage: CollectorDriver " +
-                    "category_tweet_store_layout file path> " +
-                    "<users_last_tweet_id_layout file path");
+                    "<collector_categories_root>");
             return;
         }
 
-        String categoryTweetStoreLayoutFilePath = args[0];
-        String usersLastTweetIdLayoutFilePath = args[1];
+        String categoryTweetStoreLayoutFilePath = args[0] + "/" +
+                Constants.CATEGORY_TWEET_STORE_TABLE_LAYOUT_FILE_NAME;
+        String usersLastTweetIdLayoutFilePath = args[0] + "/" +
+                Constants.USERS_LAST_TWEET_ID_STORE_TABLE_LAYOUT_FILE_NAME;
+        String log4jPropertiesFilePath = args[0] + "/" +
+                Constants.LOG4J_PROPERTIES_FILE_PATH;
 
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
 
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.setDebugEnabled(true)
@@ -55,28 +66,33 @@ public class CollectorDriver {
 
         Thread suggestedCategoryThread =
                 new GetSuggestedUserCategoriesThread(twitterFactory,
-                                                    categoryFetchingQueue);
+                                                    categoryFetchingQueue,
+                                                    log4jPropertiesFilePath);
         Thread usersInCategoryThread =
                 new GetUserSuggestionsForSlugThread(twitterFactory,
                                                     categoryFetchingQueue,
                                                     userFetchingQueue,
                                                     usersLastTweetIdLayoutFilePath,
-                                                    GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME);
+                                                    GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME,
+                                                    log4jPropertiesFilePath);
         Thread tweetsForUserThread =
                 new GetUserTimelineThread(twitterFactory,
                                             userFetchingQueue,
                                             tweetStorageQueue,
                                             usersLastTweetIdLayoutFilePath,
-                                            GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME);
+                                            GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME,
+                                            log4jPropertiesFilePath);
         Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
                                         categoryTweetStoreLayoutFilePath,
-                                        GlobalConstants.CATEGORY_TWEET_STORAGE_TABLE_NAME);
+                                        GlobalConstants.CATEGORY_TWEET_STORAGE_TABLE_NAME,
+                                        log4jPropertiesFilePath);
 
         Thread queueMeasurementThread =
-                new QueueMeasurement(categoryFetchingQueue,
+                new QueueMeasurementThread(categoryFetchingQueue,
                                         userFetchingQueue,
-                                        tweetStorageQueue);
+                                        tweetStorageQueue,
+                                        log4jPropertiesFilePath);
 
 
         //userFetchingQueue.add(new UserCategoryMessage(111757158L, "nascar"));
@@ -96,7 +112,8 @@ public class CollectorDriver {
             tweetStorageThread.join();
             queueMeasurementThread.join();
         }catch (InterruptedException interruptedException){
-            interruptedException.printStackTrace();
+            logger.warn("Exception while collector threads are joining",
+                    interruptedException);
         }
 
         long toc = System.currentTimeMillis();

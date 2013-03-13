@@ -12,20 +12,25 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import  com.edge.twitter_research.core.*;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 public class TweetStorageThread extends Thread {
-
-
 
     private LinkedBlockingQueue<Status> inputQueue;
     private KijiConnection kijiConnection;
     private CrisisMailer crisisMailer;
+    private static Logger logger =
+            Logger.getLogger(TweetStorageThread.class);
 
     public TweetStorageThread(LinkedBlockingQueue<Status> inputQueue,
                               String tableLayoutPath,
-                              String tableName){
+                              String tableName,
+                              String log4jPropertiesFilePath){
         this.inputQueue = inputQueue;
         this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
         this.crisisMailer = CrisisMailer.getCrisisMailer();
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
     }
 
     public void run(){
@@ -35,8 +40,8 @@ public class TweetStorageThread extends Thread {
                 tweet = inputQueue.take();
                 storeTweet(tweet);
             }catch (InterruptedException interruptedException){
-                interruptedException.printStackTrace();
-                continue;
+                logger.warn("Exception while taking an item from the queue",
+                        interruptedException);
             }
         }
     }
@@ -60,9 +65,10 @@ public class TweetStorageThread extends Thread {
                                     GlobalConstants.LABEL_COLUMN_NAME,
                                     System.currentTimeMillis(),
                                     null);
-                System.out.println("Tweet Stored");
             }catch (IOException ioException){
-                ioException.printStackTrace();
+                logger.error("Exception while opening TableWriter" +
+                            "or 'putting' a row",
+                            ioException);
                 crisisMailer.sendEmailAlert(ioException);
             }
         }

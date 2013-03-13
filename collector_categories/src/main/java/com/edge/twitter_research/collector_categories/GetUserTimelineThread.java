@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import org.apache.log4j.Logger;
+
+import org.apache.log4j.PropertyConfigurator;
 import org.kiji.schema.KijiTableWriter;
 
 import twitter4j.*;
@@ -17,6 +20,8 @@ public class GetUserTimelineThread extends Thread {
     private LinkedBlockingQueue<TweetCategoryMessage> outputQueue;
     private PriorityBlockingQueue<UserCategoryMessage> inputQueue;
     private CrisisMailer crisisMailer;
+    private static Logger logger =
+            Logger.getLogger(GetUserTimelineThread.class);
 
     private KijiConnection kijiConnection;
     private KijiTableWriter kijiTableWriter = null;
@@ -29,12 +34,14 @@ public class GetUserTimelineThread extends Thread {
                                     PriorityBlockingQueue<UserCategoryMessage> inputQueue,
                                     LinkedBlockingQueue<TweetCategoryMessage> outputQueue,
                                     String tableLayoutPath,
-                                    String tableName){
+                                    String tableName,
+                                    String log4jPropertiesFilePath){
         this.twitterFactory = twitterFactory;
         this.outputQueue = outputQueue;
         this.inputQueue = inputQueue;
         this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
         this.crisisMailer = CrisisMailer.getCrisisMailer();
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
 
         try{
             if (kijiConnection.kijiTable != null){
@@ -42,7 +49,8 @@ public class GetUserTimelineThread extends Thread {
                         kijiConnection.kijiTable.openTableWriter();
             }
         }catch (IOException ioException){
-            ioException.printStackTrace();
+            logger.error("Exception while opening KijiTableWriter",
+                    ioException);
             crisisMailer.sendEmailAlert(ioException);
         }
     }
@@ -68,11 +76,12 @@ public class GetUserTimelineThread extends Thread {
                 }
                 lastUserCategoryMessage = userCategoryMessage;
             }catch (InterruptedException interruptedException){
-                interruptedException.printStackTrace();
+                logger.warn("Exception while 'taking' item from queue",
+                        interruptedException);
                 continue;
             }
 
-            for (int i = 1; i <= 10; i++){
+            for (int i = 1; i <= 5; i++){
                 try{
                     Paging paging =
                             new Paging(i,
@@ -84,14 +93,12 @@ public class GetUserTimelineThread extends Thread {
                     numRequests++;
 
                     if (statuses.isEmpty()){
-                        //System.out.println("No new tweets");
                         break;
                     }
 
                     for (Status status : statuses){
                         outputQueue.add(new TweetCategoryMessage(status,
                                                                 userCategoryMessage.category_slug));
-                        //System.out.println("Fetched statuses for " + userCategoryMessage.user_id);
                     }
 
                     if (i == 1){
@@ -101,13 +108,14 @@ public class GetUserTimelineThread extends Thread {
                 }catch (TwitterException twitterException){
                     if (twitterException.exceededRateLimitation() &&
                             twitterException.getRateLimitStatus() != null){
-                        System.out.println("GetUserTimelineThread" + " Rate Limit Reached");
-                        System.out.println("Number of requests in this window: " + numRequests);
+                        logger.warn("GetUserTimelineThread Rate Limit Reached",
+                                twitterException);
                         CollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
                         i--;
                         numRequests = 0;
                     }else{
-                        twitterException.printStackTrace();
+                        logger.error("Exception while fetching tweets for a user from Twitter",
+                                twitterException);
                         crisisMailer.sendEmailAlert(twitterException);
                         CollectorDriver
                                 .putToSleep(GlobalConstants
@@ -130,7 +138,8 @@ public class GetUserTimelineThread extends Thread {
                                     System.currentTimeMillis(),
                                     since_id);
             }catch (IOException ioException){
-                ioException.printStackTrace();
+                logger.error("Exception while 'putting' a row in a KijiTable",
+                        ioException);
                 crisisMailer.sendEmailAlert(ioException);
             }
         }

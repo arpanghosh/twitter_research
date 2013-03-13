@@ -9,19 +9,29 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.edge.twitter_research.core.*;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 
 public class CollectorDriver {
+
+    private static Logger logger =
+            Logger.getLogger(CollectorDriver.class);
 
     public static void main(String[] args){
 
         if (args.length < 1){
             System.out.println("Usage: CollectorDriver " +
-                    "sample_tweet_store_layout file path>");
-            return;
+                    "<collector_streaming_root>");
+            System.exit(-1);
         }
 
-        String sampleTweetStoreLayoutFilePath = args[0];
+        String sampleTweetStoreLayoutFilePath = args[0] + "/" +
+                Constants.SAMPLE_TWEET_STORE_TABLE_LAYOUT_FILE_NAME;
+        String log4jPropertiesFilePath = args[0] + "/" +
+                Constants.LOG4J_PROPERTIES_FILE_PATH;
 
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
 
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.setDebugEnabled(true)
@@ -34,7 +44,8 @@ public class CollectorDriver {
                 new LinkedBlockingQueue<Status>();
 
         GetStatusesSampleStreamListener listener =
-                new GetStatusesSampleStreamListener(tweetStorageQueue);
+                new GetStatusesSampleStreamListener(tweetStorageQueue,
+                                                    log4jPropertiesFilePath);
         TwitterStream twitterStream =
                 new TwitterStreamFactory(configurationBuilder.build()).getInstance();
         twitterStream.addListener(listener);
@@ -45,7 +56,8 @@ public class CollectorDriver {
         Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
                                         sampleTweetStoreLayoutFilePath,
-                                        GlobalConstants.SAMPLE_TWEET_STORAGE_TABLE_NAME);
+                                        GlobalConstants.SAMPLE_TWEET_STORAGE_TABLE_NAME,
+                                        log4jPropertiesFilePath);
 
 
         //userFetchingQueue.add(new UserCategoryMessage(111757158L, "nascar"));
@@ -57,7 +69,8 @@ public class CollectorDriver {
             getStatusesSampleStreamThread.join();
             tweetStorageThread.join();
         }catch (InterruptedException interruptedException){
-            interruptedException.printStackTrace();
+            logger.warn("Exception while Collector threads are joining",
+                        interruptedException);
         }
     }
 }

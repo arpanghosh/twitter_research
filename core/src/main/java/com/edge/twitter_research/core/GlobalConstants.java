@@ -3,17 +3,6 @@ package com.edge.twitter_research.core;
 
 public class GlobalConstants {
 
-    /* Twitter endpoints*/
-    public static final String USERS_SUGGESTIONS_ENDPOINT = "/users/suggestions";
-    public static final String USERS_SUGGESTIONS_SLUG_ENDPOINT = "/users/suggestions/:slug";
-    public static final String STATUSES_USER_TIMELINE_ENDPOINT = "/statuses/user_timeline";
-
-
-    /* Keys for retrieving rate limit info*/
-    public static final String USERS_RESOURCE = "users";
-    public static final String STATUSES_RESOURCE = "statuses";
-
-
     /*Time Intervals*/
     public static final int BACKOFF_AFTER_TWITTER_API_FAILURE = 900;
     public static final int RATE_LIMIT_WINDOW = 900;

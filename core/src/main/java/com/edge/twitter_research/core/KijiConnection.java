@@ -4,8 +4,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.kiji.schema.*;
 import org.kiji.schema.layout.KijiTableLayout;
+
+import org.apache.log4j.Logger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,12 +17,16 @@ import java.io.IOException;
 public class KijiConnection extends Configured {
 
     public KijiTable kijiTable = null;
+
     private CrisisMailer crisisMailer;
+    private Logger logger;
 
 
     public KijiConnection(String tableName){
-        Kiji kiji;
+        Kiji kiji = null;
+
         crisisMailer = CrisisMailer.getCrisisMailer();
+        logger = Logger.getLogger(KijiConnection.class);
 
         try{
             setConf(HBaseConfiguration
@@ -30,16 +37,25 @@ public class KijiConnection extends Configured {
                             .build(),
                     getConf());
             kiji.openTable(tableName);
-        } catch (IOException ioException){
-            ioException.printStackTrace();
-            crisisMailer.sendEmailAlert(ioException);
+        } catch (Exception exception){
+            if (exception instanceof IOException){
+                logger.error("Exception while opening a KijiTable",
+                            exception);
+            }else{
+                logger.error("Exception while initializing a Kiji object",
+                        exception);
+            }
+            crisisMailer.sendEmailAlert(exception);
         }
     }
 
 
-    public KijiConnection(String tableLayoutPath, String tableName){
+    public KijiConnection(String tableLayoutPath,
+                          String tableName){
         Kiji kiji = null;
+
         crisisMailer = CrisisMailer.getCrisisMailer();
+        logger = Logger.getLogger(KijiConnection.class);
 
         try{
             setConf(HBaseConfiguration
@@ -61,12 +77,19 @@ public class KijiConnection extends Configured {
                     exception instanceof RuntimeException){
                 try{
                     kijiTable = kiji.openTable(tableName);
-                }catch (IOException ioException){
-                    ioException.printStackTrace();
-                    crisisMailer.sendEmailAlert(ioException);
+                }catch (Exception internalException){
+                    if (internalException instanceof IOException){
+                        logger.error("Exception while opening a KijiTable",
+                                    internalException);
+                    }else {
+                        logger.error("Exception while initializing a Kiji object",
+                                    internalException);
+                    }
+                    crisisMailer.sendEmailAlert(internalException);
                 }
             } else{
-                exception.printStackTrace();
+                logger.error("Exception while opening a KijiTable",
+                        exception);
                 crisisMailer.sendEmailAlert(exception);
             }
         }

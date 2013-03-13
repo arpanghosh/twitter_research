@@ -3,6 +3,9 @@ package com.edge.twitter_research.core;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import org.apache.log4j.Logger;
+
 import java.util.Properties;
 
 
@@ -10,6 +13,9 @@ public final class CrisisMailer {
 
     private static CrisisMailer crisisMailer = null;
     private static Session emailSession;
+    private static Logger logger =
+            Logger.getLogger(CrisisMailer.class);
+
 
     private CrisisMailer(){
         Properties props = new Properties();
@@ -31,12 +37,14 @@ public final class CrisisMailer {
                 });
     }
 
+
     public static CrisisMailer getCrisisMailer(){
         if (crisisMailer == null){
             crisisMailer = new CrisisMailer();
         }
         return crisisMailer;
     }
+
 
     public void sendEmailAlert(Exception exception){
         try {
@@ -49,7 +57,8 @@ public final class CrisisMailer {
 
             Transport.send(message);
         } catch (MessagingException messagingException) {
-            messagingException.printStackTrace();
+            logger.error("Exception while sending an alert email",
+                        messagingException);
         }
     }
 

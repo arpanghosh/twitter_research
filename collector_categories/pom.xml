@@ -14,53 +14,53 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.edge.twitter_research</groupId>
-      <artifactId>core</artifactId>
-      <version>1.0-SNAPSHOT</version>
+        <groupId>com.edge.twitter_research</groupId>
+        <artifactId>core</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.twitter4j</groupId>
-      <artifactId>twitter4j-core</artifactId>
-      <version>[3.0,)</version>
+        <groupId>org.twitter4j</groupId>
+        <artifactId>twitter4j-core</artifactId>
+        <version>[3.0,)</version>
     </dependency>
   </dependencies>
 
   <repositories>
     <repository>
-      <id>twitter4j.org</id>
-      <name>twitter4j.org Repository</name>
-      <url>http://twitter4j.org/maven2</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
+        <id>twitter4j.org</id>
+        <name>twitter4j.org Repository</name>
+        <url>http://twitter4j.org/maven2</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
     </repository>
   </repositories>
 
   <build>
       <plugins>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>1.3</version>
-          <executions>
-            <execution>
-              <phase>package</phase>
-              <goals>
-                <goal>shade</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <finalName>uber-collector_categories-1.0-SNAPSHOT</finalName>
-          </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>1.3</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <finalName>uber-collector_categories-1.0-SNAPSHOT</finalName>
+            </configuration>
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
         </plugin>
 
       </plugins>
