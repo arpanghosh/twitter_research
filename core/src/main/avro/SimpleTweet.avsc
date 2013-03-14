@@ -8,18 +8,19 @@
       "type" : { 
           "type" : "array", 
           "items" : { 
-              "type" : "long" 
+              "type" : "long"
           } 
       } 
     },
-    { "type" : ["string", "null"], 
+    { "type" : ["string", "null"],
       "name" : "createdAt" 
     },
     { "type" : "long", 
       "name" : "currentUserRetweetId" 
     },
     { "type" : "long", 
-      "name" : "id" 
+      "name" : "id",
+      "default" : -1
     },
     { "type" : ["string", "null"], 
       "name" : "inReplyToScreenName" 
@@ -33,15 +34,11 @@
     { "type" : "long", 
       "name" : "retweetCount" 
     },
-    /*See if we can insert another SimpleTweet here */
-    { "type" : ["string", "null"], 
+    { "type" : ["string", "null"],
       "name" : "source" 
     },
-    { "type" : ["string", "null"], 
+    { "type" : ["string", "null"],
       "name" : "text" 
-    },
-    { "type" : "long", 
-      "name" : "userId" 
     },
     { "type" : "boolean", 
       "name" : "isFavorited" 
@@ -57,6 +54,12 @@
     },
     { "type" : "boolean", 
       "name" : "isTruncated" 
+    },
+    { "type" : "double",
+      "name" : "coordinatesLatitude"
+    },
+    { "type" : "double",
+      "name" : "coordinatesLongitude"
     },
     { "name" : "hashTagEntities", 
       "type" : { 
@@ -138,6 +141,75 @@
                     "name" : "id" }
               ]
           }
+      }
+    },
+    { "name" : "Place",
+      "description" : "A simpler representation of a Twitter4j Place object",
+      "type" : {
+        "type" : "record",
+        "name" : "SimplePlace",
+        "fields" : [
+            { "type" : ["string", "null"],
+                "name" : "URL" },
+            { "type" : ["string", "null"],
+                "name" : "streetAddress" },
+            { "type" : ["string", "null"],
+                "name" : "placeType" },
+            { "type" : ["string", "null"],
+                "name" : "name" },
+            { "type" : ["string", "null"],
+                "name" : "fullName" },
+            { "type" : ["string", "null"],
+                "name" : "id" },
+            { "type" : ["string", "null"],
+                "name" : "country" },
+            { "type" : ["string", "null"],
+                "name" : "countryCode" },
+            { "name" : "boundingBox",
+                "type" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "record",
+                        "name" : "SimpleGeoLocation",
+                        "description" : "A simpler representation of a Twitter4j GeoLocation object",
+                        "fields" : [
+                            { "type" : "double",
+                                "name" : "latitude"},
+                            { "type" : "double",
+                                "name" : "longitude"}
+                        ]
+                    }
+                }
+            }
+        ]
+      }
+    },
+    { "name" : "User",
+      "description" : "A simpler representation of a Twitter4j User object",
+      "type" : {
+        "type" : "record",
+        "name" : "SimpleUser",
+        "fields" : [
+            { "type" : "long",
+                "name" : "id",
+                "default" : -1 },
+            { "type" : ["string", "null"],
+                "name" : "screenName" },
+            { "type" : ["string", "null"],
+                "name" : "createdAt" },
+            { "type" : "int",
+                "name" : "followersCount" },
+            { "type" : "int",
+                "name" : "friendsCount" },
+            { "type" : "int",
+                "name" : "listedCount" },
+            { "type" : ["string", "null"],
+                "name" : "profileImageURL" },
+            { "type" : "int",
+                "name" : "statusesCount" },
+            { "type" : "boolean",
+                "name" : "verified" }
+        ]
       }
     }
   ]
