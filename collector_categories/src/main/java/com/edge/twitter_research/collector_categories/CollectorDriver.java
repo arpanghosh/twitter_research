@@ -118,7 +118,7 @@ public class CollectorDriver {
 
         long toc = System.currentTimeMillis();
 
-        System.out.print("\nAll threads joined. Total time: \n"
+        logger.error("\nAll threads joined. Total time: \n"
                         + (toc - tic)/3600000 +
                         " hours");
     }

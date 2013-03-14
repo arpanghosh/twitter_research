@@ -26,8 +26,7 @@ public class GetUserTimelineThread extends Thread {
     private KijiConnection kijiConnection;
     private KijiTableWriter kijiTableWriter = null;
 
-    private static final String COLUMN_FAMILY_NAME = "last_since_id";
-    private static final String COLUMN_NAME = "since_id";
+
 
 
     public GetUserTimelineThread(TwitterFactory twitterFactory,
@@ -62,7 +61,6 @@ public class GetUserTimelineThread extends Thread {
         UserCategoryMessage lastUserCategoryMessage = null;
         UserCategoryMessage userCategoryMessage;
 
-        int numRequests = 0;
         while(true){
             try{
                 userCategoryMessage = inputQueue.take();
@@ -81,38 +79,33 @@ public class GetUserTimelineThread extends Thread {
                 continue;
             }
 
-            for (int i = 1; i <= 5; i++){
+            boolean success = false;
+            do{
                 try{
                     Paging paging =
-                            new Paging(i,
+                            new Paging(1,
                                         Constants.MAX_TWEETS_IN_ONE_REQUEST,
                                         userCategoryMessage.since_id);
 
                     ResponseList<Status> statuses =
                             twitter.getUserTimeline(userCategoryMessage.user_id, paging);
-                    numRequests++;
-
-                    if (statuses.isEmpty()){
-                        break;
-                    }
+                    success = true;
 
                     for (Status status : statuses){
                         outputQueue.add(new TweetCategoryMessage(status,
                                                                 userCategoryMessage.category_slug));
                     }
 
-                    if (i == 1){
-                        storeUserSinceId(userCategoryMessage.user_id, statuses.get(0).getId());
+                    if (statuses.size(  ) > 0){
+                        storeUserSinceId(userCategoryMessage.user_id,
+                                        statuses.get(0).getId());
                     }
-
                 }catch (TwitterException twitterException){
                     if (twitterException.exceededRateLimitation() &&
                             twitterException.getRateLimitStatus() != null){
                         logger.warn("GetUserTimelineThread Rate Limit Reached",
                                 twitterException);
                         CollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
-                        i--;
-                        numRequests = 0;
                     }else{
                         logger.error("Exception while fetching tweets for a user from Twitter",
                                 twitterException);
@@ -122,9 +115,9 @@ public class GetUserTimelineThread extends Thread {
                                             .BACKOFF_AFTER_TWITTER_API_FAILURE);
                     }
                 }
-            }
+            }while (!success);
         }
-        System.out.println("GetUserTimelineThread ended");
+        logger.error("GetUserTimelineThread ended");
     }
 
 
@@ -133,8 +126,8 @@ public class GetUserTimelineThread extends Thread {
             try{
                 kijiTableWriter.put(kijiConnection.kijiTable
                                     .getEntityId(userId.toString()),
-                                    COLUMN_FAMILY_NAME,
-                                    COLUMN_NAME,
+                                    Constants.LAST_TWEET_ID_COLUMN_FAMILY_NAME,
+                                    Constants.LAST_TWEET_ID_COLUMN_NAME,
                                     System.currentTimeMillis(),
                                     since_id);
             }catch (IOException ioException){

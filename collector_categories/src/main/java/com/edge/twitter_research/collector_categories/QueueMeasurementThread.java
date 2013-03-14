@@ -34,5 +34,6 @@ public class QueueMeasurementThread extends Thread {
         }while (users.size() > 0 ||
                 categories.size() > 0 ||
                 tweets.size() > 0);
+        logger.error("QueueMeasurementThread ended");
     }
 }

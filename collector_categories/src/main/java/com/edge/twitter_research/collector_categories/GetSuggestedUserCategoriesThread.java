@@ -60,7 +60,7 @@ public class GetSuggestedUserCategoriesThread extends Thread {
                 }
             }
             outputQueue.add("END");
-            System.out.println("GetSuggestedUserCategoriesThread ended");
+            logger.error("GetSuggestedUserCategoriesThread ended");
         //}
     }
 }

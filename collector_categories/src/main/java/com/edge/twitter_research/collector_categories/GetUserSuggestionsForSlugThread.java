@@ -18,9 +18,6 @@ import com.edge.twitter_research.core.*;
 
 public class GetUserSuggestionsForSlugThread extends Thread {
 
-    private static final String COLUMN_FAMILY_NAME = "last_since_id";
-    private static final String COLUMN_NAME = "since_id";
-
     private static Logger logger =
             Logger.getLogger(GetUserSuggestionsForSlugThread.class);
 
@@ -109,7 +106,7 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                 }
             }while (!success);
         }
-        System.out.println("GetUserSuggestionsForSlugThread ended");
+        logger.error("GetUserSuggestionsForSlugThread ended");
     }
 
 
@@ -121,11 +118,12 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                 KijiRowData since =
                         kijiTableReader.get(kijiConnection.kijiTable
                                 .getEntityId(userId.toString()),
-                                KijiDataRequest.create(COLUMN_FAMILY_NAME,
-                                        COLUMN_NAME));
-                if (since.containsColumn(COLUMN_FAMILY_NAME, COLUMN_NAME)){
-                    since_id = since.getMostRecentValue(COLUMN_FAMILY_NAME,
-                            COLUMN_NAME);
+                                KijiDataRequest.create(Constants.LAST_TWEET_ID_COLUMN_FAMILY_NAME,
+                                        Constants.LAST_TWEET_ID_COLUMN_NAME));
+                if (since.containsColumn(Constants.LAST_TWEET_ID_COLUMN_FAMILY_NAME,
+                                        Constants.LAST_TWEET_ID_COLUMN_NAME)){
+                    since_id = since.getMostRecentValue(Constants.LAST_TWEET_ID_COLUMN_FAMILY_NAME,
+                                                        Constants.LAST_TWEET_ID_COLUMN_NAME);
                 }
             }catch (IOException ioException){
                 logger.error("Exception while 'getting' row using KijiTableReader",

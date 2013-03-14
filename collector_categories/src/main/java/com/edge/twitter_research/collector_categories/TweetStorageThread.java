@@ -47,7 +47,7 @@ public class TweetStorageThread extends Thread {
                         interruptedException);
             }
         }
-        System.out.println("TweetStorageThread ended");
+        logger.error("TweetStorageThread ended");
     }
 
 
@@ -70,7 +70,6 @@ public class TweetStorageThread extends Thread {
                                     GlobalConstants.LABEL_COLUMN_NAME,
                                     System.currentTimeMillis(),
                                     null);
-                logger.error("Tweet Stored");
             }catch (IOException ioException){
                 logger.error("Exception while 'putting' tweet in KijiTable",
                         ioException);

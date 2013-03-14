@@ -25,4 +25,8 @@ public class Constants {
             "users_last_tweet_id_layout.json";
     public static final String LOG4J_PROPERTIES_FILE_PATH =
             "src/main/java/resources/log4j.properties";
+
+    /*Column details*/
+    public static final String LAST_TWEET_ID_COLUMN_FAMILY_NAME = "last_since_id";
+    public static final String LAST_TWEET_ID_COLUMN_NAME = "since_id";
 }
