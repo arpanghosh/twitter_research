@@ -31,7 +31,7 @@ public class GetSuggestedUserCategoriesThread extends Thread {
     public void run(){
         Twitter twitter = twitterFactory.getInstance();
 
-        //while(true){
+        while(true){
             try {
                 ResponseList<Category> categories =
                         twitter.getSuggestedUserCategories();
@@ -59,8 +59,8 @@ public class GetSuggestedUserCategoriesThread extends Thread {
                                     .BACKOFF_AFTER_TWITTER_API_FAILURE);
                 }
             }
-            outputQueue.add("END");
-            logger.error("GetSuggestedUserCategoriesThread ended");
-        //}
+            ///outputQueue.add("END");
+            //logger.error("GetSuggestedUserCategoriesThread ended");
+        }
     }
 }

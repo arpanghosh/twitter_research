@@ -26,14 +26,12 @@ public class QueueMeasurementThread extends Thread {
     }
 
     public void run(){
-        do{
+        while (true){
             CollectorDriver.putToSleep(Constants.QUEUE_MEASUREMENT_INTERVAL_IN_SECS);
             logger.info("Categories: " + categories.size() +
                     "\tUsers: " + users.size() +
                     "\tTweets: " + tweets.size());
-        }while (users.size() > 0 ||
-                categories.size() > 0 ||
-                tweets.size() > 0);
-        logger.error("QueueMeasurementThread ended");
+        }
+        //logger.error("QueueMeasurementThread ended");
     }
 }

@@ -1,4 +1,4 @@
-package com.edge.twitter_research.collector_categories;
+package com.edge.twitter_research.collector_filter;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.kiji.schema.EntityId;
@@ -14,12 +14,12 @@ import  com.edge.twitter_research.core.*;
 
 public class TweetStorageThread extends Thread {
 
-    private LinkedBlockingQueue<TweetCategoryMessage> inputQueue;
+    private LinkedBlockingQueue<TweetPhraseMessage> inputQueue;
     private KijiConnection kijiConnection;
     private CrisisMailer crisisMailer;
     private static Logger logger = Logger.getLogger(TweetStorageThread.class);
 
-    public TweetStorageThread(LinkedBlockingQueue<TweetCategoryMessage> inputQueue,
+    public TweetStorageThread(LinkedBlockingQueue<TweetPhraseMessage> inputQueue,
                               String tableLayoutPath,
                               String tableName,
                               String log4jPropertiesFilePath){
@@ -30,57 +30,43 @@ public class TweetStorageThread extends Thread {
     }
 
     public void run(){
-        TweetCategoryMessage tweetCategoryMessage;
+        TweetPhraseMessage tweetPhraseMessage;
         while(true){
             try{
-                tweetCategoryMessage = inputQueue.take();
-
-                /*
-                if (timeToStop(tweetCategoryMessage)){
-                    break;
-                }
-                */
-
-                storeTweet(tweetCategoryMessage);
+                tweetPhraseMessage = inputQueue.take();
+                storeTweet(tweetPhraseMessage);
             }catch (InterruptedException interruptedException){
                 logger.warn("Exception while 'taking' item from queue",
                         interruptedException);
             }
         }
-        //logger.error("TweetStorageThread ended");
     }
 
 
-    private void storeTweet(TweetCategoryMessage tweetCategoryMessage){
+    private void storeTweet(TweetPhraseMessage tweetPhraseMessage){
         KijiTable kijiTable = kijiConnection.kijiTable;
         if (kijiTable != null){
             try{
                 KijiTableWriter kijiTableWriter =
                         kijiTable.openTableWriter();
                 EntityId tweetId =
-                        kijiTable.getEntityId(tweetCategoryMessage.category_slug,
-                                tweetCategoryMessage.tweet.getId());
+                        kijiTable.getEntityId(tweetPhraseMessage.phrase,
+                                tweetPhraseMessage.tweet.getId());
                 kijiTableWriter.put(tweetId,
-                                    GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
-                                    GlobalConstants.TWEET_COLUMN_NAME,
-                                    System.currentTimeMillis(),
-                                    SimpleTweetGenerator.generateSimpleTweet(tweetCategoryMessage.tweet));
+                        GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
+                        GlobalConstants.TWEET_COLUMN_NAME,
+                        System.currentTimeMillis(),
+                        SimpleTweetGenerator.generateSimpleTweet(tweetPhraseMessage.tweet));
                 kijiTableWriter.put(tweetId,
-                                    GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
-                                    GlobalConstants.LABEL_COLUMN_NAME,
-                                    System.currentTimeMillis(),
-                                    null);
+                        GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
+                        GlobalConstants.LABEL_COLUMN_NAME,
+                        System.currentTimeMillis(),
+                        null);
             }catch (IOException ioException){
                 logger.error("Exception while 'putting' tweet in KijiTable",
                         ioException);
                 crisisMailer.sendEmailAlert(ioException);
             }
         }
-    }
-
-
-    private boolean timeToStop(TweetCategoryMessage tweetCategoryMessage){
-        return (tweetCategoryMessage.category_slug.equals("") &&
-                tweetCategoryMessage.tweet == null);
     }
 }

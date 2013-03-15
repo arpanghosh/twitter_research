@@ -26,6 +26,7 @@ public class GlobalConstants {
     public static final String CATEGORY_TWEET_STORAGE_TABLE_NAME = "category_tweet_store";
     public static final String USER_LAST_TWEET_ID_TABLE_NAME = "users_last_tweet_id";
     public static final String SAMPLE_TWEET_STORAGE_TABLE_NAME = "sample_tweet_store";
+    public static final String FILTER_TWEET_STORAGE_TABLE_NAME = "filter_tweet_store";
 
 
     /*Columns in Kiji tweet tables*/

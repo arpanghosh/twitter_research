@@ -64,10 +64,13 @@ public class GetUserTimelineThread extends Thread {
         while(true){
             try{
                 userCategoryMessage = inputQueue.take();
+
+                /*
                 if (timeToStop(userCategoryMessage)){
                     outputQueue.add(new TweetCategoryMessage(null, ""));
                     break;
                 }
+                */
 
                 if (userCategoryMessage.equals(lastUserCategoryMessage)){
                     continue;
@@ -92,6 +95,7 @@ public class GetUserTimelineThread extends Thread {
                     success = true;
 
                     for (Status status : statuses){
+                        //System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText());
                         outputQueue.add(new TweetCategoryMessage(status,
                                                                 userCategoryMessage.category_slug));
                     }
@@ -117,7 +121,7 @@ public class GetUserTimelineThread extends Thread {
                 }
             }while (!success);
         }
-        logger.error("GetUserTimelineThread ended");
+        //logger.error("GetUserTimelineThread ended");
     }
 
 
