@@ -11,6 +11,6 @@ public class DateTimeCreator {
             = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     public static String getDateTimeString(){
-        return dateFormat.format(new Date());
+        return dateFormat.format(new Date(System.currentTimeMillis()));
     }
 }
