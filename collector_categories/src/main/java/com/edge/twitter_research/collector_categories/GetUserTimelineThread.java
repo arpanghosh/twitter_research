@@ -100,7 +100,7 @@ public class GetUserTimelineThread extends Thread {
                                                                 userCategoryMessage.category_slug));
                     }
 
-                    if (statuses.size(  ) > 0){
+                    if (statuses.size() > 0){
                         storeUserSinceId(userCategoryMessage.user_id,
                                         statuses.get(0).getId());
                     }
