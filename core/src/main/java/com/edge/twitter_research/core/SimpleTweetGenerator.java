@@ -148,8 +148,8 @@ public class SimpleTweetGenerator {
                         geoLocationArrayList.add(simpleGeoLocation);
                     }
                 }
-                simplePlace.setBoundingBox(geoLocationArrayList);
             }
+            simplePlace.setBoundingBox(geoLocationArrayList);
             simpleTweet.setPlace(simplePlace);
         }
         }catch (Exception exception){
