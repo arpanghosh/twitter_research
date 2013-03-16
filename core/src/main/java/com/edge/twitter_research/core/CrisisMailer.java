@@ -62,6 +62,21 @@ public final class CrisisMailer {
         }
     }
 
+    public void sendEmailAlert(String errorMessage){
+        try {
+            Message message = new MimeMessage(emailSession);
+            message.setFrom(new InternetAddress(GlobalConstants.EMAIL_USERNAME));
+            message.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse(GlobalConstants.REPORTING_EMAIL_USERNAME));
+            message.setSubject("Error: " + errorMessage);
+
+            Transport.send(message);
+        } catch (MessagingException messagingException) {
+            logger.error("Exception while sending an alert email",
+                    messagingException);
+        }
+    }
+
 
     private String getStackTraceAsString(Exception exception){
         String trace = "";

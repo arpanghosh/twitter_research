@@ -17,6 +17,7 @@ public class CollectorDriver {
 
     private static Logger logger =
             Logger.getLogger(CollectorDriver.class);
+    private static CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
 
     public static void main(String[] args){
 
@@ -25,6 +26,8 @@ public class CollectorDriver {
                     "<collector_streaming_root>");
             System.exit(-1);
         }
+
+        try{
 
         String sampleTweetStoreLayoutFilePath = args[0] + "/" +
                 Constants.SAMPLE_TWEET_STORE_TABLE_LAYOUT_FILE_NAME;
@@ -51,7 +54,8 @@ public class CollectorDriver {
         twitterStream.addListener(listener);
 
         Thread getStatusesSampleStreamThread =
-                new GetStatusesSampleStreamThread(twitterStream);
+                new GetStatusesSampleStreamThread(twitterStream,
+                                                    log4jPropertiesFilePath);
 
         Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
@@ -65,12 +69,20 @@ public class CollectorDriver {
         tweetStorageThread.start();
         getStatusesSampleStreamThread.start();
 
-        try{
-            getStatusesSampleStreamThread.join();
-            tweetStorageThread.join();
+
+        getStatusesSampleStreamThread.join();
+        tweetStorageThread.join();
+
+        logger.error("Threads have stopped of own free will");
+        crisisMailer.sendEmailAlert("collector_streaming: Threads have stopped of own free will");
+
+
         }catch (InterruptedException interruptedException){
             logger.warn("Exception while Collector threads are joining",
                         interruptedException);
+        }catch (Exception exception){
+            logger.error("Unknown Exception in CollectorDriver", exception);
+            crisisMailer.sendEmailAlert(exception);
         }
     }
 }
