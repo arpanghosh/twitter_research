@@ -139,15 +139,17 @@ public class SimpleTweetGenerator {
             ArrayList<SimpleGeoLocation> geoLocationArrayList =
                     new ArrayList<SimpleGeoLocation>();
             GeoLocation[][] geoLocations = status.getPlace().getBoundingBoxCoordinates();
-            for (int i = 0; i < geoLocations.length; i++){
-                for (int j = 0; j < geoLocations[i].length; j++){
-                    SimpleGeoLocation simpleGeoLocation
+            if (geoLocations != null){
+                for (int i = 0; i < geoLocations.length; i++){
+                    for (int j = 0; j < geoLocations[i].length; j++){
+                        SimpleGeoLocation simpleGeoLocation
                             = new SimpleGeoLocation(geoLocations[i][j].getLatitude(),
                                                     geoLocations[i][j].getLongitude());
-                    geoLocationArrayList.add(simpleGeoLocation);
+                        geoLocationArrayList.add(simpleGeoLocation);
+                    }
                 }
+                simplePlace.setBoundingBox(geoLocationArrayList);
             }
-            simplePlace.setBoundingBox(geoLocationArrayList);
             simpleTweet.setPlace(simplePlace);
         }
         }catch (Exception exception){
