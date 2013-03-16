@@ -27,8 +27,6 @@ public class GetUserTimelineThread extends Thread {
     private KijiTableWriter kijiTableWriter = null;
 
 
-
-
     public GetUserTimelineThread(TwitterFactory twitterFactory,
                                     PriorityBlockingQueue<UserCategoryMessage> inputQueue,
                                     LinkedBlockingQueue<TweetCategoryMessage> outputQueue,

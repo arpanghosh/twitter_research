@@ -17,7 +17,9 @@ public class TweetStorageThread extends Thread {
     private LinkedBlockingQueue<TweetCategoryMessage> inputQueue;
     private KijiConnection kijiConnection;
     private CrisisMailer crisisMailer;
-    private static Logger logger = Logger.getLogger(TweetStorageThread.class);
+    private static Logger logger =
+            Logger.getLogger(TweetStorageThread.class);
+    private long tweetCounter = 0L;
 
     public TweetStorageThread(LinkedBlockingQueue<TweetCategoryMessage> inputQueue,
                               String tableLayoutPath,
@@ -42,6 +44,12 @@ public class TweetStorageThread extends Thread {
                 */
 
                 storeTweet(tweetCategoryMessage);
+                tweetCounter++;
+
+                if (tweetCounter % 1000 == 0){
+                    logger.warn(DateTimeCreator.getDateTimeString() +
+                            " - Total Tweets so far : " + tweetCounter);
+                }
             }catch (InterruptedException interruptedException){
                 logger.warn("Exception while 'taking' item from queue",
                         interruptedException);

@@ -1,10 +1,13 @@
 package com.edge.twitter_research.collector_categories;
 
+
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+
+import com.edge.twitter_research.core.DateTimeCreator;
 
 public class QueueMeasurementThread extends Thread {
 
@@ -28,7 +31,8 @@ public class QueueMeasurementThread extends Thread {
     public void run(){
         while (true){
             CollectorDriver.putToSleep(Constants.QUEUE_MEASUREMENT_INTERVAL_IN_SECS);
-            logger.info("Categories: " + categories.size() +
+            logger.info(DateTimeCreator.getDateTimeString() + " - " +
+                    "Categories: " + categories.size() +
                     "\tUsers: " + users.size() +
                     "\tTweets: " + tweets.size());
         }
