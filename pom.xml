@@ -19,15 +19,16 @@
   <parent>
     <groupId>org.kiji.pom</groupId>
     <artifactId>root-pom</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
   </parent>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kiji-schema.version>1.0.0-rc4</kiji-schema.version>
+    <kiji-schema.version>1.0.0-rc5</kiji-schema.version>
     <kiji-schema-shell.version>${kiji-schema.version}</kiji-schema-shell.version>
     <kiji-cdh4-platform.version>${kiji-schema.version}</kiji-cdh4-platform.version>
-    <kiji-mapreduce.version>1.0.0-rc4</kiji-mapreduce.version>
+    <kiji-mapreduce.version>1.0.0-rc5</kiji-mapreduce.version>
+    <fake-hbase.version>0.0.4</fake-hbase.version>
   </properties>
 
   <dependencies>
@@ -76,7 +77,7 @@
     <dependency>
         <groupId>org.kiji.testing</groupId>
         <artifactId>fake-hbase</artifactId>
-        <version>0.0.3</version>
+        <version>${fake-hbase.version}</version>
         <scope>test</scope>
     </dependency>
     <dependency>
@@ -95,11 +96,13 @@
 
 
   <repositories>
-    <repository>
+<!--
+      <repository>
         <id>maven2</id>
         <name>maven central repo</name>
         <url>http://repo1.maven.org/maven2/</url>
-    </repository>
+        </repository>
+-->
     <repository>
         <id>kiji-repos</id>
         <name>kiji-repos</name>
@@ -132,13 +135,23 @@
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+                <additionalClasspathElements>
+                    <additionalClasspathElement>
+                        ${project.build.directory}/${project.artifactId}-${project.version}.jar
+                    </additionalClasspathElement>
+                    <additionalClasspathElement>
+                        ${project.build.directory}/${project.artifactId}-${project.version}-tests.jar
+                    </additionalClasspathElement>
+                </additionalClasspathElements>
+            </configuration>
         </plugin>
 
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
         </plugin>
-<!--      
+<!--
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>

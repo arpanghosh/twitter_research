@@ -68,12 +68,13 @@ public class KijiConnection extends Configured {
             KijiTableLayout kijiTableLayout =
                     KijiTableLayout
                             .createFromEffectiveJson(new FileInputStream(tableLayoutPath));
-            kiji.createTable(tableName, kijiTableLayout);
+
+            kiji.createTable(kijiTableLayout.getDesc());
             kijiTable = kiji.openTable(tableName);
 
         }catch (Exception exception){
             /*Checking for 2 exceptions because of Kiji bug*/
-            if (exception instanceof KijiAlreadyExistsException||
+            if (exception instanceof KijiAlreadyExistsException ||
                     exception instanceof RuntimeException){
                 try{
                     kijiTable = kiji.openTable(tableName);
