@@ -42,22 +42,34 @@ public class TweetFeatureVector {
         feature_vector[2] = date_data;
         if (!simpleTweet.getUrlEntities().isEmpty())
             feature_vector[3] = 1;
-        //URL position goes here
+        //URL position goes here 0 for front, 1 for center, 2 for back
+
+        int[] url_loc = {simpleTweet.getUrlEntities().get(0).getStart(), simpleTweet.getUrlEntities().get(0).getEnd()};
+        if(url_loc[0] <= 10)
+            feature_vector[4] = 0;
+        else if (url_loc[1] >= (simpleTweet.getText().length() - 10))
+            feature_vector[4] = 2;
+        else
+            feature_vector[4] = 1;
         feature_vector[5] = simpleTweet.getHashTagEntities().size();
         feature_vector[6] = simpleTweet.getUserMentionEntities().size();
         if (!simpleTweet.getMediaEntities().isEmpty())
             feature_vector[7] = 1;
-        //filter level
+        //filter level... New feature, will probably have to update simpleTweet
         if (simpleTweet.getInReplyToStatusId() != null)
             feature_vector[9] = 1;
-        //place
+        //place... A bit problematic. Ignore for now.
         if (simpleTweet.getIsPossiblySensitive())
             feature_vector[11] = 1;
         feature_vector[12] = simpleTweet.getRetweetCount();
         //Source
         feature_vector[14] = simpleTweet.getText().length();
-        //Emotes
+        //Emotes. Generated this giant regex of the Wikipedia list. Not sure if this actually owrks since I don't have enough test data.
+        String tweet_text = simpleTweet.getText().toString();
+        if(tweet_text.matches("\\Q?:-)\\E(|\\Q:)\\E|\\Q:o)\\E|\\Q:]\\E|\\Q:3\\E|\\Q:c)\\E|\\Q:>\\E|\\Q=]\\E|\\Q8)\\E|\\Q=)\\E|\\Q:}\\E|\\Q:^)\\E|\\Q:?)\\E|\\Q:-D\\E|\\Q:D\\E|\\Q8-D\\E|\\Q8D\\E|\\Qx-D\\E|\\QxD\\E|\\QX-D\\E|\\QXD\\E|\\Q=-D\\E|\\Q=D\\E|\\Q=-3\\E|\\Q=3\\E|\\QB^D\\E|\\Q:-))\\E|\\Q>:[\\E|\\Q:-(\\E|\\Q:( \\E|\\Q:-c\\E|\\Q:c\\E|\\Q:-<\\E|\\Q:?C\\E|\\Q:<\\E|\\Q:-[\\E|\\Q:[\\E|\\Q:{\\E|\\Q:-||\\E|\\Q:@\\E|\\Q:'-(\\E|\\Q:'(\\E|\\Q:'-)\\E|\\Q:')\\E|\\QQQ\\E|\\QD:<\\E|\\QD:\\E|\\QD8\\E|\\QD;\\E|\\QD=\\E|\\QDX\\E|\\Qv.v\\E|\\QD-':\\E|\\Q>:O\\E|\\Q:-O\\E|\\Q:O\\E|\\Q°o°\\E|\\Q°O°\\E|\\Q:O\\E|\\Qo_O\\E|\\Qo_0\\E|\\Qo.O\\E|\\Q8-0\\E|\\Q:*\\E|\\Q:^*\\E|\\Q('}{')\\E|\\Q;-)\\E|\\Q;)\\E|\\Q*-)\\E|\\Q*)\\E|\\Q;-]\\E|\\Q;]\\E|\\Q;D\\E|\\Q;^)\\E|\\Q:-,\\E|\\Q>:P\\E|\\Q:-P\\E|\\Q:P\\E|\\QX-P\\E|\\Qx-p\\E|\\Qxp\\E|\\QXP\\E|\\Q:-p\\E|\\Q:p\\E|\\Q=p\\E|\\Q:-Þ\\E|\\Q:Þ\\E|\\Q:-b\\E|\\Q:b\\E|\\Q>:\\\\E|\\Q>:/\\E|\\Q:-/\\E|\\Q:-.\\E|\\Q:/\\E|\\Q:\\\\E|\\Q=/\\E|\\Q=\\\\E|\\Q:L\\E|\\Q=L\\E|\\Q:S\\E|\\Q>.<\\E|\\Q:-|\\E|\\Q:$\\E|\\Q:-X\\E|\\Q:X\\E|\\Q:-#\\E|\\Q:#\\E|\\QO:-)\\E|\\Q0:-3\\E|\\Q0:3\\E|\\Q0:-)\\E|\\Q0:)\\E|\\Q0;^)\\E|\\Q>:)\\E|\\Q>;)\\E|\\Q>:-)\\E|\\Q}:-)\\E|\\Q}:)\\E|\\Q3:-)\\E|\\Q3:)\\E|\\Qo/\\o\\E|\\Q^5\\E|\\Q>_>\\E|\\Q|;-)\\E|\\Q|-O\\E|\\Q:-&\\E|\\Q:&\\E|\\Q#-)\\E|\\Q%-)\\E|\\Q%)\\E|\\Q:-###..\\E|\\Q:###..\\E|\\Q<:-|\\E|\\Q?_?\\E|\\Q?_??\\E|\\Q\\o/\\E|\\Q*\\0/*\\E|\\Q@}-;-'---\\E|\\Q@>-->--\\E|\\Q~(_8^(I)\\E|\\Q5:-)\\E|\\Q~:-\\\\E|\\Q//0-0\\\\\\E|\\Q*<|:-)\\E|\\Q=:o]\\E|\\Q,:-)\\E|\\Q7:^]\\E|\\Q[ ]<\\E|\\Q<3\\E|\\Q</3\\E)"))
         //Questions
+        if(tweet_text.matches(".*?.*"))
+            feature_vector[16] = 1;
     }
 }
 
