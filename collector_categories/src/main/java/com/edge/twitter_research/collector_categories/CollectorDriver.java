@@ -16,6 +16,8 @@ public class CollectorDriver {
 
     private static Logger logger =
             Logger.getLogger(CollectorDriver.class);
+    private static CrisisMailer crisisMailer =
+            CrisisMailer.getCrisisMailer();
 
     public static void putToSleep(int seconds){
         boolean slept = false;
@@ -47,6 +49,8 @@ public class CollectorDriver {
                 Constants.LOG4J_PROPERTIES_FILE_PATH;
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
+
+        try{
 
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.setDebugEnabled(true)
@@ -94,10 +98,7 @@ public class CollectorDriver {
                                         tweetStorageQueue,
                                         log4jPropertiesFilePath);
 
-
-        //userFetchingQueue.add(new UserCategoryMessage(111757158L, "nascar"));
-
-        long tic = System.currentTimeMillis();
+        //long tic = System.currentTimeMillis();
 
         suggestedCategoryThread.start();
         usersInCategoryThread.start();
@@ -105,21 +106,29 @@ public class CollectorDriver {
         tweetStorageThread.start();
         queueMeasurementThread.start();
 
-        try{
             suggestedCategoryThread.join();
             usersInCategoryThread.join();
             tweetsForUserThread.join();
             tweetStorageThread.join();
             queueMeasurementThread.join();
+
+            logger.error("Threads have stopped of own free will");
+            crisisMailer.sendEmailAlert("collector_streaming: Threads have stopped of own free will");
+
         }catch (InterruptedException interruptedException){
             logger.warn("Exception while collector threads are joining",
                     interruptedException);
+        }catch (Exception unknownException){
+            logger.error("Unknown Exception while starting collector_categories",
+                    unknownException);
         }
 
-        long toc = System.currentTimeMillis();
-
+        //long toc = System.currentTimeMillis();
+        /*
         logger.error("\nAll threads joined. Total time: \n"
                         + (toc - tic)/3600000 +
+
                         " hours");
+        */
     }
 }

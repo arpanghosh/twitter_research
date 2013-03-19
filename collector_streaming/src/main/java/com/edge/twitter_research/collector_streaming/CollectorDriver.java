@@ -17,7 +17,8 @@ public class CollectorDriver {
 
     private static Logger logger =
             Logger.getLogger(CollectorDriver.class);
-    private static CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
+    private static CrisisMailer crisisMailer =
+            CrisisMailer.getCrisisMailer();
 
     public static void main(String[] args){
 
@@ -27,14 +28,14 @@ public class CollectorDriver {
             System.exit(-1);
         }
 
-        try{
-
         String sampleTweetStoreLayoutFilePath = args[0] + "/" +
                 Constants.SAMPLE_TWEET_STORE_TABLE_LAYOUT_FILE_NAME;
         String log4jPropertiesFilePath = args[0] + "/" +
                 Constants.LOG4J_PROPERTIES_FILE_PATH;
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
+
+        try{
 
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.setDebugEnabled(true)
@@ -63,9 +64,6 @@ public class CollectorDriver {
                                         GlobalConstants.SAMPLE_TWEET_STORAGE_TABLE_NAME,
                                         log4jPropertiesFilePath);
 
-
-        //userFetchingQueue.add(new UserCategoryMessage(111757158L, "nascar"));
-
         tweetStorageThread.start();
         getStatusesSampleStreamThread.start();
 
@@ -80,9 +78,10 @@ public class CollectorDriver {
         }catch (InterruptedException interruptedException){
             logger.warn("Exception while Collector threads are joining",
                         interruptedException);
-        }catch (Exception exception){
-            logger.error("Unknown Exception in CollectorDriver", exception);
-            crisisMailer.sendEmailAlert(exception);
+        }catch (Exception unknownException){
+            logger.error("Unknown Exception in CollectorDriver",
+                    unknownException);
+            crisisMailer.sendEmailAlert(unknownException);
         }
     }
 }

@@ -27,15 +27,10 @@ public class TweetStorageThread extends Thread {
                               String tableLayoutPath,
                               String tableName,
                               String log4jPropertiesFilePath){
-        try{
-            this.inputQueue = inputQueue;
-            this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
-            this.crisisMailer = CrisisMailer.getCrisisMailer();
-            PropertyConfigurator.configure(log4jPropertiesFilePath);
-        }catch (Exception exception){
-            logger.error("Exception while setting up TweetStorageThread", exception);
-            crisisMailer.sendEmailAlert(exception);
-        }
+        this.inputQueue = inputQueue;
+        this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
+        this.crisisMailer = CrisisMailer.getCrisisMailer();
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
     }
 
     public void run(){
@@ -86,7 +81,8 @@ public class TweetStorageThread extends Thread {
                             ioException);
                 crisisMailer.sendEmailAlert(ioException);
             }catch (Exception exception){
-                logger.error("Unknown Exception while 'putting' tweet", exception);
+                logger.error("Unknown Exception while 'putting' tweet",
+                        exception);
                 crisisMailer.sendEmailAlert(exception);
             }
         }

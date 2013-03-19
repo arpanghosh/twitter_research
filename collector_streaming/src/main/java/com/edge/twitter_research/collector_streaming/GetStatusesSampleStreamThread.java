@@ -16,14 +16,9 @@ public class GetStatusesSampleStreamThread extends Thread {
 
     public GetStatusesSampleStreamThread(TwitterStream twitterStream,
                                          String log4jPropertiesFilePath){
-        try{
-            this.twitterStream = twitterStream;
-            PropertyConfigurator.configure(log4jPropertiesFilePath);
-            this.crisisMailer = CrisisMailer.getCrisisMailer();
-        }catch (Exception exception){
-            logger.error("Exception while setting up GetStatusesSampleStreamThread", exception);
-            crisisMailer.sendEmailAlert(exception);
-        }
+        this.twitterStream = twitterStream;
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        this.crisisMailer = CrisisMailer.getCrisisMailer();
     }
 
     public void run(){

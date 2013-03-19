@@ -58,6 +58,10 @@ public class GetSuggestedUserCategoriesThread extends Thread {
                             .putToSleep(GlobalConstants
                                     .BACKOFF_AFTER_TWITTER_API_FAILURE);
                 }
+            } catch (Exception unknownException){
+                logger.error("Unknown Exception while fetching SuggestedUserCategories from Twitter",
+                        unknownException);
+                crisisMailer.sendEmailAlert(unknownException);
             }
             ///outputQueue.add("END");
             //logger.error("GetSuggestedUserCategoriesThread ended");

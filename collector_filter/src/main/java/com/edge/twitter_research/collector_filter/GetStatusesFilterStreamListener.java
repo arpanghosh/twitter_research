@@ -40,6 +40,7 @@ public class GetStatusesFilterStreamListener implements StatusListener {
 
     @Override
     public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
+        logger.warn("Got track limitation notice:" + numberOfLimitedStatuses);
         //System.out.println("Got track limitation notice:" + numberOfLimitedStatuses);
     }
 
@@ -50,6 +51,7 @@ public class GetStatusesFilterStreamListener implements StatusListener {
 
     @Override
     public void onStallWarning(StallWarning warning) {
+        logger.warn("Received a Stall Warning : " + warning.getMessage());
         //System.out.println("Got stall warning:" + warning);
     }
 

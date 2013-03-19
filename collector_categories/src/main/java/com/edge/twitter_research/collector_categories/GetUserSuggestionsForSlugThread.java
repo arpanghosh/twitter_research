@@ -48,10 +48,10 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                 this.kijiTableReader =
                         kijiConnection.kijiTable.openTableReader();
             }
-        }catch (IOException ioException){
+        }catch (Exception unknownException){
             logger.error("Exception while opening KijiTableReader",
-                    ioException);
-            crisisMailer.sendEmailAlert(ioException);
+                    unknownException);
+            crisisMailer.sendEmailAlert(unknownException);
         }
     }
 
@@ -105,7 +105,12 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                                 .putToSleep(GlobalConstants
                                         .BACKOFF_AFTER_TWITTER_API_FAILURE);
                     }
+                }catch (Exception unknownException){
+                    logger.error("Unknown Exception while fetching users for a Slug from Twitter",
+                            unknownException);
+                    crisisMailer.sendEmailAlert(unknownException);
                 }
+
             }while (!success);
         }
         //logger.error("GetUserSuggestionsForSlugThread ended");
@@ -131,6 +136,10 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                 logger.error("Exception while 'getting' row using KijiTableReader",
                         ioException);
                 crisisMailer.sendEmailAlert(ioException);
+            }catch (Exception unknownException){
+                logger.error("Unknown Exception while 'getting' row using KijiTableReader",
+                        unknownException);
+                crisisMailer.sendEmailAlert(unknownException);
             }
         }
         return since_id;

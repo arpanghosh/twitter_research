@@ -19,26 +19,15 @@ public class GetStatusesSampleStreamListener implements StatusListener {
 
     public GetStatusesSampleStreamListener(LinkedBlockingQueue<Status> outputQueue,
                                            String log4jPropertiesFilePath){
-        try{
-            this.outputQueue = outputQueue;
-            this.crisisMailer = CrisisMailer.getCrisisMailer();
-            PropertyConfigurator.configure(log4jPropertiesFilePath);
-        }catch (Exception exception){
-            logger.error("Exception while setting up GetStatusesSampleStreamListener",
-                    exception);
-            crisisMailer.sendEmailAlert(exception);
-        }
+        this.outputQueue = outputQueue;
+        this.crisisMailer = CrisisMailer.getCrisisMailer();
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
     }
 
     @Override
     public void onStatus(Status status) {
         //System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText());
-        try{
-            outputQueue.add(status);
-        }catch (Exception exception){
-            logger.error("Exception while adding tweet to storage queue", exception);
-            crisisMailer.sendEmailAlert(exception);
-        }
+        outputQueue.add(status);
     }
 
     @Override

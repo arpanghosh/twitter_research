@@ -18,6 +18,8 @@ public class CollectorDriver {
 
     private static Logger logger =
             Logger.getLogger(CollectorDriver.class);
+    private static CrisisMailer crisisMailer =
+            CrisisMailer.getCrisisMailer();
 
     public static void main(String[] args){
 
@@ -38,6 +40,8 @@ public class CollectorDriver {
         }
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
+
+        try{
 
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.setDebugEnabled(true)
@@ -62,7 +66,9 @@ public class CollectorDriver {
                     new TwitterStreamFactory(configuration).getInstance();
             twitterStream.addListener(listener);
             getStatusesFilterStreamThreads
-                    .add(new GetStatusesFilterStreamThread(twitterStream, phrase));
+                    .add(new GetStatusesFilterStreamThread(twitterStream,
+                                                            phrase,
+                                                            log4jPropertiesFilePath));
         }
 
         Thread tweetStorageThread =
@@ -76,14 +82,20 @@ public class CollectorDriver {
             getStatusesFilterStreamThread.start();
         }
 
-        try{
+
             for (GetStatusesFilterStreamThread getStatusesFilterStreamThread : getStatusesFilterStreamThreads ){
                 getStatusesFilterStreamThread.join();
             }
             tweetStorageThread.join();
+            logger.error("Threads have stopped of own free will");
+            crisisMailer.sendEmailAlert("collector_streaming: Threads have stopped of own free will");
+
         }catch (InterruptedException interruptedException){
             logger.warn("Exception while Collector threads are joining",
                         interruptedException);
+        }catch (Exception unknownException){
+            logger.warn("Unknown Exception while collector_filter is starting",
+                    unknownException);
         }
     }
 }

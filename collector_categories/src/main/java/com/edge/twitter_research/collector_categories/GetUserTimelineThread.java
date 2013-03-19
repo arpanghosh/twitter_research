@@ -45,10 +45,10 @@ public class GetUserTimelineThread extends Thread {
                 this.kijiTableWriter =
                         kijiConnection.kijiTable.openTableWriter();
             }
-        }catch (IOException ioException){
-            logger.error("Exception while opening KijiTableWriter",
-                    ioException);
-            crisisMailer.sendEmailAlert(ioException);
+        }catch (Exception unknownException){
+            logger.error("Unknown Exception while opening KijiTableWriter",
+                    unknownException);
+            crisisMailer.sendEmailAlert(unknownException);
         }
     }
 
@@ -116,7 +116,12 @@ public class GetUserTimelineThread extends Thread {
                                 .putToSleep(GlobalConstants
                                             .BACKOFF_AFTER_TWITTER_API_FAILURE);
                     }
+                }catch (Exception unknownException){
+                    logger.error("Unknown Exception while fetching tweets for a user from Twitter",
+                            unknownException);
+                    crisisMailer.sendEmailAlert(unknownException);
                 }
+
             }while (!success);
         }
         //logger.error("GetUserTimelineThread ended");
@@ -136,6 +141,10 @@ public class GetUserTimelineThread extends Thread {
                 logger.error("Exception while 'putting' a row in a KijiTable",
                         ioException);
                 crisisMailer.sendEmailAlert(ioException);
+            }catch (Exception unknownException){
+                logger.error("Unknown Exception while 'putting' a row in a KijiTable",
+                        unknownException);
+                crisisMailer.sendEmailAlert(unknownException);
             }
         }
     }

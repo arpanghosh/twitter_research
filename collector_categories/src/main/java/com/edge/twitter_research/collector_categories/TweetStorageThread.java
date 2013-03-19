@@ -82,6 +82,10 @@ public class TweetStorageThread extends Thread {
                 logger.error("Exception while 'putting' tweet in KijiTable",
                         ioException);
                 crisisMailer.sendEmailAlert(ioException);
+            }catch (Exception unknownException){
+                logger.error("Unknown Exception while 'putting' tweet in KijiTable",
+                        unknownException);
+                crisisMailer.sendEmailAlert(unknownException);
             }
         }
     }

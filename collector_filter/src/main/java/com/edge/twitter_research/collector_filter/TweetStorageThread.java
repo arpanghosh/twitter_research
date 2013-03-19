@@ -47,6 +47,10 @@ public class TweetStorageThread extends Thread {
             }catch (InterruptedException interruptedException){
                 logger.warn("Exception while 'taking' item from queue",
                         interruptedException);
+            }catch (Exception unknownException){
+                logger.error("Unknown Exception in TweetStorageThread",
+                        unknownException);
+                crisisMailer.sendEmailAlert(unknownException);
             }
         }
     }
@@ -75,6 +79,11 @@ public class TweetStorageThread extends Thread {
                 logger.error("Exception while 'putting' tweet in KijiTable",
                         ioException);
                 crisisMailer.sendEmailAlert(ioException);
+            }
+            catch (Exception unknownException){
+                logger.error("Unknown Exception while 'putting' tweet in KijiTable",
+                        unknownException);
+                crisisMailer.sendEmailAlert(unknownException);
             }
         }
     }

@@ -18,10 +18,14 @@ import org.kiji.schema.EntityId;
 import org.kiji.schema.KijiURI;
 
 import java.io.IOException;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 public class EmoticonImporter extends Configured {
 
     public MapReduceJob mapReduceJob = null;
+    public static Logger logger =
+            Logger.getLogger(EmoticonImporter.class);
 
     public static class EmoticonBulkImporter
             extends KijiBulkImporter<LongWritable, Text>{
@@ -36,14 +40,14 @@ public class EmoticonImporter extends Configured {
                 return; // No inserts for this malformed line.
             }
 
-            final String emoticon = fields[1];
-            final long tweetId = Long.parseLong(fields[2]);
-            final long timeStamp = Long.parseLong(fields[4]);
+            try{
+                final String emoticon = fields[1];
+                final long tweetId = Long.parseLong(fields[2]);
+                final long timeStamp = Long.parseLong(fields[4]);
 
-            final EntityId  entityId
+                final EntityId  entityId
                     = kijiTableContext.getEntityId(emoticon);
 
-            try{
                 kijiTableContext.put(entityId,
                                 Constants.EMOTICON_OCCURRENCE_COLUMN_FAMILY_NAME,
                                 Constants.EMOTICON_TWEET_ID_COLUMN_NAME,
@@ -51,7 +55,11 @@ public class EmoticonImporter extends Configured {
                                 tweetId);
 
             }catch (IOException ioException){
-                System.out.println("Exception while putting an emoticon");
+                logger.error("Exception while putting an emoticon",
+                        ioException);
+            }catch (Exception unknownException){
+                logger.error("Unknown Exception while putting an emoticon",
+                        unknownException);
             }
         }
     }
@@ -59,7 +67,13 @@ public class EmoticonImporter extends Configured {
 
 
     private EmoticonImporter (String tableLayoutFilePath,
-                                String inputFilePath){
+                                String inputFilePath,
+                                String log4jPropertiesFilePath){
+
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
+
+        try{
+
         setConf(HBaseConfiguration.addHbaseResources(new Configuration(true)));
 
         new KijiConnection(tableLayoutFilePath,
@@ -68,7 +82,6 @@ public class EmoticonImporter extends Configured {
         KijiURI tableUri =
                 KijiURI.newBuilder(String.format("kiji://.env/default/%s", Constants.EMOTICON_STORE_TABLE_NAME)).build();
 
-        try{
             this.mapReduceJob = KijiBulkImportJobBuilder.create()
                     .withConf(getConf())
                     .withInput(new TextMapReduceJobInput(new Path(inputFilePath)))
@@ -76,10 +89,14 @@ public class EmoticonImporter extends Configured {
                     .withBulkImporter(EmoticonBulkImporter.class)
                     .build();
         }catch (IOException ioException){
-            System.out.println("Exception while configuring MapReduce Job");
+            System.out.println("IO Exception while configuring MapReduce Job");
+            ioException.printStackTrace();
+            System.exit(1);
+        } catch (Exception unknownException){
+            System.out.println("Unknown Exception while configuring MapReduce Job");
+            unknownException.printStackTrace();
+            System.exit(1);
         }
-
-
     }
 
 
@@ -94,14 +111,17 @@ public class EmoticonImporter extends Configured {
 
         EmoticonImporter emoticonImporter =
                 new EmoticonImporter(args[0] + "/" + Constants.EMOTICON_STORE_TABLE_LAYOUT_FILE_NAME,
-                                    args[1]);
+                                    args[1],
+                                    args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         boolean isSuccessful = false;
         if (emoticonImporter.mapReduceJob != null){
             try{
                 isSuccessful = emoticonImporter.mapReduceJob.run();
-            }catch (Exception exception){
-                System.out.println("Exception while running MapReduce Job");
+            }catch (Exception unknownException){
+                System.out.println("Unknown Exception while running MapReduce Job");
+                unknownException.printStackTrace();
+                System.exit(1);
             }
         }
 

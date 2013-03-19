@@ -18,6 +18,8 @@ public final class CrisisMailer {
 
 
     private CrisisMailer(){
+        try{
+
         Properties props = new Properties();
         props.put(GlobalConstants.MAIL_SMTP_AUTH_PROPERTY,
                 GlobalConstants.MAIL_SMTP_AUTH_VALUE);
@@ -35,6 +37,10 @@ public final class CrisisMailer {
                                                             GlobalConstants.EMAIL_PASSWORD);
                     }
                 });
+
+        }catch (Exception exception){
+            logger.error("unknown Exception while setting up mailer", exception);
+        }
     }
 
 
@@ -57,8 +63,10 @@ public final class CrisisMailer {
 
             Transport.send(message);
         } catch (MessagingException messagingException) {
-            logger.error("Exception while sending an alert email",
+            logger.error("Messaging Exception while sending an alert email",
                         messagingException);
+        } catch (Exception unknownException){
+            logger.error("Unknown Exception while sending email", unknownException);
         }
     }
 
@@ -72,8 +80,11 @@ public final class CrisisMailer {
 
             Transport.send(message);
         } catch (MessagingException messagingException) {
-            logger.error("Exception while sending an alert email",
+            logger.error("Messaging Exception while sending an alert email",
                     messagingException);
+        } catch (Exception unknownException){
+            logger.error("Unknown Exception while sending an alert email",
+                    unknownException);
         }
     }
 
