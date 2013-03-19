@@ -60,20 +60,17 @@ public class TweetStorageThread extends Thread {
 
 
     private void storeTweet(TweetCategoryMessage tweetCategoryMessage){
-        KijiTable kijiTable = kijiConnection.kijiTable;
-        if (kijiTable != null){
+        if (kijiConnection.isValidKijiConnection()){
             try{
-                KijiTableWriter kijiTableWriter =
-                        kijiTable.openTableWriter();
                 EntityId tweetId =
-                        kijiTable.getEntityId(tweetCategoryMessage.category_slug,
+                        kijiConnection.kijiTable.getEntityId(tweetCategoryMessage.category_slug,
                                 tweetCategoryMessage.tweet.getId());
-                kijiTableWriter.put(tweetId,
+                kijiConnection.kijiTableWriter.put(tweetId,
                                     GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
                                     GlobalConstants.TWEET_COLUMN_NAME,
                                     System.currentTimeMillis(),
                                     SimpleTweetGenerator.generateSimpleTweet(tweetCategoryMessage.tweet));
-                kijiTableWriter.put(tweetId,
+                kijiConnection.kijiTableWriter.put(tweetId,
                                     GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
                                     GlobalConstants.LABEL_COLUMN_NAME,
                                     System.currentTimeMillis(),

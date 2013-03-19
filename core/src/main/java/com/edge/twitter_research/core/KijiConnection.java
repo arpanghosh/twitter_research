@@ -9,6 +9,7 @@ import org.kiji.schema.*;
 import org.kiji.schema.layout.KijiTableLayout;
 
 import org.apache.log4j.Logger;
+import org.kiji.schema.util.ResourceUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,35 +17,83 @@ import java.io.IOException;
 
 public class KijiConnection extends Configured {
 
-    public KijiTable kijiTable = null;
+    private Kiji kiji;
+    public KijiTable kijiTable;
+    public KijiTableWriter kijiTableWriter;
+    public KijiTableReader kijiTableReader;
 
     private CrisisMailer crisisMailer;
     private Logger logger;
 
 
-    public KijiConnection(String tableName){
-        Kiji kiji = null;
-
+    private void initializeKijis(){
         crisisMailer = CrisisMailer.getCrisisMailer();
         logger = Logger.getLogger(KijiConnection.class);
+
+        kiji = null;
+        kijiTable = null;
+        kijiTableWriter = null;
+        kijiTableReader = null;
+
 
         try{
             setConf(HBaseConfiguration
                     .addHbaseResources(new Configuration(true)));
+        }catch (Exception unknownException){
+            logger.error("Unknown Exception while setting HBase Configuration",
+                    unknownException);
+            crisisMailer.sendEmailAlert(unknownException);
+        }
+    }
+
+
+    public boolean isValidKijiConnection(){
+        return (kiji != null &&
+                kijiTable != null &&
+                kijiTableReader != null &&
+                kijiTableWriter != null);
+    }
+
+
+    private void nullifyKijis(){
+        if (kijiTableReader != null)
+            ResourceUtils.closeOrLog(kijiTableReader);
+        if (kijiTableWriter != null)
+            ResourceUtils.closeOrLog(kijiTableWriter);
+        if (kijiTable != null)
+            ResourceUtils.closeOrLog(kijiTable);
+        if (kiji != null)
+            ResourceUtils.releaseOrLog(kiji);
+    }
+
+
+    public void destroy(){
+        nullifyKijis();
+    }
+
+
+    public KijiConnection(String tableName){
+        initializeKijis();
+
+        try{
             kiji = Kiji.Factory.open(
                     KijiURI.newBuilder()
                             .withInstanceName(KConstants.DEFAULT_INSTANCE_NAME)
                             .build(),
                     getConf());
-            kiji.openTable(tableName);
+            kijiTable =  kiji.openTable(tableName);
+            kijiTableReader = kijiTable.openTableReader();
+            kijiTableWriter = kijiTable.openTableWriter();
+
         } catch (Exception exception){
             if (exception instanceof IOException){
-                logger.error("Exception while opening a KijiTable",
-                            exception);
+                logger.error("IOException while initializing KijiTable stuff",
+                        exception);
             }else{
-                logger.error("Exception while initializing a Kiji object",
+                logger.error("Unknown Exception while initializing KijiTable stuff",
                         exception);
             }
+            nullifyKijis();
             crisisMailer.sendEmailAlert(exception);
         }
     }
@@ -52,14 +101,9 @@ public class KijiConnection extends Configured {
 
     public KijiConnection(String tableLayoutPath,
                           String tableName){
-        Kiji kiji = null;
-
-        crisisMailer = CrisisMailer.getCrisisMailer();
-        logger = Logger.getLogger(KijiConnection.class);
+        initializeKijis();
 
         try{
-            setConf(HBaseConfiguration
-                    .addHbaseResources(new Configuration(true)));
             kiji = Kiji.Factory.open(
                     KijiURI.newBuilder()
                             .withInstanceName(KConstants.DEFAULT_INSTANCE_NAME)
@@ -72,26 +116,32 @@ public class KijiConnection extends Configured {
             kiji.createTable(kijiTableLayout.getDesc());
             kijiTable = kiji.openTable(tableName);
 
+            kijiTableReader = kijiTable.openTableReader();
+            kijiTableWriter = kijiTable.openTableWriter();
+
         }catch (Exception exception){
-            /*Checking for 2 exceptions because of Kiji bug*/
-            if (exception instanceof KijiAlreadyExistsException ||
-                    exception instanceof RuntimeException){
+            if (exception instanceof KijiAlreadyExistsException){
                 try{
                     kijiTable = kiji.openTable(tableName);
+                    kijiTableReader = kijiTable.openTableReader();
+                    kijiTableWriter = kijiTable.openTableWriter();
+
                 }catch (Exception internalException){
                     if (internalException instanceof IOException){
-                        logger.error("Exception while opening a KijiTable",
+                        logger.error("IOException while opening Kiji Table",
                                     internalException);
                     }else {
-                        logger.error("Exception while initializing a Kiji object",
+                        logger.error("Unknown Exception while opening Kiji Table",
                                     internalException);
                     }
+                    nullifyKijis();
                     crisisMailer.sendEmailAlert(internalException);
                 }
             } else{
-                logger.error("Exception while opening a KijiTable",
+                logger.error("Unknown Exception while initializing Kiji Stuff",
                         exception);
                 crisisMailer.sendEmailAlert(exception);
+                nullifyKijis();
             }
         }
     }

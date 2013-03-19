@@ -24,7 +24,6 @@ public class GetUserTimelineThread extends Thread {
             Logger.getLogger(GetUserTimelineThread.class);
 
     private KijiConnection kijiConnection;
-    private KijiTableWriter kijiTableWriter = null;
 
 
     public GetUserTimelineThread(TwitterFactory twitterFactory,
@@ -39,17 +38,6 @@ public class GetUserTimelineThread extends Thread {
         this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
         this.crisisMailer = CrisisMailer.getCrisisMailer();
         PropertyConfigurator.configure(log4jPropertiesFilePath);
-
-        try{
-            if (kijiConnection.kijiTable != null){
-                this.kijiTableWriter =
-                        kijiConnection.kijiTable.openTableWriter();
-            }
-        }catch (Exception unknownException){
-            logger.error("Unknown Exception while opening KijiTableWriter",
-                    unknownException);
-            crisisMailer.sendEmailAlert(unknownException);
-        }
     }
 
 
@@ -129,9 +117,9 @@ public class GetUserTimelineThread extends Thread {
 
 
     private void storeUserSinceId(Long userId, Long since_id){
-        if (kijiTableWriter != null){
+        if (kijiConnection.isValidKijiConnection()){
             try{
-                kijiTableWriter.put(kijiConnection.kijiTable
+                kijiConnection.kijiTableWriter.put(kijiConnection.kijiTable
                                     .getEntityId(userId.toString()),
                                     Constants.LAST_TWEET_ID_COLUMN_FAMILY_NAME,
                                     Constants.LAST_TWEET_ID_COLUMN_NAME,

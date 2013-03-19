@@ -27,7 +27,6 @@ public class GetUserSuggestionsForSlugThread extends Thread {
     private CrisisMailer crisisMailer;
 
     private KijiConnection kijiConnection;
-    private KijiTableReader kijiTableReader = null;
 
 
     public GetUserSuggestionsForSlugThread(TwitterFactory twitterFactory,
@@ -43,16 +42,6 @@ public class GetUserSuggestionsForSlugThread extends Thread {
         PropertyConfigurator.configure(log4jPropertiesFilePath);
 
         this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
-        try{
-            if (kijiConnection.kijiTable != null){
-                this.kijiTableReader =
-                        kijiConnection.kijiTable.openTableReader();
-            }
-        }catch (Exception unknownException){
-            logger.error("Exception while opening KijiTableReader",
-                    unknownException);
-            crisisMailer.sendEmailAlert(unknownException);
-        }
     }
 
 
@@ -120,10 +109,10 @@ public class GetUserSuggestionsForSlugThread extends Thread {
     private Long getUserSinceId(Long userId){
         Long since_id = 1L;
 
-        if (kijiTableReader != null){
+        if (kijiConnection.isValidKijiConnection()){
             try{
                 KijiRowData since =
-                        kijiTableReader.get(kijiConnection.kijiTable
+                        kijiConnection.kijiTableReader.get(kijiConnection.kijiTable
                                 .getEntityId(userId.toString()),
                                 KijiDataRequest.create(Constants.LAST_TWEET_ID_COLUMN_FAMILY_NAME,
                                         Constants.LAST_TWEET_ID_COLUMN_NAME));
