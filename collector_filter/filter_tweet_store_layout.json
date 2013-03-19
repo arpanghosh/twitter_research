@@ -18,7 +18,7 @@
     name : "tweet_as_object",
     description : "This locality group stores each tweet as an object",
     in_memory : false,
-    max_versions : 10,
+    max_versions : 1,
     ttl_seconds : 2147483647,
     compression_type : "NONE",
     families : [{
