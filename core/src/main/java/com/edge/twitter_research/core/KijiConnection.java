@@ -120,7 +120,8 @@ public class KijiConnection extends Configured {
             kijiTableWriter = kijiTable.openTableWriter();
 
         }catch (Exception exception){
-            if (exception instanceof KijiAlreadyExistsException){
+            if (exception instanceof KijiAlreadyExistsException ||
+                    exception instanceof RuntimeException){
                 try{
                     kijiTable = kiji.openTable(tableName);
                     kijiTableReader = kijiTable.openTableReader();
