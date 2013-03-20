@@ -24,6 +24,8 @@ import org.apache.log4j.PropertyConfigurator;
 public class EmoticonImporter extends Configured {
 
     public MapReduceJob mapReduceJob = null;
+    public KijiConnection kijiConnection;
+
     public static Logger logger =
             Logger.getLogger(EmoticonImporter.class);
 
@@ -76,7 +78,7 @@ public class EmoticonImporter extends Configured {
 
         setConf(HBaseConfiguration.addHbaseResources(new Configuration(true)));
 
-        new KijiConnection(tableLayoutFilePath,
+        kijiConnection =  new KijiConnection(tableLayoutFilePath,
                 Constants.EMOTICON_STORE_TABLE_NAME);
 
         KijiURI tableUri =
@@ -115,7 +117,8 @@ public class EmoticonImporter extends Configured {
                                     args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         boolean isSuccessful = false;
-        if (emoticonImporter.mapReduceJob != null){
+        if (emoticonImporter.mapReduceJob != null &&
+                emoticonImporter.kijiConnection.kijiTable != null){
             try{
                 isSuccessful = emoticonImporter.mapReduceJob.run();
             }catch (Exception unknownException){
@@ -127,6 +130,9 @@ public class EmoticonImporter extends Configured {
 
         String result = isSuccessful ? "Successful" : "Failure";
         System.out.println(result);
+
+        emoticonImporter.kijiConnection.destroy();
+
     }
 
 
