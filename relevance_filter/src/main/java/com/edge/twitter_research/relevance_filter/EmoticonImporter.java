@@ -121,6 +121,7 @@ public class EmoticonImporter extends Configured {
                 emoticonImporter.kijiConnection.kijiTable != null){
             try{
                 isSuccessful = emoticonImporter.mapReduceJob.run();
+                emoticonImporter.mapReduceJob.run();
             }catch (Exception unknownException){
                 System.out.println("Unknown Exception while running MapReduce Job");
                 unknownException.printStackTrace();

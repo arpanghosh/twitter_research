@@ -56,14 +56,28 @@ public class KijiConnection extends Configured {
 
 
     private void nullifyKijis(){
-        if (kijiTableReader != null)
-            ResourceUtils.closeOrLog(kijiTableReader);
-        if (kijiTableWriter != null)
-            ResourceUtils.closeOrLog(kijiTableWriter);
-        if (kijiTable != null)
-            ResourceUtils.closeOrLog(kijiTable);
-        if (kiji != null)
-            ResourceUtils.releaseOrLog(kiji);
+
+        try{
+            if (kijiTableReader != null){
+                kijiTableReader.close();
+                kijiTableReader = null;
+            }
+            if (kijiTableWriter != null){
+                kijiTableWriter.close();
+                kijiTableWriter = null;
+            }
+            if (kijiTable != null){
+                kijiTable.release();
+                kijiTable = null;
+            }
+            if (kiji != null){
+                kiji.release();
+                kiji = null;
+            }
+        }catch (IOException ioException){
+            logger.error("IOException while closing/releasing KijiConnection member objects",
+                    ioException);
+        }
     }
 
 
