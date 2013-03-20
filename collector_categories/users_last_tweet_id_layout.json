@@ -1,15 +1,20 @@
 {
   name  : "users_last_tweet_id",
   keys_format : {
-    encoding : "HASH",
-    hash_type : "MD5",
-    hash_size : 16
+    encoding : "FORMATTED",
+    salt : {
+        hash_size : 4
+    },
+    components : [{
+        name : "user_id",
+        type : "LONG"
+    }]
   },
   locality_groups : [{
     name : "last_tweet_id",
     description : "This locality group stores a user's last seen since_id",
     in_memory : false,
-    max_versions : 10,
+    max_versions : 1,
     ttl_seconds : 2147483647,
     compression_type : "NONE",
     families : [{

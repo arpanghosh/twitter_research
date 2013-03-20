@@ -32,7 +32,9 @@ public class GlobalConstants {
     /*Columns in Kiji tweet tables*/
     public static final String TWEET_COLUMN_FAMILY_NAME = "tweet_object";
     public static final String TWEET_COLUMN_NAME = "tweet";
-    public static final String LABEL_COLUMN_NAME = "relevance_label";
+    public static final String RELEVANCE_LABEL_COLUMN_NAME = "relevance_label";
+    public static final String TOPIC_LABEL_COLUMN_NAME = "topic_label";
+    public static final String PHRASE_LABEL_COLUMN_NAME = "phrase_label";
 
 
     /*Tweet properties*/

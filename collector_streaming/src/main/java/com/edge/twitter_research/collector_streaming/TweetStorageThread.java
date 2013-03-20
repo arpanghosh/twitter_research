@@ -62,7 +62,7 @@ public class TweetStorageThread extends Thread {
             try{
 
                 EntityId tweetId =
-                        kijiConnection.kijiTable.getEntityId(String.valueOf(tweet.getId()));
+                        kijiConnection.kijiTable.getEntityId(tweet.getId());
                 kijiConnection.kijiTableWriter.put(tweetId,
                                     GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
                                     GlobalConstants.TWEET_COLUMN_NAME,
@@ -70,9 +70,15 @@ public class TweetStorageThread extends Thread {
                                     SimpleTweetGenerator.generateSimpleTweet(tweet));
                 kijiConnection.kijiTableWriter.put(tweetId,
                                     GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
-                                    GlobalConstants.LABEL_COLUMN_NAME,
+                                    GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
                                     System.currentTimeMillis(),
                                     null);
+                kijiConnection.kijiTableWriter.put(tweetId,
+                                    GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
+                                    GlobalConstants.TOPIC_LABEL_COLUMN_NAME,
+                                    System.currentTimeMillis(),
+                                    null);
+
             }catch (IOException ioException){
                 logger.error("Exception while opening TableWriter" +
                             "or 'putting' a row",

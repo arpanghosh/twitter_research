@@ -120,7 +120,7 @@ public class GetUserTimelineThread extends Thread {
         if (kijiConnection.isValidKijiConnection()){
             try{
                 kijiConnection.kijiTableWriter.put(kijiConnection.kijiTable
-                                    .getEntityId(userId.toString()),
+                                    .getEntityId(userId),
                                     Constants.LAST_TWEET_ID_COLUMN_FAMILY_NAME,
                                     Constants.LAST_TWEET_ID_COLUMN_NAME,
                                     System.currentTimeMillis(),

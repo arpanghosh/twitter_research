@@ -69,9 +69,15 @@ public class TweetStorageThread extends Thread {
                         SimpleTweetGenerator.generateSimpleTweet(tweetPhraseMessage.tweet));
                 kijiConnection.kijiTableWriter.put(tweetId,
                         GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
-                        GlobalConstants.LABEL_COLUMN_NAME,
+                        GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
                         System.currentTimeMillis(),
                         null);
+                kijiConnection.kijiTableWriter.put(tweetId,
+                        GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
+                        GlobalConstants.PHRASE_LABEL_COLUMN_NAME,
+                        System.currentTimeMillis(),
+                        tweetPhraseMessage.phrase);
+
             }catch (IOException ioException){
                 logger.error("Exception while 'putting' tweet in KijiTable",
                         ioException);

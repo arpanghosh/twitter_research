@@ -113,7 +113,7 @@ public class GetUserSuggestionsForSlugThread extends Thread {
             try{
                 KijiRowData since =
                         kijiConnection.kijiTableReader.get(kijiConnection.kijiTable
-                                .getEntityId(userId.toString()),
+                                .getEntityId(userId),
                                 KijiDataRequest.create(Constants.LAST_TWEET_ID_COLUMN_FAMILY_NAME,
                                         Constants.LAST_TWEET_ID_COLUMN_NAME));
                 if (since.containsColumn(Constants.LAST_TWEET_ID_COLUMN_FAMILY_NAME,

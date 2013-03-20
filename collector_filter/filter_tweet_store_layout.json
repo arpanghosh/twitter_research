@@ -34,11 +34,19 @@
         }
       }, {
         name : "relevance_label",
-        description : "Binary relevance label for a tweet",
+        description : "Relevance label for a tweet",
         column_schema : {
             storage : "UID",
             type : "INLINE",
             value : "[\"string\",\"null\"]"
+        }
+      }, {
+        name : "phrase_label",
+        description : "Phrase label for a tweet",
+        column_schema : {
+            storage : "UID",
+            type : "INLINE",
+            value : '"string"'
         }
       }]
     }]
