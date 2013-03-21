@@ -56,8 +56,8 @@ public class TopEmoticonsGatherer
         // In this case, we need all versions of the emoticon_occurrence:tweet_id column.
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
-                .withMaxVersions(HConstants.ALL_VERSIONS) // Retrieve all versions.
-                .withPageSize(TopEmoticonsCalculator.pages)
+                .withMaxVersions(TopEmoticonsCalculator.maxVersions)
+                .withPageSize(TopEmoticonsCalculator.pageSize)
                 .add("emoticon_occurrence", "tweet_id");
         return builder.build();
     }
