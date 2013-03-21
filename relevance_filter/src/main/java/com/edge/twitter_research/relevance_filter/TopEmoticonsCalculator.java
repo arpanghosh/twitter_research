@@ -1,7 +1,6 @@
 package com.edge.twitter_research.relevance_filter;
 
 
-import com.edge.twitter_research.core.KijiConnection;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -41,8 +40,11 @@ public class TopEmoticonsCalculator extends Configured{
         PropertyConfigurator.configure(log4jPropertiesFilePath);
 
         try{
+            Configuration hBaseConfiguration =
+                    HBaseConfiguration.addHbaseResources(new Configuration(true));
+            hBaseConfiguration.setInt("hbase.client.scanner.timeout.period", 600000);
 
-            setConf(HBaseConfiguration.addHbaseResources(new Configuration(true)));
+            setConf(hBaseConfiguration);
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
