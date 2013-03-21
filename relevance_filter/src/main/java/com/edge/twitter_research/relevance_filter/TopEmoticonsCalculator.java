@@ -35,7 +35,8 @@ public class TopEmoticonsCalculator extends Configured{
 
 
     public TopEmoticonsCalculator (String outputFilePath,
-                                    String log4jPropertiesFilePath){
+                                    String log4jPropertiesFilePath,
+                                    String inputTableName){
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
 
@@ -44,7 +45,7 @@ public class TopEmoticonsCalculator extends Configured{
             setConf(HBaseConfiguration.addHbaseResources(new Configuration(true)));
 
             KijiURI tableUri =
-                    KijiURI.newBuilder(String.format("kiji://.env/default/%s", Constants.EMOTICON_STORE_TABLE_NAME)).build();
+                    KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
 
             this.mapReduceJob = KijiGatherJobBuilder.create()
                     .withConf(getConf())
@@ -65,9 +66,10 @@ public class TopEmoticonsCalculator extends Configured{
 
     public static void main(String[] args){
 
-        if (args.length < 3){
+        if (args.length < 4){
             System.out.println("Usage: TopEmoticonsCalculator " +
                     "<relevance_filter_root> " +
+                    "<input_table_name>" +
                     "<HDFS_output_file_path> " +
                     "<page_size> " +
                     "<max_num_versions>");
@@ -80,8 +82,9 @@ public class TopEmoticonsCalculator extends Configured{
             maxVersions = Integer.parseInt(args[3]);
 
         TopEmoticonsCalculator topEmoticonsCalculator =
-                new TopEmoticonsCalculator(args[1],
-                        args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH);
+                new TopEmoticonsCalculator(args[2],
+                        args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
+                        args[1]);
 
         boolean isSuccessful = false;
         if (topEmoticonsCalculator.mapReduceJob != null){

@@ -70,7 +70,8 @@ public class EmoticonImporter extends Configured {
 
     public EmoticonImporter (String tableLayoutFilePath,
                                 String inputFilePath,
-                                String log4jPropertiesFilePath){
+                                String log4jPropertiesFilePath,
+                                String outputTableName){
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
 
@@ -82,7 +83,7 @@ public class EmoticonImporter extends Configured {
                 Constants.EMOTICON_STORE_TABLE_NAME);
 
         KijiURI tableUri =
-                KijiURI.newBuilder(String.format("kiji://.env/default/%s", Constants.EMOTICON_STORE_TABLE_NAME)).build();
+                KijiURI.newBuilder(String.format("kiji://.env/default/%s", outputTableName)).build();
 
             this.mapReduceJob = KijiBulkImportJobBuilder.create()
                     .withConf(getConf())
@@ -102,17 +103,19 @@ public class EmoticonImporter extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: EmoticonImporter " +
                                     "<relevance_filter_root> " +
-                                    "<HDFS_input_file_path>");
+                                    "<HDFS_input_file_path> " +
+                                    "<output_table_name>");
             return;
         }
 
         EmoticonImporter emoticonImporter =
                 new EmoticonImporter(args[0] + "/" + Constants.EMOTICON_STORE_TABLE_LAYOUT_FILE_NAME,
                                     args[1],
-                                    args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH);
+                                    args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
+                                    args[2]);
 
         boolean isSuccessful = false;
         if (emoticonImporter.mapReduceJob != null &&
