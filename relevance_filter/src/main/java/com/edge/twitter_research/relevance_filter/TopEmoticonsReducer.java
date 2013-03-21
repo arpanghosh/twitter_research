@@ -11,6 +11,7 @@ import org.kiji.mapreduce.avro.AvroValueReader;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.TreeSet;
 
 public class TopEmoticonsReducer
@@ -19,7 +20,6 @@ public class TopEmoticonsReducer
 
     private TreeSet<EmoticonCount> mTopEmoticons;
     private final int mNumberOfTopEmoticons = 100;
-
 
     @Override
     public Schema getAvroValueReaderSchema() throws IOException {
@@ -77,14 +77,16 @@ public class TopEmoticonsReducer
 
             mTopEmoticons.add(currentEmoticonCount);
             // If we now have too many elements, remove the element with the smallest count.
+
             if (mTopEmoticons.size() > mNumberOfTopEmoticons) {
                 mTopEmoticons.pollFirst();
             }
+
         }
 
-        for (EmoticonCount emoticonCount : mTopEmoticons){
+        for (EmoticonCount emoticonCount : mTopEmoticons)
             context.write(emoticonCount.getEmoticon(), new LongWritable(emoticonCount.getCount()));
-        }
     }
 
 }
+

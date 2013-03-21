@@ -28,11 +28,15 @@ public class TopEmoticonsCalculator extends Configured{
     public static Logger logger =
             Logger.getLogger(TopEmoticonsCalculator.class);
 
+    public static int pages;
+
 
     public TopEmoticonsCalculator (String outputFilePath,
-                                    String log4jPropertiesFilePath){
+                                    String log4jPropertiesFilePath,
+                                    int pages){
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
+        this.pages = pages;
 
         try{
 
@@ -60,16 +64,18 @@ public class TopEmoticonsCalculator extends Configured{
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: TopEmoticonsCalculator " +
                     "<relevance_filter_root> " +
-                    "<HDFS_output_file_path>");
+                    "<HDFS_output_file_path> " +
+                    "<paging value>");
             return;
         }
 
         TopEmoticonsCalculator topEmoticonsCalculator =
                 new TopEmoticonsCalculator(args[1],
-                        args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH);
+                        args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
+                        Integer.parseInt(args[2]));
 
         boolean isSuccessful = false;
         if (topEmoticonsCalculator.mapReduceJob != null){

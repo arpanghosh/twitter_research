@@ -11,6 +11,7 @@ import org.kiji.mapreduce.gather.GathererContext;
 import org.kiji.mapreduce.gather.KijiGatherer;
 import org.kiji.schema.KijiDataRequest;
 import org.kiji.schema.KijiDataRequestBuilder;
+import org.kiji.schema.KijiPager;
 import org.kiji.schema.KijiRowData;
 
 import java.io.IOException;
@@ -33,8 +34,16 @@ public class TopEmoticonsGatherer
     public void gather(KijiRowData input, GathererContext<AvroKey<CharSequence>, AvroValue<EmoticonCount>> context)
             throws IOException {
 
+        KijiPager kijiPager = input.getPager("emoticon_occurrence", "tweet_id");
+
+        long occurrences = 0L;
+        while (kijiPager.hasNext()){
+            occurrences += kijiPager.next().getValues("emoticon_occurrence", "tweet_id").size();
+        }
+        kijiPager.close();
+
         mEmoticonCount.setEmoticon(input.getEntityId().getComponentByIndex(0).toString());
-        mEmoticonCount.setCount((long)input.getValues("emoticon_occurrence", "tweet_id").size());
+        mEmoticonCount.setCount(occurrences);
 
         context.write(new AvroKey<CharSequence>(emoticon),
                 new AvroValue<EmoticonCount>(mEmoticonCount));
@@ -48,7 +57,7 @@ public class TopEmoticonsGatherer
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
                 .withMaxVersions(HConstants.ALL_VERSIONS) // Retrieve all versions.
-                .withPageSize(10)
+                .withPageSize(TopEmoticonsCalculator.pages)
                 .add("emoticon_occurrence", "tweet_id");
         return builder.build();
     }
