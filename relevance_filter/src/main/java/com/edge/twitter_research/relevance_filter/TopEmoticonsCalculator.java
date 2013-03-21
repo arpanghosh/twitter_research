@@ -72,12 +72,12 @@ public class TopEmoticonsCalculator extends Configured{
             return;
         }
 
+        pageSize = Integer.parseInt(args[2]);
+        maxVersions = Integer.parseInt(args[3]);
+
         TopEmoticonsCalculator topEmoticonsCalculator =
                 new TopEmoticonsCalculator(args[1],
                         args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH);
-
-        pageSize = Integer.parseInt(args[2]);
-        maxVersions = Integer.parseInt(args[3]);
 
         boolean isSuccessful = false;
         if (topEmoticonsCalculator.mapReduceJob != null){
