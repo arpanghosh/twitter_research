@@ -19,4 +19,9 @@ public class Constants {
             "filter_tweet_store_layout.json";
     public static final String LOG4J_PROPERTIES_FILE_PATH =
             "src/main/java/resources/log4j.properties";
+    public static final String PHRASE_FILE_NAME =
+            "phrases";
+
+
+    public static final int PHRASE_FILE_CHECKING_INTERVAL = 1800;
 }

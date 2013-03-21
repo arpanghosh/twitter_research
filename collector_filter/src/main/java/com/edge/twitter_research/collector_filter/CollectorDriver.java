@@ -1,11 +1,9 @@
 package com.edge.twitter_research.collector_filter;
 
-import twitter4j.TwitterStream;
-import twitter4j.TwitterStreamFactory;
+
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
-import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.edge.twitter_research.core.*;
@@ -21,11 +19,24 @@ public class CollectorDriver {
     private static CrisisMailer crisisMailer =
             CrisisMailer.getCrisisMailer();
 
+    public static void putToSleep(int seconds){
+        boolean slept = false;
+        do{
+            try{
+                Thread.sleep(seconds * 1000);
+                slept = true;
+            }catch (InterruptedException interruptedException){
+                logger.warn("Exception while trying to sleep",
+                        interruptedException);
+            }
+        }while(!slept);
+    }
+
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 1){
             System.out.println("Usage: CollectorDriver " +
-                    "<collector_filter_root> <phrase1> <phrase2> ..... <phraseN>");
+                    "<collector_filter_root>");
             System.exit(-1);
         }
 
@@ -33,11 +44,8 @@ public class CollectorDriver {
                 Constants.FILTER_TWEET_STORE_TABLE_LAYOUT_FILE_NAME;
         String log4jPropertiesFilePath = args[0] + "/" +
                 Constants.LOG4J_PROPERTIES_FILE_PATH;
-
-        ArrayList<String> phrases = new ArrayList<String>();
-        for (int i = 1; i < args.length; i++){
-            phrases.add(args[i]);
-        }
+        String phraseFilePath = args[0] + "/" +
+                Constants.PHRASE_FILE_NAME;
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
 
@@ -54,22 +62,6 @@ public class CollectorDriver {
         LinkedBlockingQueue<TweetPhraseMessage> tweetStorageQueue =
                 new LinkedBlockingQueue<TweetPhraseMessage>();
 
-        ArrayList<GetStatusesFilterStreamThread> getStatusesFilterStreamThreads
-                = new ArrayList<GetStatusesFilterStreamThread>();
-
-        for (String phrase : phrases){
-            GetStatusesFilterStreamListener listener =
-                    new GetStatusesFilterStreamListener(tweetStorageQueue,
-                                                        log4jPropertiesFilePath,
-                                                        phrase);
-            TwitterStream twitterStream =
-                    new TwitterStreamFactory(configuration).getInstance();
-            twitterStream.addListener(listener);
-            getStatusesFilterStreamThreads
-                    .add(new GetStatusesFilterStreamThread(twitterStream,
-                                                            phrase,
-                                                            log4jPropertiesFilePath));
-        }
 
         Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
@@ -77,25 +69,30 @@ public class CollectorDriver {
                                         GlobalConstants.FILTER_TWEET_STORAGE_TABLE_NAME,
                                         log4jPropertiesFilePath);
 
+        Thread phraseFetchingThread =
+                new PhraseFetchingThread(log4jPropertiesFilePath,
+                                        phraseFilePath,
+                                        tweetStorageQueue,
+                                        configuration);
+
         tweetStorageThread.start();
-        for (GetStatusesFilterStreamThread getStatusesFilterStreamThread : getStatusesFilterStreamThreads ){
-            getStatusesFilterStreamThread.start();
-        }
+        phraseFetchingThread.start();
 
 
-            for (GetStatusesFilterStreamThread getStatusesFilterStreamThread : getStatusesFilterStreamThreads ){
-                getStatusesFilterStreamThread.join();
-            }
-            tweetStorageThread.join();
-            logger.error("Threads have stopped of own free will");
-            crisisMailer.sendEmailAlert("collector_streaming: Threads have stopped of own free will");
+        tweetStorageThread.join();
+        phraseFetchingThread.join();
+
 
         }catch (InterruptedException interruptedException){
             logger.warn("Exception while Collector threads are joining",
                         interruptedException);
         }catch (Exception unknownException){
-            logger.warn("Unknown Exception while collector_filter is starting",
+            logger.error("Unknown Exception while collector_filter is starting",
                     unknownException);
+            crisisMailer.sendEmailAlert(unknownException);
         }
+
+        logger.error("CollectorDriver has stopped of own free will");
+        crisisMailer.sendEmailAlert("collector_filter: CollectorDriver has stopped of own free will");
     }
 }
