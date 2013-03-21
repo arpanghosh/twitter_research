@@ -94,6 +94,7 @@ public class TopEmoticonsCalculator extends Configured{
             KijiPager kijiPager = biggest.getPager("emoticon_occurrence", "tweet_id");
             while (kijiPager.hasNext()){
                 depth += kijiPager.next().getValues("emoticon_occurrence", "tweet_id").size();
+                System.out.println(depth);
             }
 
             kijiPager.close();
