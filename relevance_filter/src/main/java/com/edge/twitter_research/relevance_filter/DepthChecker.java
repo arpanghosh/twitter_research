@@ -28,6 +28,9 @@ public class DepthChecker {
         if (args.length == 4)
             maxVersions = Integer.parseInt(args[3]);
 
+        System.out.println("Page Size: " + pageSize);
+        System.out.println("Max versions: " + maxVersions);
+
         /*My own helper class which initializes Kiji, KijiTable, KijiTableReader/Writer for a given
         table name
          */
@@ -56,6 +59,7 @@ public class DepthChecker {
                 KijiPager kijiPager = rowData.getPager("emoticon_occurrence", "tweet_id");
                 while (kijiPager.hasNext()){
                     depth += kijiPager.next().getValues("emoticon_occurrence", "tweet_id").size();
+                    System.out.println("Partial Depth: " + depth);
                 }
                 kijiPager.close();
             }else{
