@@ -1,0 +1,12 @@
+@namespace("com.edge.twitter_research.relevance_filter")
+
+protocol RelevanceFilterRecords {
+
+  /** A count of the number of times a emoticon has been used. */
+  record EmoticonCount {
+    string emoticon;
+    long count;
+  }
+
+
+}

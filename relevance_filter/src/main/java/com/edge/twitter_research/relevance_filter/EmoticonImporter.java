@@ -68,7 +68,7 @@ public class EmoticonImporter extends Configured {
 
 
 
-    private EmoticonImporter (String tableLayoutFilePath,
+    public EmoticonImporter (String tableLayoutFilePath,
                                 String inputFilePath,
                                 String log4jPropertiesFilePath){
 
@@ -91,12 +91,10 @@ public class EmoticonImporter extends Configured {
                     .withBulkImporter(EmoticonBulkImporter.class)
                     .build();
         }catch (IOException ioException){
-            System.out.println("IO Exception while configuring MapReduce Job");
-            ioException.printStackTrace();
+            logger.error("IO Exception while configuring MapReduce Job", ioException);
             System.exit(1);
         } catch (Exception unknownException){
-            System.out.println("Unknown Exception while configuring MapReduce Job");
-            unknownException.printStackTrace();
+            logger.error("Unknown Exception while configuring MapReduce Job");
             System.exit(1);
         }
     }
@@ -121,16 +119,14 @@ public class EmoticonImporter extends Configured {
                 emoticonImporter.kijiConnection.kijiTable != null){
             try{
                 isSuccessful = emoticonImporter.mapReduceJob.run();
-                emoticonImporter.mapReduceJob.run();
             }catch (Exception unknownException){
-                System.out.println("Unknown Exception while running MapReduce Job");
-                unknownException.printStackTrace();
+                logger.error("Unknown Exception while running MapReduce Job", unknownException);
                 System.exit(1);
             }
         }
 
         String result = isSuccessful ? "Successful" : "Failure";
-        System.out.println(result);
+        logger.info(result);
 
         emoticonImporter.kijiConnection.destroy();
 
