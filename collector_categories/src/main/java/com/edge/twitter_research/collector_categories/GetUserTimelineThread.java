@@ -51,13 +51,6 @@ public class GetUserTimelineThread extends Thread {
             try{
                 userCategoryMessage = inputQueue.take();
 
-                /*
-                if (timeToStop(userCategoryMessage)){
-                    outputQueue.add(new TweetCategoryMessage(null, ""));
-                    break;
-                }
-                */
-
                 if (userCategoryMessage.equals(lastUserCategoryMessage)){
                     continue;
                 }
@@ -112,7 +105,6 @@ public class GetUserTimelineThread extends Thread {
 
             }while (!success);
         }
-        //logger.error("GetUserTimelineThread ended");
     }
 
 

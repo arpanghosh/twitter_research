@@ -37,12 +37,6 @@ public class TweetStorageThread extends Thread {
             try{
                 tweetCategoryMessage = inputQueue.take();
 
-                /*
-                if (timeToStop(tweetCategoryMessage)){
-                    break;
-                }
-                */
-
                 storeTweet(tweetCategoryMessage);
                 tweetCounter++;
 
@@ -55,7 +49,6 @@ public class TweetStorageThread extends Thread {
                         interruptedException);
             }
         }
-        //logger.error("TweetStorageThread ended");
     }
 
 

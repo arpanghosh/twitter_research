@@ -53,12 +53,6 @@ public class GetUserSuggestionsForSlugThread extends Thread {
 
             try{
                 slug = inputQueue.take();
-                /*
-                if(slug.equals("END")){
-                    outputQueue.add(new UserCategoryMessage(-1L, "", Long.MAX_VALUE));
-                    break;
-                }
-                */
 
             }catch (InterruptedException interruptedException){
                 logger.warn("Exception while 'taking' element from queue",
@@ -102,7 +96,6 @@ public class GetUserSuggestionsForSlugThread extends Thread {
 
             }while (!success);
         }
-        //logger.error("GetUserSuggestionsForSlugThread ended");
     }
 
 

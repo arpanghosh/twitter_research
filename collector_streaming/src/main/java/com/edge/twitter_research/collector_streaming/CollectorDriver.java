@@ -71,9 +71,6 @@ public class CollectorDriver {
         getStatusesSampleStreamThread.join();
         tweetStorageThread.join();
 
-        logger.error("Threads have stopped of own free will");
-        crisisMailer.sendEmailAlert("collector_streaming: Threads have stopped of own free will");
-
 
         }catch (InterruptedException interruptedException){
             logger.warn("Exception while Collector threads are joining",
@@ -83,5 +80,8 @@ public class CollectorDriver {
                     unknownException);
             crisisMailer.sendEmailAlert(unknownException);
         }
+
+        logger.error("CollectorDriver has stopped of own free will");
+        crisisMailer.sendEmailAlert("collector_streaming: CollectorDriver has stopped of own free will");
     }
 }

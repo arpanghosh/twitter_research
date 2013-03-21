@@ -98,7 +98,6 @@ public class CollectorDriver {
                                         tweetStorageQueue,
                                         log4jPropertiesFilePath);
 
-        //long tic = System.currentTimeMillis();
 
         suggestedCategoryThread.start();
         usersInCategoryThread.start();
@@ -112,8 +111,7 @@ public class CollectorDriver {
             tweetStorageThread.join();
             queueMeasurementThread.join();
 
-            logger.error("Threads have stopped of own free will");
-            crisisMailer.sendEmailAlert("collector_streaming: Threads have stopped of own free will");
+
 
         }catch (InterruptedException interruptedException){
             logger.warn("Exception while collector threads are joining",
@@ -121,14 +119,11 @@ public class CollectorDriver {
         }catch (Exception unknownException){
             logger.error("Unknown Exception while starting collector_categories",
                     unknownException);
+            crisisMailer.sendEmailAlert(unknownException);
         }
 
-        //long toc = System.currentTimeMillis();
-        /*
-        logger.error("\nAll threads joined. Total time: \n"
-                        + (toc - tic)/3600000 +
 
-                        " hours");
-        */
+        logger.error("CollectorDriver has stopped of own free will");
+        crisisMailer.sendEmailAlert("collector_categories: CollectorDriver has stopped of own free will");
     }
 }

@@ -63,8 +63,9 @@ public class GetSuggestedUserCategoriesThread extends Thread {
                         unknownException);
                 crisisMailer.sendEmailAlert(unknownException);
             }
-            ///outputQueue.add("END");
-            //logger.error("GetSuggestedUserCategoriesThread ended");
+
+            logger.error("GetSuggestedUserCategoriesThread has stopped of own free will");
+            crisisMailer.sendEmailAlert("collector_categories: GetSuggestedUserCategoriesThread has stopped of own free will");
         }
     }
 }

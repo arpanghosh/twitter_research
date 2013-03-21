@@ -28,6 +28,9 @@ public class GetStatusesSampleStreamThread extends Thread {
             logger.error("Exception while sampling twitter stream", exception);
             crisisMailer.sendEmailAlert(exception);
         }
+
+        logger.error("GetStatusesSampleStreamThread has stopped of own free will");
+        crisisMailer.sendEmailAlert("collector_streaming: GetStatusesSampleStreamThread has stopped of own free will");
     }
 
 }

@@ -36,6 +36,5 @@ public class QueueMeasurementThread extends Thread {
                     "\tUsers: " + users.size() +
                     "\tTweets: " + tweets.size());
         }
-        //logger.error("QueueMeasurementThread ended");
     }
 }
