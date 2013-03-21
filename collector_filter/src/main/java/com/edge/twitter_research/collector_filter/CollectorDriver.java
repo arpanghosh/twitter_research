@@ -1,6 +1,7 @@
 package com.edge.twitter_research.collector_filter;
 
 
+import twitter4j.Status;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
@@ -59,8 +60,8 @@ public class CollectorDriver {
                 .setOAuthAccessTokenSecret(Constants.OAUTH_ACCESS_TOKEN_SECRET);
         Configuration configuration = configurationBuilder.build();
 
-        LinkedBlockingQueue<TweetPhraseMessage> tweetStorageQueue =
-                new LinkedBlockingQueue<TweetPhraseMessage>();
+        LinkedBlockingQueue<Status> tweetStorageQueue =
+                new LinkedBlockingQueue<Status>();
 
 
         Thread tweetStorageThread =

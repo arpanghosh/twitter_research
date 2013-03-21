@@ -6,10 +6,6 @@
       hash_size : 4
     },
     components : [{
-      name : "phrase",
-      type : "STRING"
-    },
-    {
       name : "tweet_id",
       type : "LONG"
     }]
@@ -46,7 +42,7 @@
         column_schema : {
             storage : "UID",
             type : "INLINE",
-            value : '"string"'
+            value : "[\"string\",\"null\"]"
         }
       }]
     }]

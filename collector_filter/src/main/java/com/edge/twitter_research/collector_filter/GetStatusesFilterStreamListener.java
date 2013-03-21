@@ -12,25 +12,22 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class GetStatusesFilterStreamListener implements StatusListener {
 
-    private LinkedBlockingQueue<TweetPhraseMessage> outputQueue;
+    private LinkedBlockingQueue<Status> outputQueue;
     private CrisisMailer crisisMailer;
     private static Logger logger =
             Logger.getLogger(GetStatusesFilterStreamListener.class);
-    private String phrase;
 
-    public GetStatusesFilterStreamListener(LinkedBlockingQueue<TweetPhraseMessage> outputQueue,
-                                           String log4jPropertiesFilePath,
-                                           String phrase){
+    public GetStatusesFilterStreamListener(LinkedBlockingQueue<Status> outputQueue,
+                                           String log4jPropertiesFilePath){
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        this.phrase = phrase;
         PropertyConfigurator.configure(log4jPropertiesFilePath);
     }
 
     @Override
     public void onStatus(Status status) {
         //System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText());
-        outputQueue.add(new TweetPhraseMessage(status, phrase));
+        outputQueue.add(status);
     }
 
     @Override

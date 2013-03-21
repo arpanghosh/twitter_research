@@ -11,17 +11,18 @@ import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import  com.edge.twitter_research.core.*;
+import twitter4j.Status;
 
 public class TweetStorageThread extends Thread {
 
-    private LinkedBlockingQueue<TweetPhraseMessage> inputQueue;
+    private LinkedBlockingQueue<Status> inputQueue;
     private KijiConnection kijiConnection;
     private CrisisMailer crisisMailer;
     private static Logger logger =
             Logger.getLogger(TweetStorageThread.class);
     private long tweetCounter = 0L;
 
-    public TweetStorageThread(LinkedBlockingQueue<TweetPhraseMessage> inputQueue,
+    public TweetStorageThread(LinkedBlockingQueue<Status> inputQueue,
                               String tableLayoutPath,
                               String tableName,
                               String log4jPropertiesFilePath){
@@ -32,11 +33,11 @@ public class TweetStorageThread extends Thread {
     }
 
     public void run(){
-        TweetPhraseMessage tweetPhraseMessage;
+        Status tweet;
         while(true){
             try{
-                tweetPhraseMessage = inputQueue.take();
-                storeTweet(tweetPhraseMessage);
+                tweet = inputQueue.take();
+                storeTweet(tweet);
                 tweetCounter++;
 
                 if (tweetCounter % 1000 == 0){
@@ -56,17 +57,16 @@ public class TweetStorageThread extends Thread {
     }
 
 
-    private void storeTweet(TweetPhraseMessage tweetPhraseMessage){
+    private void storeTweet(Status tweet){
         if (kijiConnection.isValidKijiConnection()){
             try{
                 EntityId tweetId =
-                        kijiConnection.kijiTable.getEntityId(tweetPhraseMessage.phrase,
-                                tweetPhraseMessage.tweet.getId());
+                        kijiConnection.kijiTable.getEntityId(tweet.getId());
                 kijiConnection.kijiTableWriter.put(tweetId,
                         GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
                         GlobalConstants.TWEET_COLUMN_NAME,
                         System.currentTimeMillis(),
-                        SimpleTweetGenerator.generateSimpleTweet(tweetPhraseMessage.tweet));
+                        SimpleTweetGenerator.generateSimpleTweet(tweet));
                 kijiConnection.kijiTableWriter.put(tweetId,
                         GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
                         GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
@@ -76,7 +76,7 @@ public class TweetStorageThread extends Thread {
                         GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
                         GlobalConstants.PHRASE_LABEL_COLUMN_NAME,
                         System.currentTimeMillis(),
-                        tweetPhraseMessage.phrase);
+                        null);
 
             }catch (IOException ioException){
                 logger.error("Exception while 'putting' tweet in KijiTable",

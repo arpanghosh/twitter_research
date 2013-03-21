@@ -11,6 +11,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.edge.twitter_research.core.CrisisMailer;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import twitter4j.FilterQuery;
+import twitter4j.Status;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.Configuration;
@@ -22,8 +24,9 @@ public class PhraseFetchingThread extends Thread {
     private FileReader fileReader;
     private String phraseFilePath;
     private HashSet<String> phrases;
+    private TwitterStream phraseCollector;
 
-    private LinkedBlockingQueue<TweetPhraseMessage> tweetStorageQueue;
+    private LinkedBlockingQueue<Status> tweetStorageQueue;
     private String log4jPropertiesFilePath;
     private Configuration configuration;
 
@@ -34,12 +37,13 @@ public class PhraseFetchingThread extends Thread {
 
     public PhraseFetchingThread(String log4jPropertiesFilePath,
                                 String PhraseFilePath,
-                                LinkedBlockingQueue<TweetPhraseMessage> tweetStorageQueue,
+                                LinkedBlockingQueue<Status> tweetStorageQueue,
                                 Configuration configuration){
         PropertyConfigurator.configure(log4jPropertiesFilePath);
         crisisMailer = CrisisMailer.getCrisisMailer();
         phrases = new HashSet<String>();
         phraseFilePath = PhraseFilePath;
+        phraseCollector = null;
 
 
         this.log4jPropertiesFilePath = log4jPropertiesFilePath;
@@ -71,6 +75,7 @@ public class PhraseFetchingThread extends Thread {
             }
 
             String phrase;
+            int numPhrases = phrases.size();
 
             while (true){
                 try{
@@ -78,17 +83,30 @@ public class PhraseFetchingThread extends Thread {
                     if (phrase == null)
                         break;
 
-                    if (!phrases.contains(phrase)){
-                        phrases.add(phrase);
-                        startCollectorForPhrase(phrase);
-                        logger.warn("Started collector for phrase: " + phrase);
-                    }
+                    phrases.add(phrase);
 
                 }catch (IOException ioException){
                     logger.error("IOException while reading line", ioException);
                     crisisMailer.sendEmailAlert(ioException);
                 }
             }
+
+            try{
+                if (numPhrases < phrases.size()){
+                    if (phraseCollector != null){
+                        phraseCollector.shutdown();
+                        phraseCollector.cleanUp();
+                    }
+                    startCollectorForPhrases();
+                    logger.warn("Started collector for " + toString());
+                }
+            }catch (Exception unknownException){
+                logger.error("Unknown Exception while shutting down or starting a phraseCollector",
+                        unknownException);
+                crisisMailer.sendEmailAlert(unknownException);
+                break;
+            }
+
 
             try{
                 closeFile();
@@ -106,18 +124,23 @@ public class PhraseFetchingThread extends Thread {
     }
 
 
-    private void startCollectorForPhrase(String phrase){
+    private void startCollectorForPhrases(){
         GetStatusesFilterStreamListener listener =
                     new GetStatusesFilterStreamListener(tweetStorageQueue,
-                                                        log4jPropertiesFilePath,
-                                                        phrase);
-        TwitterStream twitterStream =
+                                                        log4jPropertiesFilePath);
+        phraseCollector =
                     new TwitterStreamFactory(configuration).getInstance();
-        twitterStream.addListener(listener);
-        GetStatusesFilterStreamThread getStatusesFilterStreamThread =
-                new GetStatusesFilterStreamThread(twitterStream,
-                                                  phrase,
-                                                    log4jPropertiesFilePath);
-        getStatusesFilterStreamThread.start();
+        phraseCollector.addListener(listener);
+
+        phraseCollector.filter(new FilterQuery(0, new long[0], phrases.toArray(new String[phrases.size()])));
+    }
+
+
+    public String toString(){
+        String str = "";
+        for (String phrase : phrases){
+            str += phrase + " ";
+        }
+        return str;
     }
 }
