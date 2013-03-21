@@ -80,7 +80,7 @@ public class EmoticonImporter extends Configured {
         setConf(HBaseConfiguration.addHbaseResources(new Configuration(true)));
 
         kijiConnection =  new KijiConnection(tableLayoutFilePath,
-                Constants.EMOTICON_STORE_TABLE_NAME);
+                                            outputTableName);
 
         KijiURI tableUri =
                 KijiURI.newBuilder(String.format("kiji://.env/default/%s", outputTableName)).build();
