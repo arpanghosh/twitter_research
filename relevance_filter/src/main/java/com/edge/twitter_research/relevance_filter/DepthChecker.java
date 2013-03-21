@@ -72,5 +72,7 @@ public class DepthChecker {
         }
 
         System.out.println("Depth of " + rowKey + " is " + depth);
+
+        kijiConnection.destroy();
     }
 }
