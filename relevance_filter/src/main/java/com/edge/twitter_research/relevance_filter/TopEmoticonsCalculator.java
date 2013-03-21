@@ -83,7 +83,7 @@ public class TopEmoticonsCalculator extends Configured{
         KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
                 .withMaxVersions(HConstants.ALL_VERSIONS)
-                .withPageSize(Integer.parseInt(args[2]))
+                //.withPageSize(Integer.parseInt(args[2]))
                 .add("emoticon_occurrence", "tweet_id");
 
         long depth = 0L;
@@ -91,6 +91,7 @@ public class TopEmoticonsCalculator extends Configured{
             KijiRowData biggest = kijiConnection.kijiTableReader.get(kijiConnection.kijiTable.getEntityId(args[3]),
                                                         builder.build());
 
+            /*
             KijiPager kijiPager = biggest.getPager("emoticon_occurrence", "tweet_id");
             while (kijiPager.hasNext()){
                 depth += kijiPager.next().getValues("emoticon_occurrence", "tweet_id").size();
@@ -98,6 +99,9 @@ public class TopEmoticonsCalculator extends Configured{
             }
 
             kijiPager.close();
+            */
+
+            depth += biggest.getValues("emoticon_occurrence", "tweet_id").size();
 
         }catch (IOException ioException){
             System.out.println(ioException);
