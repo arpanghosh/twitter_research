@@ -69,17 +69,17 @@ public class TopEmoticonsCalculator extends Configured{
         if (args.length < 4){
             System.out.println("Usage: TopEmoticonsCalculator " +
                     "<relevance_filter_root> " +
-                    "<input_table_name>" +
+                    "<input_table_name> " +
                     "<HDFS_output_file_path> " +
                     "<page_size> " +
                     "<max_num_versions>");
             return;
         }
 
-        pageSize = Integer.parseInt(args[2]);
+        pageSize = Integer.parseInt(args[3]);
         maxVersions = HConstants.ALL_VERSIONS;
-        if (args.length == 4)
-            maxVersions = Integer.parseInt(args[3]);
+        if (args.length == 5)
+            maxVersions = Integer.parseInt(args[4]);
 
         TopEmoticonsCalculator topEmoticonsCalculator =
                 new TopEmoticonsCalculator(args[2],
