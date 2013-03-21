@@ -42,7 +42,7 @@ public class TopEmoticonsCalculator extends Configured{
         try{
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
-            hBaseConfiguration.setInt("hbase.client.scanner.timeout.period", 600000);
+            hBaseConfiguration.setInt("hbase.client.scanner.caching", 500);
 
             setConf(hBaseConfiguration);
 
