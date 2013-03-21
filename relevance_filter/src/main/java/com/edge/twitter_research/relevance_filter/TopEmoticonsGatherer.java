@@ -48,6 +48,7 @@ public class TopEmoticonsGatherer
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
                 .withMaxVersions(HConstants.ALL_VERSIONS) // Retrieve all versions.
+                .withPageSize(10)
                 .add("emoticon_occurrence", "tweet_id");
         return builder.build();
     }
