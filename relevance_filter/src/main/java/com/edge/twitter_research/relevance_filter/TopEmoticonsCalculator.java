@@ -65,52 +65,20 @@ public class TopEmoticonsCalculator extends Configured{
 
     public static void main(String[] args){
 
-        if (args.length < 4){
+        if (args.length < 3){
             System.out.println("Usage: TopEmoticonsCalculator " +
                     "<relevance_filter_root> " +
                     "<HDFS_output_file_path> " +
-                    "<paging value> " +
+                    "<page_size> " +
                     "<max_num_versions>");
             return;
         }
 
-
         pageSize = Integer.parseInt(args[2]);
-        //maxVersions = Integer.parseInt(args[3]);
+        maxVersions = HConstants.ALL_VERSIONS;
+        if (args.length == 4)
+            maxVersions = Integer.parseInt(args[3]);
 
-        KijiConnection kijiConnection = new KijiConnection(Constants.EMOTICON_STORE_TABLE_NAME);
-
-        KijiDataRequestBuilder builder = KijiDataRequest.builder();
-        builder.newColumnsDef()
-                .withMaxVersions(HConstants.ALL_VERSIONS)
-                //.withPageSize(Integer.parseInt(args[2]))
-                .add("emoticon_occurrence", "tweet_id");
-
-        long depth = 0L;
-        try{
-            KijiRowData biggest = kijiConnection.kijiTableReader.get(kijiConnection.kijiTable.getEntityId(args[3]),
-                                                        builder.build());
-
-            /*
-            KijiPager kijiPager = biggest.getPager("emoticon_occurrence", "tweet_id");
-            while (kijiPager.hasNext()){
-                depth += kijiPager.next().getValues("emoticon_occurrence", "tweet_id").size();
-                System.out.println(depth);
-            }
-
-            kijiPager.close();
-            */
-
-            depth += biggest.getValues("emoticon_occurrence", "tweet_id").size();
-
-        }catch (IOException ioException){
-            System.out.println(ioException);
-            ioException.printStackTrace();
-        }
-
-        System.out.println("Depth of " + args[3] + " is " + depth);
-
-        /*
         TopEmoticonsCalculator topEmoticonsCalculator =
                 new TopEmoticonsCalculator(args[1],
                         args[0] + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH);
@@ -127,6 +95,5 @@ public class TopEmoticonsCalculator extends Configured{
 
         String result = isSuccessful ? "Successful" : "Failure";
         logger.info(result);
-        */
     }
 }
