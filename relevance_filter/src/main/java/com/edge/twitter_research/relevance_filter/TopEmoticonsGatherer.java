@@ -23,6 +23,9 @@ public class TopEmoticonsGatherer
     private EmoticonCount mEmoticonCount;
     private CharSequence emoticon = "emoticon";
 
+    private final String EMOTICON_COLUMN_FAMILY = "emoticon_occurrence";
+    private final String EMOTICON_COLUMN = "tweet_id";
+
     @Override
     public void setup(GathererContext<AvroKey<CharSequence>, AvroValue<EmoticonCount>> context) throws IOException {
         super.setup(context); // Any time you override setup, call super.setup(context);
@@ -34,11 +37,11 @@ public class TopEmoticonsGatherer
     public void gather(KijiRowData input, GathererContext<AvroKey<CharSequence>, AvroValue<EmoticonCount>> context)
             throws IOException {
 
-        KijiPager kijiPager = input.getPager("emoticon_occurrence", "tweet_id");
+        KijiPager kijiPager = input.getPager(EMOTICON_COLUMN_FAMILY, EMOTICON_COLUMN);
 
         long occurrences = 0L;
         while (kijiPager.hasNext()){
-            occurrences += kijiPager.next().getValues("emoticon_occurrence", "tweet_id").size();
+            occurrences += kijiPager.next().getValues(EMOTICON_COLUMN_FAMILY, EMOTICON_COLUMN).size();
         }
         kijiPager.close();
 
@@ -58,7 +61,7 @@ public class TopEmoticonsGatherer
         builder.newColumnsDef()
                 .withMaxVersions(TopEmoticonsCalculator.maxVersions)
                 .withPageSize(TopEmoticonsCalculator.pageSize)
-                .add("emoticon_occurrence", "tweet_id");
+                .add(EMOTICON_COLUMN_FAMILY, EMOTICON_COLUMN);
         return builder.build();
     }
 
