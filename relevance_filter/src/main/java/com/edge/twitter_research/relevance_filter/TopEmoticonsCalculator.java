@@ -10,34 +10,40 @@ import org.apache.hadoop.hbase.HConstants;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import org.kiji.mapreduce.KijiMapReduceJobBuilder;
 import org.kiji.mapreduce.MapReduceJob;
 
 import org.kiji.mapreduce.gather.KijiGatherJobBuilder;
 
+import org.kiji.mapreduce.input.AvroKeyValueMapReduceJobInput;
+import org.kiji.mapreduce.input.TextMapReduceJobInput;
+import org.kiji.mapreduce.output.AvroKeyValueMapReduceJobOutput;
 import org.kiji.mapreduce.output.TextMapReduceJobOutput;
 
 import org.kiji.schema.*;
+import org.kiji.schema.tools.PutTool;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class TopEmoticonsCalculator extends Configured{
 
-
-    public MapReduceJob mapReduceJob = null;
+    public ArrayList<MapReduceJob> mapReduceJobs = null;
 
     public static Logger logger =
             Logger.getLogger(TopEmoticonsCalculator.class);
 
-    public static int pageSize;
-    public static int maxVersions;
 
-
-    public TopEmoticonsCalculator (String outputFilePath,
+    public TopEmoticonsCalculator (String intermediateFilePath,
                                     String log4jPropertiesFilePath,
-                                    String inputTableName){
+                                    String inputFilePath,
+                                    String resultFilePath,
+                                    int splits){
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
+
+        mapReduceJobs = new ArrayList<MapReduceJob>();
 
         try{
             Configuration hBaseConfiguration =
@@ -46,16 +52,26 @@ public class TopEmoticonsCalculator extends Configured{
 
             setConf(hBaseConfiguration);
 
-            KijiURI tableUri =
-                    KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
+            Path inputPath = new Path(inputFilePath);
+            Path intermediatePath = new Path(intermediateFilePath);
+            Path resultPath = new Path(resultFilePath);
 
-            this.mapReduceJob = KijiGatherJobBuilder.create()
-                    .withConf(getConf())
-                    .withGatherer(TopEmoticonsGatherer.class)
-                    .withReducer(TopEmoticonsReducer.class)
-                    .withInputTable(tableUri)
-                    .withOutput(new TextMapReduceJobOutput(new Path(outputFilePath), 1))
-                    .build();
+            mapReduceJobs.add(KijiMapReduceJobBuilder.create()
+                    .withConf(hBaseConfiguration)
+                    .withMapper(EmoticonsMapper.class)
+                    .withReducer(EmoticonsCounter.class)
+                    .withInput(new TextMapReduceJobInput(inputPath))
+                    .withOutput(new AvroKeyValueMapReduceJobOutput(intermediatePath, splits))
+                    .build());
+
+            mapReduceJobs.add(KijiMapReduceJobBuilder.create()
+                    .withConf(hBaseConfiguration)
+                    .withMapper(CountedEmoticonsMapper.class)
+                    .withReducer(CountedEmoticonsSorter.class)
+                    .withInput(new AvroKeyValueMapReduceJobInput(intermediatePath))
+                    .withOutput(new TextMapReduceJobOutput(resultPath, splits))
+                    .build());
+
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);
             System.exit(1);
@@ -68,36 +84,42 @@ public class TopEmoticonsCalculator extends Configured{
 
     public static void main(String[] args){
 
-        if (args.length < 4){
+        if (args.length < 5){
             System.out.println("Usage: TopEmoticonsCalculator " +
                     "<relevance_filter_root> " +
-                    "<input_table_name> " +
+                    "<HDFS_input_file_path> " +
                     "<HDFS_output_file_path> " +
-                    "<page_size> " +
-                    "<max_num_versions>");
+                    "<HDFS_intermediate_file_path> " +
+                    "<splits>");
             return;
         }
 
         String relevanceFilterRoot = args[0];
-        String inputTableName = args[1];
+        String HDFSInputFilePath = args[1];
         String HDFSOutputFilePath = args[2];
-        pageSize = Integer.parseInt(args[3]);
-        maxVersions = HConstants.ALL_VERSIONS;
-        if (args.length == 5)
-            maxVersions = Integer.parseInt(args[4]);
+        String HDFSIntermediateFilePath = args[3];
+        int splits = Integer.parseInt(args[4]);
 
         TopEmoticonsCalculator topEmoticonsCalculator =
-                new TopEmoticonsCalculator(HDFSOutputFilePath,
+                new TopEmoticonsCalculator(HDFSIntermediateFilePath,
                         relevanceFilterRoot + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
-                        inputTableName);
+                        HDFSInputFilePath,
+                        HDFSOutputFilePath,
+                        splits);
 
         boolean isSuccessful = false;
-        if (topEmoticonsCalculator.mapReduceJob != null){
-            try{
-                isSuccessful = topEmoticonsCalculator.mapReduceJob.run();
-            }catch (Exception unknownException){
-                logger.error("Unknown Exception while running MapReduce Job", unknownException);
-                System.exit(1);
+
+        for (MapReduceJob mapReduceJob : topEmoticonsCalculator.mapReduceJobs){
+
+            if (mapReduceJob != null){
+                try{
+                    isSuccessful = mapReduceJob.run();
+                    if (!isSuccessful)
+                        break;
+                }catch (Exception unknownException){
+                    logger.error("Unknown Exception while running MapReduce Job", unknownException);
+                    System.exit(1);
+                }
             }
         }
 

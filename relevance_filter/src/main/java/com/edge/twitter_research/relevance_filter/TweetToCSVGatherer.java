@@ -4,6 +4,7 @@ package com.edge.twitter_research.relevance_filter;
 import com.edge.twitter_research.core.SimpleTweet;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.kiji.mapreduce.gather.GathererContext;
 import org.kiji.mapreduce.gather.KijiGatherer;
 import org.kiji.schema.KijiDataRequest;
@@ -13,7 +14,7 @@ import org.kiji.schema.KijiRowData;
 import java.io.IOException;
 
 public class TweetToCSVGatherer
-        extends KijiGatherer<LongWritable, CharSequence> {
+        extends KijiGatherer<LongWritable, Text> {
 
     private static final String TWEET_COLUMN_FAMILY = "tweet_object";
     private static final String TWEET_COLUMN = "tweet";
@@ -22,7 +23,7 @@ public class TweetToCSVGatherer
     private int tweetIdIndex;
 
     @Override
-    public void setup(GathererContext<LongWritable, CharSequence> context) throws IOException {
+    public void setup(GathererContext<LongWritable, Text> context) throws IOException {
         super.setup(context); // Any time you override setup, call super.setup(context);
 
         Configuration conf = getConf();
@@ -32,7 +33,7 @@ public class TweetToCSVGatherer
 
 
     @Override
-    public void gather(KijiRowData input, GathererContext<LongWritable, CharSequence> context)
+    public void gather(KijiRowData input, GathererContext<LongWritable, Text> context)
             throws IOException {
 
         Long tweetID = input.getEntityId()
@@ -45,7 +46,7 @@ public class TweetToCSVGatherer
 
         if (Math.random() < threshold)
             context.write(new LongWritable(tweetID),
-                            tweetTextWithoutCommas);
+                            new Text(tweetTextWithoutCommas));
 
     }
 

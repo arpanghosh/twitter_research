@@ -4,7 +4,6 @@ package com.edge.twitter_research.relevance_filter;
 import org.apache.avro.Schema;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
-import org.apache.hadoop.io.LongWritable;
 import org.kiji.mapreduce.KijiReducer;
 import org.kiji.mapreduce.avro.AvroKeyReader;
 import org.kiji.mapreduce.avro.AvroKeyWriter;
@@ -13,9 +12,9 @@ import org.kiji.mapreduce.avro.AvroValueWriter;
 
 import java.io.IOException;
 
-public class SourcesCounter
-    extends KijiReducer <AvroKey<CharSequence>, AvroValue<Long>, AvroKey<CharSequence>, AvroValue<Long>>
-    implements AvroKeyReader, AvroKeyWriter, AvroValueReader, AvroValueWriter {
+public class EmoticonsCounter
+        extends KijiReducer<AvroKey<CharSequence>, AvroValue<Long>, AvroKey<CharSequence>, AvroValue<Long>>
+        implements AvroKeyReader, AvroKeyWriter, AvroValueReader, AvroValueWriter {
 
     @Override
     public Class<?> getOutputKeyClass() {
@@ -55,7 +54,7 @@ public class SourcesCounter
 
     @Override
     protected void reduce(AvroKey<CharSequence> key, Iterable<AvroValue<Long>> values, Context context)
-    throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
 
         long sum = 0;
 
@@ -65,6 +64,4 @@ public class SourcesCounter
         // output sum
         context.write(key, new AvroValue<Long>(sum));
     }
-
 }
-

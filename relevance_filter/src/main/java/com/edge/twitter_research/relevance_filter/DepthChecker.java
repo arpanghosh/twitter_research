@@ -10,7 +10,7 @@ import org.kiji.schema.KijiRowData;
 
 import java.io.IOException;
 
-public class DepthChecker extends Configured {
+public class DepthChecker{
 
     public static void main(String[] args){
         if (args.length < 4){
