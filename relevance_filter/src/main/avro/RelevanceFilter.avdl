@@ -8,5 +8,11 @@ protocol RelevanceFilterRecords {
     long count;
   }
 
+  /** A count of the number of times a source has been used. */
+    record SourceCount {
+      string source;
+      long count;
+    }
+
 
 }
