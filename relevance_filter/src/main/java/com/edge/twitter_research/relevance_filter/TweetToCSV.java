@@ -21,27 +21,29 @@ public class TweetToCSV extends Configured {
     public static Logger logger =
             Logger.getLogger(TweetToCSV.class);
 
-    public static int tweetIDInKeyIndex = 0;
-
-
     public TweetToCSV (String outputFilePath,
                        String log4jPropertiesFilePath,
-                       String inputTableName){
+                       String inputTableName,
+                       float samplingRate){
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
 
         try{
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
-            //hBaseConfiguration.setInt("hbase.client.scanner.caching", 500);
 
-            setConf(hBaseConfiguration);
+            if (inputTableName.equals("category_tweet_store"))
+                hBaseConfiguration.setInt("key.index.of.tweet_id", 1);
+            else
+                hBaseConfiguration.setInt("key.index.of.tweet_id", 0);
+
+            hBaseConfiguration.setFloat("sampling.rate", samplingRate);
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
 
             this.mapReduceJob = KijiGatherJobBuilder.create()
-                    .withConf(getConf())
+                    .withConf(hBaseConfiguration)
                     .withGatherer(TweetToCSVGatherer.class)
                     .withInputTable(tableUri)
                     .withOutput(new TextMapReduceJobOutput(new Path(outputFilePath), 1))
@@ -58,11 +60,12 @@ public class TweetToCSV extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 3){
+        if (args.length < 4){
             System.out.println("Usage: TweetToCSV " +
                     "<relevance_filter_root> " +
                     "<input_table_name> " +
-                    "<HDFS_output_file_path>");
+                    "<HDFS_output_file_path> " +
+                    "<sampling_rate (%)>");
             return;
         }
 
@@ -70,14 +73,11 @@ public class TweetToCSV extends Configured {
         String inputTableName = args[1];
         String HDFSOutputFilePath = args[2];
 
-        tweetIDInKeyIndex = 0;
-        if (inputTableName.equals("category_tweet_store"))
-            tweetIDInKeyIndex = 1;
-
         TweetToCSV tweetToCSV =
                 new TweetToCSV(HDFSOutputFilePath,
                         relevanceFilterRoot + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
-                        inputTableName);
+                        inputTableName,
+                        Float.parseFloat(args[3]));
 
         boolean isSuccessful = false;
         if (tweetToCSV.mapReduceJob != null){

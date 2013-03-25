@@ -2,12 +2,8 @@ package com.edge.twitter_research.relevance_filter;
 
 
 import com.edge.twitter_research.core.SimpleTweet;
-import org.apache.avro.Schema;
-import org.apache.avro.mapred.AvroKey;
-import org.apache.avro.mapred.AvroValue;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
-import org.kiji.mapreduce.avro.AvroKeyWriter;
-import org.kiji.mapreduce.avro.AvroValueWriter;
 import org.kiji.mapreduce.gather.GathererContext;
 import org.kiji.mapreduce.gather.KijiGatherer;
 import org.kiji.schema.KijiDataRequest;
@@ -22,20 +18,35 @@ public class TweetToCSVGatherer
     private static final String TWEET_COLUMN_FAMILY = "tweet_object";
     private static final String TWEET_COLUMN = "tweet";
 
+    private double threshold;
+    private int tweetIdIndex;
+
+    @Override
+    public void setup(GathererContext<LongWritable, CharSequence> context) throws IOException {
+        super.setup(context); // Any time you override setup, call super.setup(context);
+
+        Configuration conf = getConf();
+        threshold = conf.getFloat("sampling.rate", 100)/100.0;
+        tweetIdIndex = conf.getInt("key.index.of.tweet_id", 0);
+    }
+
+
     @Override
     public void gather(KijiRowData input, GathererContext<LongWritable, CharSequence> context)
             throws IOException {
 
         Long tweetID = input.getEntityId()
-                            .getComponentByIndex(TweetToCSV.tweetIDInKeyIndex);
+                            .getComponentByIndex(tweetIdIndex);
 
         SimpleTweet tweet = input.getMostRecentValue(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
         String tweetTextWithoutCommas = tweet.getText()
                                         .toString()
                                         .replace(",", "<comma>");
 
-        context.write(new LongWritable(tweetID),
-                tweetTextWithoutCommas);
+        if (Math.random() < threshold)
+            context.write(new LongWritable(tweetID),
+                            tweetTextWithoutCommas);
+
     }
 
 
