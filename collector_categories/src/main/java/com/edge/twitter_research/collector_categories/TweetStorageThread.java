@@ -47,14 +47,22 @@ public class TweetStorageThread extends Thread {
             }catch (InterruptedException interruptedException){
                 logger.warn("Exception while 'taking' item from queue",
                         interruptedException);
+            }catch (IOException ioException){
+                logger.error("IOException while storing tweet",
+                        ioException);
+                crisisMailer.sendEmailAlert(ioException);
+            }catch (Exception exception){
+                logger.error("Unknown Exception while storing tweet",
+                        exception);
+                crisisMailer.sendEmailAlert(exception);
             }
         }
     }
 
 
-    private void storeTweet(TweetCategoryMessage tweetCategoryMessage){
+    private void storeTweet(TweetCategoryMessage tweetCategoryMessage)
+        throws IOException{
         if (kijiConnection.isValidKijiConnection()){
-            try{
                 EntityId tweetId =
                         kijiConnection.kijiTable.getEntityId(tweetCategoryMessage.category_slug,
                                 tweetCategoryMessage.tweet.getId());
@@ -73,15 +81,6 @@ public class TweetStorageThread extends Thread {
                                     GlobalConstants.TOPIC_LABEL_COLUMN_NAME,
                                     System.currentTimeMillis(),
                                     tweetCategoryMessage.category_slug);
-            }catch (IOException ioException){
-                logger.error("Exception while 'putting' tweet in KijiTable",
-                        ioException);
-                crisisMailer.sendEmailAlert(ioException);
-            }catch (Exception unknownException){
-                logger.error("Unknown Exception while 'putting' tweet in KijiTable",
-                        unknownException);
-                crisisMailer.sendEmailAlert(unknownException);
-            }
         }
     }
 
