@@ -36,18 +36,19 @@ public class TweetToCSVGatherer
     public void gather(KijiRowData input, GathererContext<LongWritable, Text> context)
             throws IOException {
 
-        Long tweetID = input.getEntityId()
+        if (Math.random() < threshold){
+
+            Long tweetID = input.getEntityId()
                             .getComponentByIndex(tweetIdIndex);
 
-        SimpleTweet tweet = input.getMostRecentValue(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
-        String tweetTextWithoutCommas = tweet.getText()
-                                        .toString()
-                                        .replace(",", "<comma>");
+            SimpleTweet tweet = input.getMostRecentValue(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
+            String tweetTextWithoutCommas = tweet.getText()
+                                            .toString()
+                                            .replace(",", "<comma>");
 
-        if (Math.random() < threshold)
             context.write(new LongWritable(tweetID),
                             new Text(tweetTextWithoutCommas));
-
+        }
     }
 
 
