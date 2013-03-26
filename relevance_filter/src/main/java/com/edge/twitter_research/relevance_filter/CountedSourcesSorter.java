@@ -20,7 +20,6 @@ public class CountedSourcesSorter
     implements AvroKeyReader, AvroValueReader {
 
     private TreeSet<SourceCount> mTopSources;
-    private final int mNumberOfTopSources = 200;
 
 
     @Override
@@ -76,15 +75,10 @@ public class CountedSourcesSorter
             SourceCount currentSourceCount = SourceCount.newBuilder(value.datum()).build();
 
             mTopSources.add(currentSourceCount);
-            // If we now have too many elements, remove the element with the smallest count.
-
-            if (mTopSources.size() > mNumberOfTopSources) {
-                mTopSources.pollFirst();
-            }
 
         }
 
-        for (SourceCount sourceCount : mTopSources)
+        for (SourceCount sourceCount : mTopSources.descendingSet())
             context.write(new Text(sourceCount.getSource().toString()),
                     new LongWritable(sourceCount.getCount()));
     }

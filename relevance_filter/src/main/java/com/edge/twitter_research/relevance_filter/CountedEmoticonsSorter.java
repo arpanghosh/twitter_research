@@ -20,7 +20,6 @@ public class CountedEmoticonsSorter
     implements AvroValueReader, AvroKeyReader {
 
     private TreeSet<EmoticonCount> mTopEmoticons;
-    private final int mNumberOfTopEmoticons = 200;
 
     @Override
     public Schema getAvroValueReaderSchema() throws IOException {
@@ -74,15 +73,9 @@ public class CountedEmoticonsSorter
             EmoticonCount currentEmoticonCount = EmoticonCount.newBuilder(value.datum()).build();
 
             mTopEmoticons.add(currentEmoticonCount);
-            // If we now have too many elements, remove the element with the smallest count.
-
-            if (mTopEmoticons.size() > mNumberOfTopEmoticons) {
-                mTopEmoticons.pollFirst();
-            }
-
         }
 
-        for (EmoticonCount emoticonCount : mTopEmoticons)
+        for (EmoticonCount emoticonCount : mTopEmoticons.descendingSet())
             context.write(new Text(emoticonCount.getEmoticon().toString()),
                     new LongWritable(emoticonCount.getCount()));
     }
