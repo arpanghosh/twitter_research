@@ -20,7 +20,6 @@ public class TweetToCSVGatherer
     private static final String TWEET_COLUMN = "tweet";
 
     private double threshold;
-    private int tweetIdIndex;
 
     @Override
     public void setup(GathererContext<LongWritable, Text> context) throws IOException {
@@ -28,7 +27,6 @@ public class TweetToCSVGatherer
 
         Configuration conf = getConf();
         threshold = conf.getFloat("sampling.rate", 100)/100.0;
-        tweetIdIndex = conf.getInt("key.index.of.tweet_id", 0);
     }
 
 
@@ -38,15 +36,12 @@ public class TweetToCSVGatherer
 
         if (Math.random() < threshold){
 
-            Long tweetID = input.getEntityId()
-                            .getComponentByIndex(tweetIdIndex);
-
             SimpleTweet tweet = input.getMostRecentValue(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
             String tweetTextWithoutCommas = tweet.getText()
                                             .toString()
                                             .replace(",", "<comma>");
 
-            context.write(new LongWritable(tweetID),
+            context.write(new LongWritable(tweet.getId()),
                             new Text(tweetTextWithoutCommas));
         }
     }

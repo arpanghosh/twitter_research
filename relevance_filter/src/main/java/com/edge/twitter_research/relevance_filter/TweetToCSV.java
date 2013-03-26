@@ -32,11 +32,6 @@ public class TweetToCSV extends Configured {
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
 
-            if (inputTableName.equals("category_tweet_store"))
-                hBaseConfiguration.setInt("key.index.of.tweet_id", 1);
-            else
-                hBaseConfiguration.setInt("key.index.of.tweet_id", 0);
-
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
 
             KijiURI tableUri =
