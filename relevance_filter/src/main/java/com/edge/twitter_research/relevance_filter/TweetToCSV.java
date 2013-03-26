@@ -68,12 +68,13 @@ public class TweetToCSV extends Configured {
         String relevanceFilterRoot = args[0];
         String inputTableName = args[1];
         String HDFSOutputFilePath = args[2];
+        float samplingRate = Float.parseFloat(args[3]);
 
         TweetToCSV tweetToCSV =
                 new TweetToCSV(HDFSOutputFilePath,
                         relevanceFilterRoot + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
                         inputTableName,
-                        Float.parseFloat(args[3]));
+                        samplingRate);
 
         boolean isSuccessful = false;
         if (tweetToCSV.mapReduceJob != null){
