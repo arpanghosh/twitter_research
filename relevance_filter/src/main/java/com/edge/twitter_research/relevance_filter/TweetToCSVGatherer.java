@@ -34,15 +34,25 @@ public class TweetToCSVGatherer
     public void gather(KijiRowData input, GathererContext<LongWritable, Text> context)
             throws IOException {
 
+
         if (Math.random() < threshold){
 
             SimpleTweet tweet = input.getMostRecentValue(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
-            String tweetTextWithoutCommas = tweet.getText()
-                                            .toString()
-                                            .replace(",", "<comma>");
+
+            char[] tweetTextCharArray = tweet.getText().toString()
+                                        .replace(",", "<comma>")
+                                        .toCharArray();
+            for (int i = 0; i < tweetTextCharArray.length; i++){
+                if (!Character.isLetterOrDigit(tweetTextCharArray[i])){
+                    tweetTextCharArray[i] = ' ';
+                }
+            }
+
+            String tweetTextWithoutCommasAndNonSupplementaryCharacters
+                    = new String (tweetTextCharArray);
 
             context.write(new LongWritable(tweet.getId()),
-                            new Text(tweetTextWithoutCommas));
+                            new Text(tweetTextWithoutCommasAndNonSupplementaryCharacters));
         }
     }
 
