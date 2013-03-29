@@ -39,20 +39,25 @@ public class TweetToCSVGatherer
 
             SimpleTweet tweet = input.getMostRecentValue(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
 
-            char[] tweetTextCharArray = tweet.getText().toString()
-                                        .replace(",", "<comma>")
-                                        .toCharArray();
-            for (int i = 0; i < tweetTextCharArray.length; i++){
-                if (!Character.isLetterOrDigit(tweetTextCharArray[i])){
-                    tweetTextCharArray[i] = ' ';
+            String tweetWithoutCommas = tweet.getText().toString()
+                                        .replace(",", " ")
+                                        .replace("\n", " ")
+                                        .replace("\r", " ");
+
+            boolean valid = true;
+            for (int i = 0; i < tweetWithoutCommas.length(); i++){
+                int codePoint = tweetWithoutCommas.codePointAt(i);
+
+                if (!(codePoint >= 0x0020 && codePoint <= 0x007E)){
+                    valid = false;
+                    break;
                 }
             }
 
-            String tweetTextWithoutCommasAndNonSupplementaryCharacters
-                    = new String (tweetTextCharArray);
-
-            context.write(new LongWritable(tweet.getId()),
-                            new Text(tweetTextWithoutCommasAndNonSupplementaryCharacters));
+            if (valid){
+                context.write(new LongWritable(tweet.getId()),
+                                new Text(tweetWithoutCommas));
+            }
         }
     }
 
