@@ -34,6 +34,7 @@ public class TweetToCSV extends Configured {
 
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
             hBaseConfiguration.set("mapred.textoutputformat.separator", ",");
+            hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
