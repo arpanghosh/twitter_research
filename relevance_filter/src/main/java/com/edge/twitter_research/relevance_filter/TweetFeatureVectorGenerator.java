@@ -4,36 +4,28 @@ import org.apache.log4j.Logger;
 
 import com.edge.twitter_research.core.*;
 
+import org.apache.log4j.PropertyConfigurator;
+import org.jsoup.Jsoup;
+
+import cmu.arktweetnlp.Tagger;
+
+import java.util.Calendar;
+import java.util.List;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
-import org.jsoup.Jsoup;
 
-import java.util.Calendar;
-import java.util.List;
 
-public class TweetFeatureVector {
+public class TweetFeatureVectorGenerator {
 
-    private static Pattern emoticonMatchPattern = Pattern.compile("(\\Q:)\\E|\\Q:D\\E|\\Q:(\\E|\\Q;)\\E|\\Q:-)\\E|\\Q:P\\E|\\Q=)" +
-            "\\E|\\Q(:\\E|\\Q;-)\\E|\\Q:/\\E|\\QXD\\E|\\Q=D\\E|\\Q=]\\E|\\QD:\\E|\\Q;D\\E|\\Q:]\\E|\\Q:-(\\E|\\Q=/\\E|" +
-            "\\Q:O\\E|\\Q=(\\E|\\Q):\\E|\\Q=P\\E|\\Q:'(\\E|\\Q:|\\E|\\Q:-D\\E|\\Q^_^\\E|\\Q(8\\E|\\Q:-/\\E|\\Q:o)\\E|" +
-            "\\Q:o\\E|\\Q:-P\\E|\\Q(;\\E|\\Q;P\\E|\\Qo:\\E|\\Q;]\\E|\\Q:@\\E|\\Q=[\\E|\\Q:\\\\E|\\Q;(\\E|\\Q:[\\E|\\Q8)" +
-            "\\E|\\Q;o)\\E|\\Q=\\\\E|\\Q=O\\E|\\Q(=\\E|\\Q[:\\E|\\Q;/\\E|\\Q8D\\E|\\Q:}\\E|\\Q\\m/\\E|\\QO:\\E|\\Q/:\\E|" +
-            "\\Q;O\\E|\\Q^-^\\E|\\Q8-)\\E|\\Q=|\\E|\\Q]:\\E|\\QD;\\E|\\Q:o(\\E|\\Q|:\\E|\\Q;-P\\E|\\Q);\\E|\\Q=o\\E|\\Q;-D" +
-            "\\E|\\Q:-\\\\E|\\Q(^_^)\\E|\\Q:-O\\E|\\Q:-o\\E|\\QD=\\E|\\Q(^_^;)\\E|\\Q;o\\E|\\Q;-(\\E|\\Q;@\\E|\\QP:\\E|" +
-            "\\Q@:\\E|\\Q:-|\\E|\\Q[=\\E|\\Q(^-^)\\E|\\Q[8\\E|\\Q(T_T)\\E|\\Q(-_-)\\E|\\Q(-:\\E|\\Q)=\\E|\\Q:{\\E|\\Q=}" +
-            "\\E|\\Q[;\\E|\\Q:?\\E|\\Q8-]\\E|\\Q:*(\\E|\\Qo;\\E|\\QD8\\E|\\Q;}\\E|\\Q;[\\E|\\Q:o/\\E|\\Q:oP\\E|\\Q:-]\\E|" +
-            "\\Q:oD\\E|\\Q8/\\E|\\Q8(\\E|\\Qo(^-^)o\\E)");
-
-    private static Pattern mobileSourceMatchPattern = Pattern.compile("(\\Qobile\\E|\\QiOS\\E|\\Qapp\\E|\\QApp\\E|\\QPlayStation\\E|" +
-            "\\Qokia\\E|\\Qnstag\\E|\\Qnap\\E|\\Qstream\\E|\\Qfon\\E|\\Qnette\\E|\\Qrite\\E|\\Qwicc\\E|\\Qweetlog\\E|" +
-            "\\Qterous\\E|\\Qastin\\E)");
-
-    private SimpleDateFormat twitterDateFormat =
-            new SimpleDateFormat("EEE MM dd HH:mm:ss Z yyyy");
-
+    private Logger logger;
+    private CrisisMailer crisisMailer;
+    private static Pattern emoticonMatchPattern;
+    private static Pattern mobileSourceMatchPattern;
+    private SimpleDateFormat twitterDateFormat;
     private String tweetText;
+
 
     private long id;
     private int timeOfDay;
@@ -49,10 +41,38 @@ public class TweetFeatureVector {
     private int isMobileSource;
     private double[] componentFractions;
 
-    public TweetFeatureVector(SimpleTweet simpleTweet){
+
+    public TweetFeatureVectorGenerator(String log4jPropertiesFilePath){
+        logger = Logger.getLogger(TweetFeatureVectorGenerator.class);
+        PropertyConfigurator.configure(log4jPropertiesFilePath);
+
+        crisisMailer = CrisisMailer.getCrisisMailer();
+
+        twitterDateFormat = new SimpleDateFormat("EEE MM dd HH:mm:ss Z yyyy");
+
+        mobileSourceMatchPattern = Pattern.compile("(\\Qobile\\E|\\QiOS\\E|\\Qapp\\E|\\QApp\\E|\\QPlayStation\\E|" +
+                "\\Qokia\\E|\\Qnstag\\E|\\Qnap\\E|\\Qstream\\E|\\Qfon\\E|\\Qnette\\E|\\Qrite\\E|\\Qwicc\\E|\\Qweetlog\\E|" +
+                "\\Qterous\\E|\\Qastin\\E)");
+
+        emoticonMatchPattern = Pattern.compile("(\\Q:)\\E|\\Q:D\\E|\\Q:(\\E|\\Q;)\\E|\\Q:-)\\E|\\Q:P\\E|\\Q=)" +
+                "\\E|\\Q(:\\E|\\Q;-)\\E|\\Q:/\\E|\\QXD\\E|\\Q=D\\E|\\Q=]\\E|\\QD:\\E|\\Q;D\\E|\\Q:]\\E|\\Q:-(\\E|\\Q=/\\E|" +
+                "\\Q:O\\E|\\Q=(\\E|\\Q):\\E|\\Q=P\\E|\\Q:'(\\E|\\Q:|\\E|\\Q:-D\\E|\\Q^_^\\E|\\Q(8\\E|\\Q:-/\\E|\\Q:o)\\E|" +
+                "\\Q:o\\E|\\Q:-P\\E|\\Q(;\\E|\\Q;P\\E|\\Qo:\\E|\\Q;]\\E|\\Q:@\\E|\\Q=[\\E|\\Q:\\\\E|\\Q;(\\E|\\Q:[\\E|\\Q8)" +
+                "\\E|\\Q;o)\\E|\\Q=\\\\E|\\Q=O\\E|\\Q(=\\E|\\Q[:\\E|\\Q;/\\E|\\Q8D\\E|\\Q:}\\E|\\Q\\m/\\E|\\QO:\\E|\\Q/:\\E|" +
+                "\\Q;O\\E|\\Q^-^\\E|\\Q8-)\\E|\\Q=|\\E|\\Q]:\\E|\\QD;\\E|\\Q:o(\\E|\\Q|:\\E|\\Q;-P\\E|\\Q);\\E|\\Q=o\\E|\\Q;-D" +
+                "\\E|\\Q:-\\\\E|\\Q(^_^)\\E|\\Q:-O\\E|\\Q:-o\\E|\\QD=\\E|\\Q(^_^;)\\E|\\Q;o\\E|\\Q;-(\\E|\\Q;@\\E|\\QP:\\E|" +
+                "\\Q@:\\E|\\Q:-|\\E|\\Q[=\\E|\\Q(^-^)\\E|\\Q[8\\E|\\Q(T_T)\\E|\\Q(-_-)\\E|\\Q(-:\\E|\\Q)=\\E|\\Q:{\\E|\\Q=}" +
+                "\\E|\\Q[;\\E|\\Q:?\\E|\\Q8-]\\E|\\Q:*(\\E|\\Qo;\\E|\\QD8\\E|\\Q;}\\E|\\Q;[\\E|\\Q:o/\\E|\\Q:oP\\E|\\Q:-]\\E|" +
+                "\\Q:oD\\E|\\Q8/\\E|\\Q8(\\E|\\Qo(^-^)o\\E)");
+
+    }
+
+
+    public String getFeatureVector(SimpleTweet simpleTweet){
         try{
             tweetText = simpleTweet.getText().toString();
         }catch (NullPointerException nullPointerException){
+            logger.warn("Tweet text is null", nullPointerException);
             tweetText = "";
         }
 
@@ -83,7 +103,9 @@ public class TweetFeatureVector {
 
         isMobileSource = isMobileSource(simpleTweet);
 
+        return featureVectorToString();
     }
+
 
     private int getUrlLocationInTweet(SimpleTweet simpleTweet){
         if (simpleTweet.getUrlEntities().isEmpty()){
@@ -134,7 +156,7 @@ public class TweetFeatureVector {
             try{
                 urlChars += url.getDisplayURL().length();
             }catch (NullPointerException nullPointerException){
-                System.out.println("Null URL");
+                logger.warn("URL entity is null", nullPointerException);
             }
         }
 
@@ -143,7 +165,7 @@ public class TweetFeatureVector {
             try{
                 hashtagChars += hashtag.getText().length() + 1;
             }catch (NullPointerException nullPointerException){
-                System.out.println("Null Hashtag");
+                logger.warn("Hashtag entity is null", nullPointerException);
             }
         }
 
@@ -152,7 +174,7 @@ public class TweetFeatureVector {
             try{
                 mentionChars += mention.getScreenName().length() + 1;
             }catch (NullPointerException nullPointerException){
-                System.out.println("Null mention");
+                logger.warn("Mention entity is null", nullPointerException);
             }
         }
 
@@ -161,7 +183,7 @@ public class TweetFeatureVector {
             try{
                 mediaChars += mediaEntity.getMediaURL().length();
             }catch (NullPointerException nullPointerException){
-                System.out.println("Null media entity");
+                logger.warn("Media entity is null", nullPointerException);
             }
         }
 
@@ -176,7 +198,8 @@ public class TweetFeatureVector {
                                         componentFractions[3]);
 
         if (componentFractions[4] < 0.0){
-            System.out.println("Error in calculating component fractions");
+            logger.error("Error in calculating component fractions");
+            crisisMailer.sendEmailAlert("Component Fractions do not add up to one");
         }
 
         return componentFractions;
@@ -187,10 +210,10 @@ public class TweetFeatureVector {
         try{
             return twitterDateFormat.parse(simpleTweet.getCreatedAt().toString());
         }catch(ParseException parseException){
-            /*Replace with logger after rebase*/
-            System.out.println("Input string is not appropriate date");
+            logger.error("Date string is not valid", parseException);
+            crisisMailer.sendEmailAlert(parseException);
         }catch (NullPointerException nullPointerException){
-            System.out.println("createdAt in SimpleTweet is null");
+            logger.warn("createdAt in SimpleTweet is null", nullPointerException);
         }
         return null;
     }
@@ -229,12 +252,7 @@ public class TweetFeatureVector {
     }
 
 
-    public long id(){
-        return id;
-    }
-
-
-    public String toString(){
+    private String featureVectorToString(){
         StringBuilder featureVector = new StringBuilder();
         featureVector.append(id);
         featureVector.append("|");
