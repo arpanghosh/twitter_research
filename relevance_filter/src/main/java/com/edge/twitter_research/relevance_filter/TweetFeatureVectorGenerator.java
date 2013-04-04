@@ -81,9 +81,12 @@ public class TweetFeatureVectorGenerator {
         }
 
         userFriends = simpleTweet.getUser().getFriendsCount();
+
         userFollowers = simpleTweet.getUser().getFollowersCount();
+
         userTotalTweets = simpleTweet.getUser().getStatusesCount();
-        userIsVerified = getVerified(simpleTweet);
+
+        userIsVerified = simpleTweet.getUser().getVerified() ? 1 : 0;
 
         id = simpleTweet.getId();
 
@@ -114,11 +117,6 @@ public class TweetFeatureVectorGenerator {
         return featureVectorToString();
     }
 
-    private int getVerified(SimpleTweet tweet){
-        if (tweet.getUser().getVerified())
-            return 1;
-        return 0;
-    }
 
     private int getUrlLocationInTweet(SimpleTweet simpleTweet){
         if (simpleTweet.getUrlEntities().isEmpty()){
