@@ -40,6 +40,10 @@ public class TweetFeatureVectorGenerator {
     private int isQuestion;
     private int isMobileSource;
     private double[] componentFractions;
+    private long userFriends;
+    private long userFollowers;
+    private int userTotalTweets;
+    private int userIsVerified;
 
 
     public TweetFeatureVectorGenerator(String log4jPropertiesFilePath){
@@ -76,6 +80,10 @@ public class TweetFeatureVectorGenerator {
             tweetText = "";
         }
 
+        userFriends = simpleTweet.getUser().getFriendsCount();
+        userFollowers = simpleTweet.getUser().getFollowersCount();
+        userTotalTweets = simpleTweet.getUser().getStatusesCount();
+        userIsVerified = getVerified(simpleTweet);
 
         id = simpleTweet.getId();
 
@@ -106,6 +114,11 @@ public class TweetFeatureVectorGenerator {
         return featureVectorToString();
     }
 
+    private int getVerified(SimpleTweet tweet){
+        if (tweet.getUser().getVerified())
+            return 1;
+        return 0;
+    }
 
     private int getUrlLocationInTweet(SimpleTweet simpleTweet){
         if (simpleTweet.getUrlEntities().isEmpty()){
@@ -255,6 +268,14 @@ public class TweetFeatureVectorGenerator {
     private String featureVectorToString(){
         StringBuilder featureVector = new StringBuilder();
         featureVector.append(id);
+        featureVector.append("|");
+        featureVector.append(userFollowers);
+        featureVector.append("|");
+        featureVector.append(userFriends);
+        featureVector.append("|");
+        featureVector.append(userIsVerified);
+        featureVector.append("|");
+        featureVector.append(userTotalTweets);
         featureVector.append("|");
         featureVector.append(timeOfDay);
         featureVector.append("|");
