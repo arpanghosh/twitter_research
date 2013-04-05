@@ -19,6 +19,105 @@ import java.util.regex.Pattern;
 
 public class TweetFeatureVectorGenerator {
 
+    private enum TimeOfDay{
+        REALLY_LATE_NIGHT(1),
+        DAWN(2),
+        EARLY_MORNING(3),
+        LATE_MORNING(4),
+        AFTERNOON(5),
+        EVENING(6),
+        NIGHT(7),
+        LATE_NIGHT(8);
+
+        private final int timeOfDay;
+        TimeOfDay(int timeOfDay){this.timeOfDay = timeOfDay;}
+        public int getTimeOfDay(){return timeOfDay;}
+    }
+
+
+    private enum DayOfWeek{
+        WEEKDAY(1),
+        WEEKEND(2);
+
+        private final int dayOfWeek;
+        DayOfWeek(int dayOfWeek){this.dayOfWeek = dayOfWeek;}
+        public int getDayOfWeek(){return dayOfWeek;}
+    }
+
+
+    private enum Verified{
+        VERIFIED(1),
+        NOT_VERIFIED(2);
+
+        private final int verified;
+        Verified(int verified){this.verified = verified;}
+        public int getVerified(){return verified;}
+    }
+
+
+    private enum URLLocation{
+        FRONT(1),
+        MIDDLE(2),
+        END(3),
+        NOT_PRESENT(4);
+
+        private final int URLLocation;
+        URLLocation(int URLLocation){this.URLLocation = URLLocation;}
+        public int getURLLocation(){return URLLocation;}
+    }
+
+
+    private enum Contributor{
+        HAS_CONTRIBUTOR(1),
+        NO_CONTRIBUTOR(2);
+
+        private final int contributor;
+        Contributor(int contributor){this.contributor = contributor;}
+        public int getContributor(){return contributor;}
+    }
+
+
+    private enum TweetType{
+        PLAIN(1),
+        RETWEET(2),
+        REPLY(3);
+
+        private final int tweetType;
+        TweetType(int tweetType){this.tweetType = tweetType;}
+        public int getTweetType(){return tweetType;}
+    }
+
+
+    private enum TweetNature{
+        SENSITIVE(1),
+        NOT_SENSITIVE(2);
+
+        private final int tweetNature;
+        TweetNature(int tweetNature){this.tweetNature = tweetNature;}
+        public int getTweetNature(){return tweetNature;}
+    }
+
+
+    private enum ContentType{
+        QUESTION(1),
+        PLAIN(2);
+
+        private final int contentType;
+        ContentType(int contentType){this.contentType = contentType;}
+        public int getContentType(){return contentType;}
+    }
+
+
+    private enum TweetSource{
+        WEB(1),
+        MOBILE(2);
+
+        private final int tweetSource;
+        TweetSource(int tweetSource){this.tweetSource = tweetSource;}
+        public int getTweetSource(){return tweetSource;}
+    }
+
+
     private Logger logger;
     private CrisisMailer crisisMailer;
     private static Pattern emoticonMatchPattern;
@@ -28,22 +127,22 @@ public class TweetFeatureVectorGenerator {
 
 
     private long id;
-    private int timeOfDay;
-    private int dayOfWeek;
-    private int urlLocationInTweet;
+    private TimeOfDay timeOfDay;
+    private DayOfWeek dayOfWeek;
+    private URLLocation urlLocationInTweet;
     private long retweetCount;
     private int numCharsInTweet;
     private int numEmoticonsInTweet;
-    private int hasContributors;
-    private int isReply;
-    private int isPossiblySensitive;
-    private int isQuestion;
-    private int isMobileSource;
+    private Contributor hasContributors;
+    private TweetType tweetType;
+    private TweetNature tweetNature;
+    private ContentType contentType;
+    private TweetSource source;
     private double[] componentFractions;
     private long userFriends;
     private long userFollowers;
     private int userTotalTweets;
-    private int userIsVerified;
+    private Verified userIsVerified;
 
 
     public TweetFeatureVectorGenerator(String log4jPropertiesFilePath){
@@ -86,13 +185,14 @@ public class TweetFeatureVectorGenerator {
 
         userTotalTweets = simpleTweet.getUser().getStatusesCount();
 
-        userIsVerified = simpleTweet.getUser().getVerified() ? 1 : 0;
+        userIsVerified = simpleTweet.getUser().getVerified() ?
+                Verified.VERIFIED : Verified.NOT_VERIFIED;
 
         id = simpleTweet.getId();
 
-        int[] dateFeatures = getDateFeatures(getDateObject(simpleTweet));
-        dayOfWeek = dateFeatures[0];
-        timeOfDay = dateFeatures[1];
+        Date tweetDate = getDateObject(simpleTweet);
+        dayOfWeek = getDayOfWeek(tweetDate);
+        timeOfDay = getTimeOfDay(tweetDate);
 
         componentFractions = getComponentFractions(simpleTweet);
 
@@ -102,38 +202,51 @@ public class TweetFeatureVectorGenerator {
 
         numCharsInTweet = tweetText.length();
 
-        hasContributors = simpleTweet.getContributors().isEmpty() ? 0 : 1;
+        hasContributors = simpleTweet.getContributors().isEmpty() ?
+                Contributor.NO_CONTRIBUTOR : Contributor.HAS_CONTRIBUTOR;
 
-        isReply = simpleTweet.getInReplyToScreenName() == null ? 0 : 1;
+        tweetType = determineTweetType(simpleTweet);
 
-        isPossiblySensitive = simpleTweet.getIsPossiblySensitive() ? 1 : 0;
+        tweetNature = simpleTweet.getIsPossiblySensitive() ?
+                TweetNature.SENSITIVE : TweetNature.NOT_SENSITIVE;
 
-        isQuestion = tweetText.contains("?") ? 1 : 0;
+        contentType = tweetText.contains("?") ?
+                ContentType.QUESTION : ContentType.PLAIN;
 
         numEmoticonsInTweet = emoticonCount();
 
-        isMobileSource = isMobileSource(simpleTweet);
+        source = determineTweetSource(simpleTweet);
 
         return featureVectorToString();
     }
 
 
-    private int getUrlLocationInTweet(SimpleTweet simpleTweet){
+    private TweetType determineTweetType(SimpleTweet simpleTweet){
+        if (simpleTweet.getIsRetweet())
+            return TweetType.RETWEET;
+        else if (simpleTweet.getInReplyToScreenName() != null)
+            return TweetType.REPLY;
+        else
+            return TweetType.PLAIN;
+    }
+
+
+    private URLLocation getUrlLocationInTweet(SimpleTweet simpleTweet){
         if (simpleTweet.getUrlEntities().isEmpty()){
-            return 0;
+            return URLLocation.NOT_PRESENT;
         }
 
         SimpleURLEntity firstURL = simpleTweet.getUrlEntities().get(0);
         if (firstURL.getStart() == 0)
-            return 1;
+            return URLLocation.FRONT;
         else if (firstURL.getEnd() == tweetText.length() - 1)
-            return 2;
+            return URLLocation.END;
         else
-            return 3;
+            return URLLocation.MIDDLE;
     }
 
 
-    private int isMobileSource(SimpleTweet simpleTweet){
+    private TweetSource determineTweetSource(SimpleTweet simpleTweet){
         String cleanSource;
         try{
             cleanSource = Jsoup.parse(simpleTweet.getSource().toString())
@@ -145,9 +258,9 @@ public class TweetFeatureVectorGenerator {
         if ((cleanSource.contains("for") &&
                 !cleanSource.contains("forMac")) ||
                 (mobileSourceMatchPattern.split(tweetText)).length > 1){
-            return 1;
-        }
-        return 0;
+            return TweetSource.MOBILE;
+        }else
+            return TweetSource.WEB;
     }
 
 
@@ -230,36 +343,45 @@ public class TweetFeatureVectorGenerator {
     }
 
 
-    private int[] getDateFeatures(Date tweetDate){
-        int[] dateFeatures = new int[2];
+    private TimeOfDay getTimeOfDay(Date tweetDate){
 
         if (tweetDate != null){
             Calendar c = Calendar.getInstance();
             c.setTime(tweetDate);
-            int day = c.get(Calendar.DAY_OF_WEEK);
             int hour = c.get(Calendar.HOUR_OF_DAY);
 
-            if(!(day == Calendar.SATURDAY) && !(day == Calendar.SUNDAY))
-                dateFeatures[0] = 1;
-
             if(hour >= 0  && hour < 3)
-                dateFeatures[1] = 0;
+                return TimeOfDay.REALLY_LATE_NIGHT;
             else if(hour > 2 && hour < 6)
-                dateFeatures[1] = 1;
-            if(hour >5 && hour < 9)
-                dateFeatures[1] = 2;
+                return TimeOfDay.DAWN;
+            else if(hour >5 && hour < 9)
+                return TimeOfDay.EARLY_MORNING;
             else if(hour > 8 && hour < 12)
-                dateFeatures[1] = 3;
+                return TimeOfDay.LATE_MORNING;
             else if(hour > 11 && hour < 15)
-                dateFeatures[1] = 4;
+                return TimeOfDay.AFTERNOON;
             else if(hour > 14 && hour < 18)
-                dateFeatures[1] = 5;
+                return TimeOfDay.EVENING;
             else if(hour > 17 && hour < 21)
-                dateFeatures[1] = 6;
+                return TimeOfDay.NIGHT;
             else if(hour > 20 && hour < 24)
-                dateFeatures[1] = 7;
+                return TimeOfDay.LATE_NIGHT;
         }
-        return dateFeatures;
+        return TimeOfDay.REALLY_LATE_NIGHT;
+    }
+
+
+    private DayOfWeek getDayOfWeek (Date tweetDate){
+        if (tweetDate != null){
+            Calendar c = Calendar.getInstance();
+            c.setTime(tweetDate);
+            int day = c.get(Calendar.DAY_OF_WEEK);
+
+            if(!(day == Calendar.SATURDAY) && !(day == Calendar.SUNDAY))
+                return DayOfWeek.WEEKEND;
+            return DayOfWeek.WEEKDAY;
+        }
+        return DayOfWeek.WEEKDAY;
     }
 
 
@@ -289,13 +411,13 @@ public class TweetFeatureVectorGenerator {
         featureVector.append("|");
         featureVector.append(hasContributors);
         featureVector.append("|");
-        featureVector.append(isReply);
+        featureVector.append(tweetType);
         featureVector.append("|");
-        featureVector.append(isPossiblySensitive);
+        featureVector.append(tweetNature);
         featureVector.append("|");
-        featureVector.append(isQuestion);
+        featureVector.append(contentType);
         featureVector.append("|");
-        featureVector.append(isMobileSource);
+        featureVector.append(source);
 
         for(double componentFraction : componentFractions){
             featureVector.append("|");
