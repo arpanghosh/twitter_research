@@ -45,12 +45,12 @@ public class TweetFeatureVectorGenerator {
     }
 
 
-    private enum Verified{
+    private enum UserVerification{
         VERIFIED(1),
         NOT_VERIFIED(2);
 
         private final int verified;
-        Verified(int verified){this.verified = verified;}
+        UserVerification(int verified){this.verified = verified;}
         public int getVerified(){return verified;}
     }
 
@@ -67,12 +67,12 @@ public class TweetFeatureVectorGenerator {
     }
 
 
-    private enum Contributor{
+    private enum ContributorStatus{
         HAS_CONTRIBUTOR(1),
         NO_CONTRIBUTOR(2);
 
         private final int contributor;
-        Contributor(int contributor){this.contributor = contributor;}
+        ContributorStatus(int contributor){this.contributor = contributor;}
         public int getContributor(){return contributor;}
     }
 
@@ -133,7 +133,7 @@ public class TweetFeatureVectorGenerator {
     private long retweetCount;
     private int numCharsInTweet;
     private int numEmoticonsInTweet;
-    private Contributor hasContributors;
+    private ContributorStatus hasContributors;
     private TweetType tweetType;
     private TweetNature tweetNature;
     private ContentType contentType;
@@ -142,7 +142,7 @@ public class TweetFeatureVectorGenerator {
     private long userFriends;
     private long userFollowers;
     private int userTotalTweets;
-    private Verified userIsVerified;
+    private UserVerification userIsVerified;
 
 
     public TweetFeatureVectorGenerator(String log4jPropertiesFilePath){
@@ -186,7 +186,7 @@ public class TweetFeatureVectorGenerator {
         userTotalTweets = simpleTweet.getUser().getStatusesCount();
 
         userIsVerified = simpleTweet.getUser().getVerified() ?
-                Verified.VERIFIED : Verified.NOT_VERIFIED;
+                UserVerification.VERIFIED : UserVerification.NOT_VERIFIED;
 
         id = simpleTweet.getId();
 
@@ -203,7 +203,7 @@ public class TweetFeatureVectorGenerator {
         numCharsInTweet = tweetText.length();
 
         hasContributors = simpleTweet.getContributors().isEmpty() ?
-                Contributor.NO_CONTRIBUTOR : Contributor.HAS_CONTRIBUTOR;
+                ContributorStatus.NO_CONTRIBUTOR : ContributorStatus.HAS_CONTRIBUTOR;
 
         tweetType = determineTweetType(simpleTweet);
 
