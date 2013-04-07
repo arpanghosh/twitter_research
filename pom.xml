@@ -119,19 +119,19 @@
             <artifactId>maven-compiler-plugin</artifactId>
         </plugin>
 
-        <!--
+
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
         </plugin>
-        -->
+
 
         <plugin>
             <groupId>org.kiji.maven.plugins</groupId>
             <artifactId>hbase-maven-plugin</artifactId>
         </plugin>
 
-        <!--
+
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
@@ -146,14 +146,14 @@
                 </additionalClasspathElements>
             </configuration>
         </plugin>
-        -->
 
-        <!--
+
+
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
         </plugin>
-        -->
+
 
         <!--
         <plugin>
@@ -161,6 +161,7 @@
             <artifactId>maven-assembly-plugin</artifactId>
         </plugin>
         -->
+
 
         <plugin>
             <!-- must supply src/main/checkstyle/checkstyle.xml and suppressions.xml to use this -->
