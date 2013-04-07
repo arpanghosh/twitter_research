@@ -4,13 +4,11 @@ import org.apache.log4j.Logger;
 
 import com.edge.twitter_research.core.*;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.jsoup.Jsoup;
 
-import cmu.arktweetnlp.Tagger;
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
-import java.util.List;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -119,14 +117,14 @@ public class TweetFeatureVectorGenerator {
 
 
     private Logger logger;
-    private CrisisMailer crisisMailer;
-    private static Pattern emoticonMatchPattern;
-    private static Pattern mobileSourceMatchPattern;
+    private Pattern emoticonMatchPattern;
+    private Pattern mobileSourceMatchPattern;
+    private DecimalFormat fractionFormat;
     private SimpleDateFormat twitterDateFormat;
     private String tweetText;
 
 
-    private long id;
+
     private TimeOfDay timeOfDay;
     private DayOfWeek dayOfWeek;
     private URLLocation urlLocationInTweet;
@@ -145,13 +143,10 @@ public class TweetFeatureVectorGenerator {
     private UserVerification userIsVerified;
 
 
-    public TweetFeatureVectorGenerator(String log4jPropertiesFilePath){
+    public TweetFeatureVectorGenerator(){
         logger = Logger.getLogger(TweetFeatureVectorGenerator.class);
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
 
-        crisisMailer = CrisisMailer.getCrisisMailer();
-
-        twitterDateFormat = new SimpleDateFormat("EEE MM dd HH:mm:ss Z yyyy");
+        twitterDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 
         mobileSourceMatchPattern = Pattern.compile("(\\Qobile\\E|\\QiOS\\E|\\Qapp\\E|\\QApp\\E|\\QPlayStation\\E|" +
                 "\\Qokia\\E|\\Qnstag\\E|\\Qnap\\E|\\Qstream\\E|\\Qfon\\E|\\Qnette\\E|\\Qrite\\E|\\Qwicc\\E|\\Qweetlog\\E|" +
@@ -167,6 +162,10 @@ public class TweetFeatureVectorGenerator {
                 "\\Q@:\\E|\\Q:-|\\E|\\Q[=\\E|\\Q(^-^)\\E|\\Q[8\\E|\\Q(T_T)\\E|\\Q(-_-)\\E|\\Q(-:\\E|\\Q)=\\E|\\Q:{\\E|\\Q=}" +
                 "\\E|\\Q[;\\E|\\Q:?\\E|\\Q8-]\\E|\\Q:*(\\E|\\Qo;\\E|\\QD8\\E|\\Q;}\\E|\\Q;[\\E|\\Q:o/\\E|\\Q:oP\\E|\\Q:-]\\E|" +
                 "\\Q:oD\\E|\\Q8/\\E|\\Q8(\\E|\\Qo(^-^)o\\E)");
+
+        componentFractions = new double[5];
+
+        fractionFormat = new DecimalFormat("#.00000");
 
     }
 
@@ -188,13 +187,11 @@ public class TweetFeatureVectorGenerator {
         userIsVerified = simpleTweet.getUser().getVerified() ?
                 UserVerification.VERIFIED : UserVerification.NOT_VERIFIED;
 
-        id = simpleTweet.getId();
-
         Date tweetDate = getDateObject(simpleTweet);
         dayOfWeek = getDayOfWeek(tweetDate);
         timeOfDay = getTimeOfDay(tweetDate);
 
-        componentFractions = getComponentFractions(simpleTweet);
+        setComponentFractions(simpleTweet);
 
         urlLocationInTweet = getUrlLocationInTweet(simpleTweet);
 
@@ -269,49 +266,28 @@ public class TweetFeatureVectorGenerator {
     }
 
 
-    private double[] getComponentFractions(SimpleTweet simpleTweet){
-        int urlChars = 0;
-        int hashtagChars = 0;
-        int mentionChars = 0;
-        int mediaChars = 0;
+    private void setComponentFractions(SimpleTweet simpleTweet){
+        double urlChars = 0;
+        double hashtagChars = 0;
+        double mentionChars = 0;
+        double mediaChars = 0;
 
-        List<SimpleURLEntity> urls = simpleTweet.getUrlEntities();
-        for (SimpleURLEntity url : urls){
-            try{
-                urlChars += url.getDisplayURL().length();
-            }catch (NullPointerException nullPointerException){
-                logger.warn("URL entity is null", nullPointerException);
-            }
+        for (SimpleURLEntity url : simpleTweet.getUrlEntities()){
+            urlChars += url.getEnd() - url.getStart() + 1;
         }
 
-        List<SimpleHashtagEntity> hashtags = simpleTweet.getHashTagEntities();
-        for (SimpleHashtagEntity hashtag : hashtags){
-            try{
-                hashtagChars += hashtag.getText().length() + 1;
-            }catch (NullPointerException nullPointerException){
-                logger.warn("Hashtag entity is null", nullPointerException);
-            }
+        for (SimpleHashtagEntity hashtag : simpleTweet.getHashTagEntities()){
+            hashtagChars += hashtag.getEnd() - hashtag.getStart() + 2;
         }
 
-        List<SimpleUserMentionEntity> mentions = simpleTweet.getUserMentionEntities();
-        for (SimpleUserMentionEntity mention : mentions){
-            try{
-                mentionChars += mention.getScreenName().length() + 1;
-            }catch (NullPointerException nullPointerException){
-                logger.warn("Mention entity is null", nullPointerException);
-            }
+        for (SimpleUserMentionEntity mention : simpleTweet.getUserMentionEntities()){
+            mentionChars += mention.getEnd() - mention.getStart() + 2;
         }
 
-        List<SimpleMediaEntity> mediaEntities = simpleTweet.getMediaEntities();
-        for(SimpleMediaEntity mediaEntity : mediaEntities){
-            try{
-                mediaChars += mediaEntity.getMediaURL().length();
-            }catch (NullPointerException nullPointerException){
-                logger.warn("Media entity is null", nullPointerException);
-            }
+        for(SimpleMediaEntity mediaEntity : simpleTweet.getMediaEntities()){
+            mediaChars += mediaEntity.getMediaURL().length();
         }
 
-        double[] componentFractions = new double[5];
         componentFractions[0] = urlChars/tweetText.length();
         componentFractions[1] = hashtagChars/tweetText.length();
         componentFractions[2] = mentionChars/tweetText.length();
@@ -323,10 +299,8 @@ public class TweetFeatureVectorGenerator {
 
         if (componentFractions[4] < 0.0){
             logger.error("Error in calculating component fractions");
-            crisisMailer.sendEmailAlert("Component Fractions do not add up to one");
         }
 
-        return componentFractions;
     }
 
 
@@ -335,7 +309,6 @@ public class TweetFeatureVectorGenerator {
             return twitterDateFormat.parse(simpleTweet.getCreatedAt().toString());
         }catch(ParseException parseException){
             logger.error("Date string is not valid", parseException);
-            crisisMailer.sendEmailAlert(parseException);
         }catch (NullPointerException nullPointerException){
             logger.warn("createdAt in SimpleTweet is null", nullPointerException);
         }
@@ -387,21 +360,19 @@ public class TweetFeatureVectorGenerator {
 
     private String featureVectorToString(){
         StringBuilder featureVector = new StringBuilder();
-        featureVector.append(id);
-        featureVector.append("|");
         featureVector.append(userFollowers);
         featureVector.append("|");
         featureVector.append(userFriends);
         featureVector.append("|");
-        featureVector.append(userIsVerified);
+        featureVector.append(userIsVerified.getVerified());
         featureVector.append("|");
         featureVector.append(userTotalTweets);
         featureVector.append("|");
-        featureVector.append(timeOfDay);
+        featureVector.append(timeOfDay.getTimeOfDay());
         featureVector.append("|");
-        featureVector.append(dayOfWeek);
+        featureVector.append(dayOfWeek.getDayOfWeek());
         featureVector.append("|");
-        featureVector.append(urlLocationInTweet);
+        featureVector.append(urlLocationInTweet.getURLLocation());
         featureVector.append("|");
         featureVector.append(retweetCount);
         featureVector.append("|");
@@ -409,19 +380,19 @@ public class TweetFeatureVectorGenerator {
         featureVector.append("|");
         featureVector.append(numEmoticonsInTweet);
         featureVector.append("|");
-        featureVector.append(hasContributors);
+        featureVector.append(hasContributors.getContributor());
         featureVector.append("|");
-        featureVector.append(tweetType);
+        featureVector.append(tweetType.getTweetType());
         featureVector.append("|");
-        featureVector.append(tweetNature);
+        featureVector.append(tweetNature.getTweetNature());
         featureVector.append("|");
-        featureVector.append(contentType);
+        featureVector.append(contentType.getContentType());
         featureVector.append("|");
-        featureVector.append(source);
+        featureVector.append(source.getTweetSource());
 
         for(double componentFraction : componentFractions){
             featureVector.append("|");
-            featureVector.append(componentFraction);
+            featureVector.append(fractionFormat.format(componentFraction));
         }
 
         return featureVector.toString();
