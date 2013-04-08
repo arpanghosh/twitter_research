@@ -24,7 +24,8 @@ public class TweetToFeatureVector extends Configured {
     public TweetToFeatureVector (String outputFilePath,
                        String log4jPropertiesFilePath,
                        String inputTableName,
-                       float samplingRate){
+                       float samplingRate,
+                       String dataSetType){
 
         PropertyConfigurator.configure(log4jPropertiesFilePath);
 
@@ -35,6 +36,7 @@ public class TweetToFeatureVector extends Configured {
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
             hBaseConfiguration.set("mapred.textoutputformat.separator", "|");
             hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
+            hBaseConfiguration.setBoolean("generating.training.set", dataSetType.equals("training"));
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
@@ -62,20 +64,35 @@ public class TweetToFeatureVector extends Configured {
                     "<relevance_filter_root> " +
                     "<input_table_name> " +
                     "<HDFS_output_file_path> " +
+                    "<data_type (testing or training)> " +
                     "<sampling_rate (%)>");
             return;
         }
 
+        String dataSet = args[3];
+        if (!dataSet.equals("training") && !dataSet.equals("testing")){
+            System.out.println("Enter a valid dataset type");
+            return;
+        }
+
+
         String relevanceFilterRoot = args[0];
         String inputTableName = args[1];
         String HDFSOutputFilePath = args[2];
-        float samplingRate = Float.parseFloat(args[3]);
+        float samplingRate;
+        if (dataSet.equals("training"))
+            samplingRate = 100;
+        else if (args.length > 4)
+            samplingRate = Float.parseFloat(args[4]);
+        else
+            samplingRate = 50;
 
         TweetToFeatureVector tweetToFeatureVector =
                 new TweetToFeatureVector(HDFSOutputFilePath,
                         relevanceFilterRoot + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
                         inputTableName,
-                        samplingRate);
+                        samplingRate,
+                        dataSet);
 
         boolean isSuccessful = false;
         if (tweetToFeatureVector.mapReduceJob != null){

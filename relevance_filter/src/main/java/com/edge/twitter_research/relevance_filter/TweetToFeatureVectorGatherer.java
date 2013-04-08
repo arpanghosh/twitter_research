@@ -16,11 +16,9 @@ import java.io.IOException;
 public class TweetToFeatureVectorGatherer
         extends KijiGatherer<LongWritable, Text> {
 
-    private static final String TWEET_COLUMN_FAMILY = "tweet_object";
-    private static final String TWEET_COLUMN = "tweet";
-
     private double threshold;
     private TweetFeatureVectorGenerator tweetFeatureVectorGenerator;
+    private boolean generatingTrainingSet;
 
     @Override
     public void setup(GathererContext<LongWritable, Text> context) throws IOException {
@@ -28,6 +26,7 @@ public class TweetToFeatureVectorGatherer
 
         Configuration conf = getConf();
         threshold = conf.getFloat("sampling.rate", 100)/100.0;
+        generatingTrainingSet = conf.getBoolean("generating.training.set", false);
         tweetFeatureVectorGenerator = new TweetFeatureVectorGenerator();
     }
 
@@ -36,28 +35,48 @@ public class TweetToFeatureVectorGatherer
     public void gather(KijiRowData input, GathererContext<LongWritable, Text> context)
             throws IOException {
 
+        String relevanceLabel =
+                input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
+                        Constants.TWEET_RELEVANCE_LABEL_COLUMN_NAME);
 
-        if (Math.random() < threshold){
+        if (generatingTrainingSet){
 
-            SimpleTweet tweet = input.getMostRecentValue(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
+            if (relevanceLabel != null &&
+                    (relevanceLabel.equals(Constants.RELEVANT_RELEVANCE_LABEL) ||
+                            relevanceLabel.equals(Constants.NOT_RELEVANT_RELEVANCE_LABEL))){
+                SimpleTweet tweet = input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
+                                                                Constants.TWEET_OBJECT_COLUMN_NAME);
+                String tweetFeatureVector = tweetFeatureVectorGenerator.getFeatureVector(tweet);
 
-            String tweetFeatureVector = tweetFeatureVectorGenerator
-                                            .getFeatureVector(tweet);
+                context.write(new LongWritable(tweet.getId()),
+                                new Text(tweetFeatureVector));
+            }
+        }else{
 
-            context.write(new LongWritable(tweet.getId()),
+            if (relevanceLabel == null){
+                if (Math.random() < threshold){
+
+                    SimpleTweet tweet =
+                            input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
+                                                    Constants.TWEET_OBJECT_COLUMN_NAME);
+
+                    String tweetFeatureVector = tweetFeatureVectorGenerator
+                            .getFeatureVector(tweet);
+
+                    context.write(new LongWritable(tweet.getId()),
                             new Text(tweetFeatureVector));
+                }
+            }
         }
     }
 
 
     @Override
     public KijiDataRequest getDataRequest() {
-        // This method is how we specify which columns in each row the gatherer operates on.
-        // In this case, we need all versions of the tweet_object:tweet column.
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
                 .withMaxVersions(1)
-                .add(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
+                .addFamily(Constants.TWEET_COLUMN_FAMILY_NAME);
         return builder.build();
     }
 
@@ -74,4 +93,3 @@ public class TweetToFeatureVectorGatherer
 
 
 }
-

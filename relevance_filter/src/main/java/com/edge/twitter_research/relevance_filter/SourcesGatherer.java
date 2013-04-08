@@ -24,9 +24,6 @@ public class SourcesGatherer
 
     private AvroValue<Long> ONE;
 
-    private static final String TWEET_COLUMN_FAMILY = "tweet_object";
-    private static final String TWEET_COLUMN = "tweet";
-
     @Override
     public void setup(GathererContext<AvroKey<CharSequence>, AvroValue<Long>> context) throws IOException {
         super.setup(context); // Any time you override setup, call super.setup(context);
@@ -39,7 +36,7 @@ public class SourcesGatherer
             throws IOException {
 
         SimpleTweet simpleTweet =
-                input.getMostRecentValue(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
+                input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME, Constants.TWEET_OBJECT_COLUMN_NAME);
 
         context.write(new AvroKey<CharSequence>(Jsoup.parse(simpleTweet.getSource().toString()).text()), ONE);
     }
@@ -49,7 +46,7 @@ public class SourcesGatherer
     public KijiDataRequest getDataRequest() {
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
-                .add(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
+                .add(Constants.TWEET_COLUMN_FAMILY_NAME, Constants.TWEET_OBJECT_COLUMN_NAME);
         return builder.build();
     }
 

@@ -22,17 +22,53 @@
         <artifactId>jsoup</artifactId>
         <version>1.7.2</version>
     </dependency>
+
     <!--
     <dependency>
-        <groupId>edu.cmu.cs.lti</groupId>
-        <artifactId>ark-tweet-nlp-with-deps</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>edu.cmu.cs</groupId>
+        <artifactId>ark-tweet-nlp-posBerkeley</artifactId>
+        <version>0.3.2</version>
         <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>edu.cmu.cs</groupId>
+        <artifactId>ark-tweet-nlp-stanford-postagger</artifactId>
+        <version>2010-05-26</version>
+        <scope>compile</scope>
+    </dependency>
+
+      <dependency>
+        <groupId>edu.cmu.cs</groupId>
+        <artifactId>ark-tweet-nlp-trove</artifactId>
+        <version>3.0.0a5</version>
+        <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>edu.cmu.cs</groupId>
+        <artifactId>ark-tweet-nlp</artifactId>
+        <version>0.3.2</version>
+        <scope>compile</scope>
+        <exclusions>
+            <exclusion>
+                <groupId>edu.berkeley.nlp</groupId>
+                <artifactId>util</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>edu.stanford.nlp</groupId>
+                <artifactId>util</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
     -->
   </dependencies>
 
   <repositories>
+    <repository>
+        <id>relevance-filter-local-repo</id>
+        <url>file://${project.basedir}/relevance-filter-local-repo</url>
+    </repository>
   </repositories>
 
   <build>

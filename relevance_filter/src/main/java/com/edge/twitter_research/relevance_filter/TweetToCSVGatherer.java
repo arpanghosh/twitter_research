@@ -16,9 +16,6 @@ import java.io.IOException;
 public class TweetToCSVGatherer
         extends KijiGatherer<LongWritable, Text> {
 
-    private static final String TWEET_COLUMN_FAMILY = "tweet_object";
-    private static final String TWEET_COLUMN = "tweet";
-
     private double threshold;
 
     @Override
@@ -37,7 +34,8 @@ public class TweetToCSVGatherer
 
         if (Math.random() < threshold){
 
-            SimpleTweet tweet = input.getMostRecentValue(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
+            SimpleTweet tweet = input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
+                                                            Constants.TWEET_OBJECT_COLUMN_NAME);
 
             String tweetWithoutCommas = tweet.getText().toString()
                                         .replace(",", " ")
@@ -69,7 +67,8 @@ public class TweetToCSVGatherer
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
                 .withMaxVersions(1)
-                .add(TWEET_COLUMN_FAMILY, TWEET_COLUMN);
+                .add(Constants.TWEET_COLUMN_FAMILY_NAME,
+                        Constants.TWEET_OBJECT_COLUMN_NAME);
         return builder.build();
     }
 
