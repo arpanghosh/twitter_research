@@ -30,7 +30,7 @@ public class QueueMeasurementThread extends Thread {
 
     public void run(){
         while (true){
-            CollectorDriver.putToSleep(Constants.QUEUE_MEASUREMENT_INTERVAL_IN_SECS);
+            CategoryCollectorDriver.putToSleep(Constants.QUEUE_MEASUREMENT_INTERVAL_IN_SECS);
             logger.info(DateTimeCreator.getDateTimeString() + " - " +
                     "Categories: " + categories.size() +
                     "\tUsers: " + users.size() +

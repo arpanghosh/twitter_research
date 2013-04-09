@@ -13,17 +13,17 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 
-public class CollectorDriver {
+public class StreamingCollectorDriver {
 
     private static Logger logger =
-            Logger.getLogger(CollectorDriver.class);
+            Logger.getLogger(StreamingCollectorDriver.class);
     private static CrisisMailer crisisMailer =
             CrisisMailer.getCrisisMailer();
 
     public static void main(String[] args){
 
         if (args.length < 1){
-            System.out.println("Usage: CollectorDriver " +
+            System.out.println("Usage: StreamingCollectorDriver " +
                     "<collector_streaming_root>");
             System.exit(-1);
         }
@@ -76,12 +76,12 @@ public class CollectorDriver {
             logger.warn("Exception while Collector threads are joining",
                         interruptedException);
         }catch (Exception unknownException){
-            logger.error("Unknown Exception in CollectorDriver",
+            logger.error("Unknown Exception in StreamingCollectorDriver",
                     unknownException);
             crisisMailer.sendEmailAlert(unknownException);
         }
 
-        logger.error("CollectorDriver has stopped of own free will");
-        crisisMailer.sendEmailAlert("collector_streaming: CollectorDriver has stopped of own free will");
+        logger.error("StreamingCollectorDriver has stopped of own free will");
+        crisisMailer.sendEmailAlert("collector_streaming: StreamingCollectorDriver has stopped of own free will");
     }
 }

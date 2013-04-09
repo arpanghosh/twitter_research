@@ -12,10 +12,10 @@ import org.apache.log4j.PropertyConfigurator;
 import com.edge.twitter_research.core.*;
 
 
-public class CollectorDriver {
+public class CategoryCollectorDriver {
 
     private static Logger logger =
-            Logger.getLogger(CollectorDriver.class);
+            Logger.getLogger(CategoryCollectorDriver.class);
     private static CrisisMailer crisisMailer =
             CrisisMailer.getCrisisMailer();
 
@@ -36,7 +36,7 @@ public class CollectorDriver {
     public static void main(String[] args){
 
         if (args.length < 1){
-            System.out.println("Usage: CollectorDriver " +
+            System.out.println("Usage: CategoryCollectorDriver " +
                     "<collector_categories_root>");
             return;
         }
@@ -123,7 +123,7 @@ public class CollectorDriver {
         }
 
 
-        logger.error("CollectorDriver has stopped of own free will");
-        crisisMailer.sendEmailAlert("collector_categories: CollectorDriver has stopped of own free will");
+        logger.error("CategoryCollectorDriver has stopped of own free will");
+        crisisMailer.sendEmailAlert("collector_categories: CategoryCollectorDriver has stopped of own free will");
     }
 }

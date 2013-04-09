@@ -79,12 +79,12 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                             twitterException.getRateLimitStatus() != null){
                         logger.warn("GetUserSuggestionsForSlugThread Rate Limit Reached",
                                 twitterException);
-                        CollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
+                        CategoryCollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
                     }else{
                         logger.error("Exception while fetching users for a Slug from Twitter",
                                 twitterException);
                         crisisMailer.sendEmailAlert(twitterException);
-                        CollectorDriver
+                        CategoryCollectorDriver
                                 .putToSleep(GlobalConstants
                                         .BACKOFF_AFTER_TWITTER_API_FAILURE);
                     }

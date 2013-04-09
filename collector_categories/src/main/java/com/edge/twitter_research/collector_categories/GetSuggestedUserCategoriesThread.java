@@ -39,7 +39,7 @@ public class GetSuggestedUserCategoriesThread extends Thread {
                     outputQueue.add(category.getSlug());
                 }
 
-                CollectorDriver
+                CategoryCollectorDriver
                         .putToSleep(Math.max(Constants.COLLECTION_INTERVAL_IN_SECS,
                                     categories.getRateLimitStatus()
                                             .getSecondsUntilReset() + 1));
@@ -49,12 +49,12 @@ public class GetSuggestedUserCategoriesThread extends Thread {
                         twitterException.getRateLimitStatus() != null){
                     logger.warn("GetSuggestedUserCategoriesThread Rate Limit Reached",
                             twitterException);
-                    CollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
+                    CategoryCollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
                 }else{
                     logger.error("Exception while fetching SuggestedUserCategories from Twitter",
                             twitterException);
                     crisisMailer.sendEmailAlert(twitterException);
-                    CollectorDriver
+                    CategoryCollectorDriver
                             .putToSleep(GlobalConstants
                                     .BACKOFF_AFTER_TWITTER_API_FAILURE);
                 }

@@ -116,7 +116,7 @@ public class PhraseFetchingThread extends Thread {
                 break;
             }
 
-            CollectorDriver.putToSleep(Constants.PHRASE_FILE_CHECKING_INTERVAL);
+            FilterCollectorDriver.putToSleep(Constants.PHRASE_FILE_CHECKING_INTERVAL);
         }
 
         logger.error("PhraseFetchingThread has stopped of own free will");

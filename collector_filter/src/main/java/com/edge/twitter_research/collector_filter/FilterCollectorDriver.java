@@ -13,10 +13,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 
-public class CollectorDriver {
+public class FilterCollectorDriver {
 
     private static Logger logger =
-            Logger.getLogger(CollectorDriver.class);
+            Logger.getLogger(FilterCollectorDriver.class);
     private static CrisisMailer crisisMailer =
             CrisisMailer.getCrisisMailer();
 
@@ -36,7 +36,7 @@ public class CollectorDriver {
     public static void main(String[] args){
 
         if (args.length < 1){
-            System.out.println("Usage: CollectorDriver " +
+            System.out.println("Usage: FilterCollectorDriver " +
                     "<collector_filter_root>");
             System.exit(-1);
         }
@@ -93,7 +93,7 @@ public class CollectorDriver {
             crisisMailer.sendEmailAlert(unknownException);
         }
 
-        logger.error("CollectorDriver has stopped of own free will");
-        crisisMailer.sendEmailAlert("collector_filter: CollectorDriver has stopped of own free will");
+        logger.error("FilterCollectorDriver has stopped of own free will");
+        crisisMailer.sendEmailAlert("collector_filter: FilterCollectorDriver has stopped of own free will");
     }
 }
