@@ -12,7 +12,8 @@
   <name>Tweet Relevance Filter Module</name>
 
   <dependencies>
-    <dependency>
+
+      <dependency>
         <groupId>com.edge.twitter_research</groupId>
         <artifactId>core</artifactId>
         <version>1.0-SNAPSHOT</version>
@@ -24,13 +25,12 @@
         <version>1.7.2</version>
         <scope>compile</scope>
     </dependency>
-
-    <dependency>
-        <groupId>edu.cmu.cs.lti</groupId>
-        <artifactId>ark-tweet-nlp-with-deps</artifactId>
-        <version>1.0-SNAPSHOT</version>
-        <scope>compile</scope>
-    </dependency>
+      <dependency>
+          <groupId>edu.cmu.cs.lti</groupId>
+          <artifactId>ark-tweet-nlp-with-deps</artifactId>
+          <version>1.0-SNAPSHOT</version>
+          <scope>compile</scope>
+      </dependency>
 
   </dependencies>
 

@@ -34,6 +34,10 @@
   </dependencies>
 
   <repositories>
+      <repository>
+          <id>local-repo-for-core</id>
+          <url>file://${project.basedir}/../local-repo-for-core</url>
+      </repository>
   </repositories>
 
   <build>
