@@ -16,17 +16,26 @@
         <groupId>javax.mail</groupId>
         <artifactId>mail</artifactId>
         <version>1.4</version>
-        <scope>compile</scope>
     </dependency>
     <dependency>
         <groupId>org.twitter4j</groupId>
         <artifactId>twitter4j-core</artifactId>
         <version>3.0.4-SNAPSHOT</version>
-        <scope>compile</scope>
     </dependency>
   </dependencies>
 
   <repositories>
+    <repository>
+        <id>twitter4j.org</id>
+        <name>twitter4j.org Repository</name>
+        <url>http://twitter4j.org/maven2</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+      </repository>
   </repositories>
 
   <build>
@@ -56,27 +65,6 @@
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
-        </plugin>
-
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-install-plugin</artifactId>
-            <version>2.4</version>
-            <executions>
-                <execution>
-                    <id>install-core</id>
-                    <goals>
-                        <goal>install-file</goal>
-                    </goals>
-                    <phase>package</phase>
-                    <configuration>
-                        <file>${project.build.directory}/uber-core-1.0-SNAPSHOT.jar</file>
-                        <localRepositoryPath>${project.basedir}/../local-repo-for-resolving-maven-dependency-tree</localRepositoryPath>
-                        <createChecksum>true</createChecksum>
-                        <pomFile>${project.basedir}/pom.xml</pomFile>
-                    </configuration>
-                </execution>
-            </executions>
         </plugin>
 
       </plugins>
