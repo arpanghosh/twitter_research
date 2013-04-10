@@ -6,7 +6,7 @@ import com.edge.twitter_research.core.*;
 
 import org.jsoup.Jsoup;
 
-//import cmu.arktweetnlp.Tagger;
+import cmu.arktweetnlp.Tagger;
 
 import java.text.DecimalFormat;
 import java.util.Calendar;
@@ -123,6 +123,7 @@ public class TweetFeatureVectorGenerator {
     private DecimalFormat fractionFormat;
     private SimpleDateFormat twitterDateFormat;
     private String tweetText;
+    private Tagger tagger;
 
 
 
@@ -168,7 +169,7 @@ public class TweetFeatureVectorGenerator {
 
         fractionFormat = new DecimalFormat("#.00000");
 
-
+        tagger = new Tagger();
     }
 
 
