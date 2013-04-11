@@ -399,15 +399,15 @@ public class TweetFeatureVectorGenerator {
         double mediaChars = 0;
 
         for (SimpleURLEntity url : simpleTweet.getUrlEntities()){
-            urlChars += url.getEnd() - url.getStart() + 1;
+            urlChars += url.getEnd() - url.getStart();
         }
 
         for (SimpleHashtagEntity hashtag : simpleTweet.getHashTagEntities()){
-            hashtagChars += hashtag.getEnd() - hashtag.getStart() + 2;
+            hashtagChars += hashtag.getEnd() - hashtag.getStart();
         }
 
         for (SimpleUserMentionEntity mention : simpleTweet.getUserMentionEntities()){
-            mentionChars += mention.getEnd() - mention.getStart() + 2;
+            mentionChars += mention.getEnd() - mention.getStart();
         }
 
         for(SimpleMediaEntity mediaEntity : simpleTweet.getMediaEntities()){
@@ -418,13 +418,18 @@ public class TweetFeatureVectorGenerator {
         componentFractions[1] = hashtagChars/tweetText.length();
         componentFractions[2] = mentionChars/tweetText.length();
         componentFractions[3] = mediaChars/tweetText.length();
-        componentFractions[4] = 1.0 - (componentFractions[0] +
-                                        componentFractions[1] +
-                                        componentFractions[2] +
-                                        componentFractions[3]);
+        componentFractions[4] = (tweetText.length() -
+                                (urlChars + mentionChars +
+                                        hashtagChars + mediaChars +
+                                        tweetText.split(" ").length - 1))/tweetText.length();
 
-        if (componentFractions[4] < 0.0){
-            logger.error("Error in calculating component fractions");
+        if (componentFractions[0] +
+                componentFractions[1] +
+                componentFractions[2] +
+                componentFractions[3] +
+                componentFractions[4] > 1.0){
+            logger.error("Error in calculating component fractions: " + tweetText + "\n" + tweetText.length() + "\n"
+                    + urlChars + "\n" + hashtagChars + "\n" + mentionChars + "\n" + mediaChars);
         }
 
     }
