@@ -7,12 +7,13 @@ import com.edge.twitter_research.core.*;
 import org.jsoup.Jsoup;
 
 import cmu.arktweetnlp.Tagger;
+import cmu.arktweetnlp.Tagger.TaggedToken;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Calendar;
+import java.util.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.regex.Pattern;
 
 
@@ -117,13 +118,37 @@ public class TweetFeatureVectorGenerator {
     }
 
 
+    private enum POSTag{
+        COMMON_NOUN,
+        PRONOUN,
+        PROPER_NOUN,
+        NOMINAL_POSSESSIVE,
+        PROPER_NOUN_POSSESSIVE,
+        VERB,
+        ADJECTIVE,
+        ADVERB,
+        INTERJECTION,
+        DETERMINER,
+        PRE_POST_POSITION,
+        COORDINATING_CONJUNCTION,
+        VERB_PARTICLE,
+        EXISTENTIAL_THERE,
+        NUMERAL,
+        PUNCTUATION,
+        GENERIC,
+        NOMINAL_VERBAL,
+        PROPER_NOUN_VERBAL,
+        EXISTENTIAL_VERBAL;
+    }
+
+
     private Logger logger;
     private Pattern emoticonMatchPattern;
     private Pattern mobileSourceMatchPattern;
     private DecimalFormat fractionFormat;
     private SimpleDateFormat twitterDateFormat;
     private String tweetText;
-    private Tagger tagger;
+    private Tagger tweetPOStagger;
 
 
 
@@ -143,9 +168,10 @@ public class TweetFeatureVectorGenerator {
     private long userFollowers;
     private int userTotalTweets;
     private UserVerification userIsVerified;
+    private double[] POSFractions;
 
 
-    public TweetFeatureVectorGenerator(){
+    public TweetFeatureVectorGenerator() throws IOException{
         logger = Logger.getLogger(TweetFeatureVectorGenerator.class);
 
         twitterDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
@@ -169,7 +195,10 @@ public class TweetFeatureVectorGenerator {
 
         fractionFormat = new DecimalFormat("#.00000");
 
-        tagger = new Tagger();
+        tweetPOStagger = new Tagger();
+        tweetPOStagger.loadModel(Constants.POS_TAGGING_MODEL_FILE_PATH);
+
+        POSFractions = new double[20];
     }
 
 
@@ -217,8 +246,102 @@ public class TweetFeatureVectorGenerator {
 
         source = determineTweetSource(simpleTweet);
 
+        setPOSFractions();
+
         return featureVectorToString();
     }
+
+
+    private void setPOSFractions(){
+
+        HashMap<Character, Integer> perTagOccurenceCount = new HashMap<Character, Integer>();
+        List<TaggedToken> taggedTokenList = tweetPOStagger.tokenizeAndTag(tweetText);
+
+        double validTags = 0;
+        for (TaggedToken taggedToken : taggedTokenList ){
+            char tag = taggedToken.tag.charAt(0);
+            if ((tag == '#') || (tag == '@') || (tag == '~') ||
+                    (tag == 'U') || (tag == 'E'))
+                continue;
+            validTags++;
+
+            if (perTagOccurenceCount.containsKey(tag)){
+                perTagOccurenceCount.put(tag,
+                        perTagOccurenceCount.get(tag) + 1);
+            }else{
+                perTagOccurenceCount.put(tag, 1);
+            }
+        }
+
+        for (Map.Entry<Character, Integer> tag : perTagOccurenceCount.entrySet()){
+            switch (tag.getKey()){
+                case 'N':
+                    POSFractions[POSTag.COMMON_NOUN.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'O':
+                    POSFractions[POSTag.PRONOUN.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case '^':
+                    POSFractions[POSTag.PROPER_NOUN.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'S':
+                    POSFractions[POSTag.NOMINAL_POSSESSIVE.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'Z':
+                    POSFractions[POSTag.PROPER_NOUN_POSSESSIVE.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'V':
+                    POSFractions[POSTag.VERB.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'A':
+                    POSFractions[POSTag.ADJECTIVE.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'R':
+                    POSFractions[POSTag.ADVERB.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case '!':
+                    POSFractions[POSTag.INTERJECTION.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'D':
+                    POSFractions[POSTag.DETERMINER.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'P':
+                    POSFractions[POSTag.PRE_POST_POSITION.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case '&':
+                    POSFractions[POSTag.COORDINATING_CONJUNCTION.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'T':
+                    POSFractions[POSTag.VERB_PARTICLE.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'X':
+                    POSFractions[POSTag.EXISTENTIAL_THERE.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case '$':
+                    POSFractions[POSTag.NUMERAL.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case ',':
+                    POSFractions[POSTag.PUNCTUATION.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'G':
+                    POSFractions[POSTag.GENERIC.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'L':
+                    POSFractions[POSTag.NOMINAL_VERBAL.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'M':
+                    POSFractions[POSTag.PROPER_NOUN_VERBAL.ordinal()] = tag.getValue()/validTags;
+                    break;
+                case 'Y':
+                    POSFractions[POSTag.EXISTENTIAL_VERBAL.ordinal()] = tag.getValue()/validTags;
+                    break;
+                default:
+                    logger.error("Unknown tag");
+                    break;
+            }
+        }
+    }
+
 
 
     private TweetType determineTweetType(SimpleTweet simpleTweet){
@@ -396,6 +519,11 @@ public class TweetFeatureVectorGenerator {
         for(double componentFraction : componentFractions){
             featureVector.append("|");
             featureVector.append(fractionFormat.format(componentFraction));
+        }
+
+        for(double POSFraction : POSFractions){
+            featureVector.append("|");
+            featureVector.append(fractionFormat.format(POSFraction));
         }
 
         return featureVector.toString();
