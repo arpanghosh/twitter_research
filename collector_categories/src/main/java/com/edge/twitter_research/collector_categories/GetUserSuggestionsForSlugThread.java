@@ -32,16 +32,17 @@ public class GetUserSuggestionsForSlugThread extends Thread {
     public GetUserSuggestionsForSlugThread(TwitterFactory twitterFactory,
                                            LinkedBlockingQueue<String> inputQueue,
                                             PriorityBlockingQueue<UserCategoryMessage> outputQueue,
-                                            String tableLayoutPath,
-                                            String tableName,
-                                            String log4jPropertiesFilePath){
+                                            String tableName){
         this.twitterFactory = twitterFactory;
         this.inputQueue = inputQueue;
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
-        this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
+        this.kijiConnection =
+                new KijiConnection(this.getClass()
+                                    .getResourceAsStream(Constants.USERS_LAST_TWEET_ID_STORE_TABLE_LAYOUT_FILE_NAME),
+                                                        tableName);
     }
 
 

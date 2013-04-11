@@ -19,13 +19,12 @@ public class QueueMeasurementThread extends Thread {
 
     public QueueMeasurementThread(LinkedBlockingQueue<String> categories,
                             PriorityBlockingQueue<UserCategoryMessage> users,
-                            LinkedBlockingQueue<TweetCategoryMessage> tweets,
-                            String log4jPropertiesFilePath){
+                            LinkedBlockingQueue<TweetCategoryMessage> tweets){
         this.categories = categories;
         this.users = users;
         this.tweets = tweets;
 
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
     }
 
     public void run(){

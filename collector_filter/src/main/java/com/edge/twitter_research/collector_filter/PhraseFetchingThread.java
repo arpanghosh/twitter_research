@@ -27,7 +27,6 @@ public class PhraseFetchingThread extends Thread {
     private TwitterStream phraseCollector;
 
     private LinkedBlockingQueue<Status> tweetStorageQueue;
-    private String log4jPropertiesFilePath;
     private Configuration configuration;
 
     private static Logger logger
@@ -35,18 +34,15 @@ public class PhraseFetchingThread extends Thread {
     private CrisisMailer crisisMailer;
 
 
-    public PhraseFetchingThread(String log4jPropertiesFilePath,
-                                String PhraseFilePath,
+    public PhraseFetchingThread(String PhraseFilePath,
                                 LinkedBlockingQueue<Status> tweetStorageQueue,
                                 Configuration configuration){
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
         crisisMailer = CrisisMailer.getCrisisMailer();
         phrases = new HashSet<String>();
         phraseFilePath = PhraseFilePath;
         phraseCollector = null;
 
-
-        this.log4jPropertiesFilePath = log4jPropertiesFilePath;
         this.tweetStorageQueue = tweetStorageQueue;
         this.configuration = configuration;
     }
@@ -126,8 +122,7 @@ public class PhraseFetchingThread extends Thread {
 
     private void startCollectorForPhrases(){
         GetStatusesFilterStreamListener listener =
-                    new GetStatusesFilterStreamListener(tweetStorageQueue,
-                                                        log4jPropertiesFilePath);
+                    new GetStatusesFilterStreamListener(tweetStorageQueue);
         phraseCollector =
                     new TwitterStreamFactory(configuration).getInstance();
         phraseCollector.addListener(listener);

@@ -37,18 +37,13 @@ public class FilterCollectorDriver {
 
         if (args.length < 1){
             System.out.println("Usage: FilterCollectorDriver " +
-                    "<collector_filter_root>");
+                    "<phrase_file_path>");
             System.exit(-1);
         }
 
-        String filterTweetStoreLayoutFilePath = args[0] + "/" +
-                Constants.FILTER_TWEET_STORE_TABLE_LAYOUT_FILE_NAME;
-        String log4jPropertiesFilePath = args[0] + "/" +
-                Constants.LOG4J_PROPERTIES_FILE_PATH;
-        String phraseFilePath = args[0] + "/" +
-                Constants.PHRASE_FILE_NAME;
+        String phraseFilePath = args[0];
 
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(FilterCollectorDriver.class.getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         try{
 
@@ -66,13 +61,10 @@ public class FilterCollectorDriver {
 
         Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
-                                        filterTweetStoreLayoutFilePath,
-                                        GlobalConstants.FILTER_TWEET_STORAGE_TABLE_NAME,
-                                        log4jPropertiesFilePath);
+                                        GlobalConstants.FILTER_TWEET_STORAGE_TABLE_NAME);
 
         Thread phraseFetchingThread =
-                new PhraseFetchingThread(log4jPropertiesFilePath,
-                                        phraseFilePath,
+                new PhraseFetchingThread(phraseFilePath,
                                         tweetStorageQueue,
                                         configuration);
 

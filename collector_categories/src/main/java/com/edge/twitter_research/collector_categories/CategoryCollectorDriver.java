@@ -35,20 +35,7 @@ public class CategoryCollectorDriver {
 
     public static void main(String[] args){
 
-        if (args.length < 1){
-            System.out.println("Usage: CategoryCollectorDriver " +
-                    "<collector_categories_root>");
-            return;
-        }
-
-        String categoryTweetStoreLayoutFilePath = args[0] + "/" +
-                Constants.CATEGORY_TWEET_STORE_TABLE_LAYOUT_FILE_NAME;
-        String usersLastTweetIdLayoutFilePath = args[0] + "/" +
-                Constants.USERS_LAST_TWEET_ID_STORE_TABLE_LAYOUT_FILE_NAME;
-        String log4jPropertiesFilePath = args[0] + "/" +
-                Constants.LOG4J_PROPERTIES_FILE_PATH;
-
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(CategoryCollectorDriver.class.getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         try{
 
@@ -70,33 +57,25 @@ public class CategoryCollectorDriver {
 
         Thread suggestedCategoryThread =
                 new GetSuggestedUserCategoriesThread(twitterFactory,
-                                                    categoryFetchingQueue,
-                                                    log4jPropertiesFilePath);
+                                                    categoryFetchingQueue);
         Thread usersInCategoryThread =
                 new GetUserSuggestionsForSlugThread(twitterFactory,
                                                     categoryFetchingQueue,
                                                     userFetchingQueue,
-                                                    usersLastTweetIdLayoutFilePath,
-                                                    GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME,
-                                                    log4jPropertiesFilePath);
+                                                    GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME);
         Thread tweetsForUserThread =
                 new GetUserTimelineThread(twitterFactory,
                                             userFetchingQueue,
                                             tweetStorageQueue,
-                                            usersLastTweetIdLayoutFilePath,
-                                            GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME,
-                                            log4jPropertiesFilePath);
+                                            GlobalConstants.USER_LAST_TWEET_ID_TABLE_NAME);
         Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
-                                        categoryTweetStoreLayoutFilePath,
-                                        GlobalConstants.CATEGORY_TWEET_STORAGE_TABLE_NAME,
-                                        log4jPropertiesFilePath);
+                                        GlobalConstants.CATEGORY_TWEET_STORAGE_TABLE_NAME);
 
         Thread queueMeasurementThread =
                 new QueueMeasurementThread(categoryFetchingQueue,
                                         userFetchingQueue,
-                                        tweetStorageQueue,
-                                        log4jPropertiesFilePath);
+                                        tweetStorageQueue);
 
 
         suggestedCategoryThread.start();

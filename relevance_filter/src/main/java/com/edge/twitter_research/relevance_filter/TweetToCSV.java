@@ -22,11 +22,10 @@ public class TweetToCSV extends Configured {
             Logger.getLogger(TweetToCSV.class);
 
     public TweetToCSV (String outputFilePath,
-                       String log4jPropertiesFilePath,
                        String inputTableName,
                        float samplingRate){
 
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         try{
             Configuration hBaseConfiguration =
@@ -57,23 +56,20 @@ public class TweetToCSV extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 4){
+        if (args.length < 3){
             System.out.println("Usage: TweetToCSV " +
-                    "<relevance_filter_root> " +
                     "<input_table_name> " +
                     "<HDFS_output_file_path> " +
                     "<sampling_rate (%)>");
             return;
         }
 
-        String relevanceFilterRoot = args[0];
-        String inputTableName = args[1];
-        String HDFSOutputFilePath = args[2];
-        float samplingRate = Float.parseFloat(args[3]);
+        String inputTableName = args[0];
+        String HDFSOutputFilePath = args[1];
+        float samplingRate = Float.parseFloat(args[2]);
 
         TweetToCSV tweetToCSV =
                 new TweetToCSV(HDFSOutputFilePath,
-                        relevanceFilterRoot + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
                         inputTableName,
                         samplingRate);
 

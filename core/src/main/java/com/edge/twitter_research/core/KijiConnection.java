@@ -13,6 +13,7 @@ import org.kiji.schema.util.ResourceUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 
 public class KijiConnection extends Configured {
@@ -113,7 +114,7 @@ public class KijiConnection extends Configured {
     }
 
 
-    public KijiConnection(String tableLayoutPath,
+    public KijiConnection(InputStream tableLayoutPath,
                           String tableName){
         initializeKijis();
 
@@ -125,7 +126,7 @@ public class KijiConnection extends Configured {
                     getConf());
             KijiTableLayout kijiTableLayout =
                     KijiTableLayout
-                            .createFromEffectiveJson(new FileInputStream(tableLayoutPath));
+                            .createFromEffectiveJson(tableLayoutPath);
 
             kiji.createTable(kijiTableLayout.getDesc());
             kijiTable = kiji.openTable(tableName);

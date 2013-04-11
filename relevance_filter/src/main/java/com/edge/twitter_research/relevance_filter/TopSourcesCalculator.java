@@ -33,12 +33,11 @@ public class TopSourcesCalculator extends Configured{
 
 
     public TopSourcesCalculator (String intermediateFilePath,
-                                    String log4jPropertiesFilePath,
                                     String inputTableName,
                                     String resultFilePath,
                                     int splits){
 
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
         mapReduceJobs = new ArrayList<MapReduceJob>();
 
         try{
@@ -82,9 +81,8 @@ public class TopSourcesCalculator extends Configured{
 
     public static void main(String[] args){
 
-        if (args.length < 5){
+        if (args.length < 4){
             System.out.println("Usage: TopSourcesCalculator " +
-                    "<relevance_filter_root> " +
                     "<input_table_name> " +
                     "<HDFS_intermediate_file_path> " +
                     "<HDFS_result_file_path> " +
@@ -92,15 +90,13 @@ public class TopSourcesCalculator extends Configured{
             return;
         }
 
-        String relevanceFilterRoot = args[0];
-        String inputTableName = args[1];
-        String HDFSIntermediateFilePath = args[2];
-        String HDFSResultFilePath = args[3];
-        int splits = Integer.parseInt(args[4]);
+        String inputTableName = args[0];
+        String HDFSIntermediateFilePath = args[1];
+        String HDFSResultFilePath = args[2];
+        int splits = Integer.parseInt(args[3]);
 
         TopSourcesCalculator topSourcesCalculator =
                 new TopSourcesCalculator(HDFSIntermediateFilePath,
-                        relevanceFilterRoot + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
                         inputTableName,
                         HDFSResultFilePath,
                         splits);

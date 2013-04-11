@@ -22,18 +22,7 @@ public class StreamingCollectorDriver {
 
     public static void main(String[] args){
 
-        if (args.length < 1){
-            System.out.println("Usage: StreamingCollectorDriver " +
-                    "<collector_streaming_root>");
-            System.exit(-1);
-        }
-
-        String sampleTweetStoreLayoutFilePath = args[0] + "/" +
-                Constants.SAMPLE_TWEET_STORE_TABLE_LAYOUT_FILE_NAME;
-        String log4jPropertiesFilePath = args[0] + "/" +
-                Constants.LOG4J_PROPERTIES_FILE_PATH;
-
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(StreamingCollectorDriver.class.getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         try{
 
@@ -48,21 +37,17 @@ public class StreamingCollectorDriver {
                 new LinkedBlockingQueue<Status>();
 
         GetStatusesSampleStreamListener listener =
-                new GetStatusesSampleStreamListener(tweetStorageQueue,
-                                                    log4jPropertiesFilePath);
+                new GetStatusesSampleStreamListener(tweetStorageQueue);
         TwitterStream twitterStream =
                 new TwitterStreamFactory(configurationBuilder.build()).getInstance();
         twitterStream.addListener(listener);
 
         Thread getStatusesSampleStreamThread =
-                new GetStatusesSampleStreamThread(twitterStream,
-                                                    log4jPropertiesFilePath);
+                new GetStatusesSampleStreamThread(twitterStream);
 
         Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
-                                        sampleTweetStoreLayoutFilePath,
-                                        GlobalConstants.SAMPLE_TWEET_STORAGE_TABLE_NAME,
-                                        log4jPropertiesFilePath);
+                                        GlobalConstants.SAMPLE_TWEET_STORAGE_TABLE_NAME);
 
         tweetStorageThread.start();
         getStatusesSampleStreamThread.start();

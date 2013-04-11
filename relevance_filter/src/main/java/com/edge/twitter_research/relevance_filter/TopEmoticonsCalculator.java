@@ -36,12 +36,11 @@ public class TopEmoticonsCalculator extends Configured{
 
 
     public TopEmoticonsCalculator (String intermediateFilePath,
-                                    String log4jPropertiesFilePath,
                                     String inputFilePath,
                                     String resultFilePath,
                                     int splits){
 
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         mapReduceJobs = new ArrayList<MapReduceJob>();
 
@@ -84,9 +83,8 @@ public class TopEmoticonsCalculator extends Configured{
 
     public static void main(String[] args){
 
-        if (args.length < 5){
+        if (args.length < 4){
             System.out.println("Usage: TopEmoticonsCalculator " +
-                    "<relevance_filter_root> " +
                     "<HDFS_input_file_path> " +
                     "<HDFS_output_file_path> " +
                     "<HDFS_intermediate_file_path> " +
@@ -94,15 +92,13 @@ public class TopEmoticonsCalculator extends Configured{
             return;
         }
 
-        String relevanceFilterRoot = args[0];
-        String HDFSInputFilePath = args[1];
-        String HDFSOutputFilePath = args[2];
-        String HDFSIntermediateFilePath = args[3];
-        int splits = Integer.parseInt(args[4]);
+        String HDFSInputFilePath = args[0];
+        String HDFSOutputFilePath = args[1];
+        String HDFSIntermediateFilePath = args[2];
+        int splits = Integer.parseInt(args[3]);
 
         TopEmoticonsCalculator topEmoticonsCalculator =
                 new TopEmoticonsCalculator(HDFSIntermediateFilePath,
-                        relevanceFilterRoot + "/" + Constants.LOG4J_PROPERTIES_FILE_PATH,
                         HDFSInputFilePath,
                         HDFSOutputFilePath,
                         splits);

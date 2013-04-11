@@ -17,11 +17,10 @@ public class GetStatusesFilterStreamListener implements StatusListener {
     private static Logger logger =
             Logger.getLogger(GetStatusesFilterStreamListener.class);
 
-    public GetStatusesFilterStreamListener(LinkedBlockingQueue<Status> outputQueue,
-                                           String log4jPropertiesFilePath){
+    public GetStatusesFilterStreamListener(LinkedBlockingQueue<Status> outputQueue){
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
     }
 
     @Override

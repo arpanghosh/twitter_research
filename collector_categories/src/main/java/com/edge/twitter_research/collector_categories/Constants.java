@@ -20,11 +20,11 @@ public class Constants {
 
     /*File paths*/
     public static final String CATEGORY_TWEET_STORE_TABLE_LAYOUT_FILE_NAME =
-            "category_tweet_store_layout.json";
+            "/category_tweet_store_layout.json";
     public static final String USERS_LAST_TWEET_ID_STORE_TABLE_LAYOUT_FILE_NAME =
-            "users_last_tweet_id_layout.json";
+            "/users_last_tweet_id_layout.json";
     public static final String LOG4J_PROPERTIES_FILE_PATH =
-            "src/main/java/resources/log4j.properties";
+            "/log4j.properties";
 
     /*Column details*/
     public static final String LAST_TWEET_ID_COLUMN_FAMILY_NAME = "last_since_id";

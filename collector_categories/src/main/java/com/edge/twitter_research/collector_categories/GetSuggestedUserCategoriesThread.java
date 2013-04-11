@@ -19,12 +19,11 @@ public class GetSuggestedUserCategoriesThread extends Thread {
 
 
     public GetSuggestedUserCategoriesThread(TwitterFactory twitterFactory,
-                                            LinkedBlockingQueue<String> outputQueue,
-                                            String log4jPropertiesFilePath){
+                                            LinkedBlockingQueue<String> outputQueue){
         this.twitterFactory = twitterFactory;
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
     }
 
 

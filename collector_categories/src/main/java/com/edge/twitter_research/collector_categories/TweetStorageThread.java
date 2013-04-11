@@ -22,13 +22,14 @@ public class TweetStorageThread extends Thread {
     private long tweetCounter = 0L;
 
     public TweetStorageThread(LinkedBlockingQueue<TweetCategoryMessage> inputQueue,
-                              String tableLayoutPath,
-                              String tableName,
-                              String log4jPropertiesFilePath){
+                              String tableName){
         this.inputQueue = inputQueue;
-        this.kijiConnection = new KijiConnection(tableLayoutPath, tableName);
+        this.kijiConnection =
+                new KijiConnection(this.getClass()
+                                    .getResourceAsStream(Constants.CATEGORY_TWEET_STORE_TABLE_LAYOUT_FILE_NAME),
+                                                        tableName);
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(log4jPropertiesFilePath);
+        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
     }
 
     public void run(){

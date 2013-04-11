@@ -16,7 +16,7 @@ public class Constants {
 
     /*File paths*/
     public static final String SAMPLE_TWEET_STORE_TABLE_LAYOUT_FILE_NAME =
-            "sample_tweet_store_layout.json";
+            "/sample_tweet_store_layout.json";
     public static final String LOG4J_PROPERTIES_FILE_PATH =
-            "src/main/java/resources/log4j.properties";
+            "/log4j.properties";
 }
