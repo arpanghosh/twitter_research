@@ -8,6 +8,7 @@ import org.jsoup.Jsoup;
 
 import cmu.arktweetnlp.Tagger;
 import cmu.arktweetnlp.Tagger.TaggedToken;
+import com.google.common.base.Splitter;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -149,6 +150,7 @@ public class TweetFeatureVectorGenerator {
     private SimpleDateFormat twitterDateFormat;
     private String tweetText;
     private Tagger tweetPOStagger;
+    private HashMap<Character, Integer> tagIndexMapping;
 
 
 
@@ -169,6 +171,7 @@ public class TweetFeatureVectorGenerator {
     private int userTotalTweets;
     private UserVerification userIsVerified;
     private double[] POSFractions;
+    private double avgWordLength;
 
 
     public TweetFeatureVectorGenerator() throws IOException{
@@ -199,6 +202,28 @@ public class TweetFeatureVectorGenerator {
         tweetPOStagger.loadModel(Constants.POS_TAGGING_MODEL_FILE_PATH);
 
         POSFractions = new double[20];
+        tagIndexMapping = new HashMap<Character, Integer>();
+        tagIndexMapping.put('N', POSTag.COMMON_NOUN.ordinal());
+        tagIndexMapping.put('O', POSTag.PRONOUN.ordinal());
+        tagIndexMapping.put('^', POSTag.PROPER_NOUN.ordinal());
+        tagIndexMapping.put('S', POSTag.NOMINAL_POSSESSIVE.ordinal());
+        tagIndexMapping.put('Z', POSTag.PROPER_NOUN_POSSESSIVE.ordinal());
+        tagIndexMapping.put('V', POSTag.VERB.ordinal());
+        tagIndexMapping.put('A', POSTag.ADJECTIVE.ordinal());
+        tagIndexMapping.put('R', POSTag.ADVERB.ordinal());
+        tagIndexMapping.put('!', POSTag.INTERJECTION.ordinal());
+        tagIndexMapping.put('D', POSTag.DETERMINER.ordinal());
+        tagIndexMapping.put('P', POSTag.PRE_POST_POSITION.ordinal());
+        tagIndexMapping.put('&', POSTag.COORDINATING_CONJUNCTION.ordinal());
+        tagIndexMapping.put('T', POSTag.VERB_PARTICLE.ordinal());
+        tagIndexMapping.put('X', POSTag.EXISTENTIAL_THERE.ordinal());
+        tagIndexMapping.put('$', POSTag.NUMERAL.ordinal());
+        tagIndexMapping.put(',', POSTag.PUNCTUATION.ordinal());
+        tagIndexMapping.put('G', POSTag.GENERIC.ordinal());
+        tagIndexMapping.put('L', POSTag.NOMINAL_VERBAL.ordinal());
+        tagIndexMapping.put('M', POSTag.PROPER_NOUN_VERBAL.ordinal());
+        tagIndexMapping.put('Y', POSTag.EXISTENTIAL_VERBAL.ordinal());
+
     }
 
 
@@ -242,104 +267,96 @@ public class TweetFeatureVectorGenerator {
         contentType = tweetText.contains("?") ?
                 ContentType.QUESTION : ContentType.PLAIN;
 
-        numEmoticonsInTweet = emoticonCount();
-
         source = determineTweetSource(simpleTweet);
 
-        setPOSFractions();
+        setPOSFractionsAvgWordLengthAndNumEmoticons();
 
         return featureVectorToString();
     }
 
 
-    private void setPOSFractions(){
+    private void setPOSFractionsAvgWordLengthAndNumEmoticons(){
 
-        HashMap<Character, Integer> perTagOccurenceCount = new HashMap<Character, Integer>();
+        HashMap<Character, ArrayList<String>> perTagOccurenceCount = new HashMap<Character, ArrayList<String>>();
         List<TaggedToken> taggedTokenList = tweetPOStagger.tokenizeAndTag(tweetText);
 
         double validTags = 0;
+        int emoticonCountViaPOS = 0;
+
         for (TaggedToken taggedToken : taggedTokenList ){
             char tag = taggedToken.tag.charAt(0);
             if ((tag == '#') || (tag == '@') || (tag == '~') ||
-                    (tag == 'U') || (tag == 'E'))
+                    (tag == 'U'))
                 continue;
+
+            if (tag == 'E'){
+                emoticonCountViaPOS++;
+                continue;
+            }
+
+            if(tag ==','){
+                for (String tokenSplit : Splitter.fixedLength(1).split(taggedToken.token)){
+                    if (perTagOccurenceCount.containsKey(tag)){
+                        perTagOccurenceCount.get(tag).add(tokenSplit);
+                    }else{
+                        ArrayList<String> tokens = new ArrayList<String>();
+                        tokens.add(tokenSplit);
+                        perTagOccurenceCount.put(tag, tokens);
+                    }
+                    validTags++;
+                }
+                continue;
+            }
+
             validTags++;
 
             if (perTagOccurenceCount.containsKey(tag)){
-                perTagOccurenceCount.put(tag,
-                        perTagOccurenceCount.get(tag) + 1);
+                perTagOccurenceCount.get(tag).add(taggedToken.token);
             }else{
-                perTagOccurenceCount.put(tag, 1);
+                ArrayList<String> tokens = new ArrayList<String>();
+                tokens.add(taggedToken.token);
+                perTagOccurenceCount.put(tag, tokens);
             }
         }
 
-        for (Map.Entry<Character, Integer> tag : perTagOccurenceCount.entrySet()){
+        int numWords = 0;
+        int totalWordCharacterCount = 0;
+
+        for (Map.Entry<Character, ArrayList<String>> tag : perTagOccurenceCount.entrySet()){
+
+
+            POSFractions[tagIndexMapping.get(tag.getKey())] = tag.getValue().size()/validTags;
+
             switch (tag.getKey()){
                 case 'N':
-                    POSFractions[POSTag.COMMON_NOUN.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'O':
-                    POSFractions[POSTag.PRONOUN.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case '^':
-                    POSFractions[POSTag.PROPER_NOUN.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'S':
-                    POSFractions[POSTag.NOMINAL_POSSESSIVE.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'Z':
-                    POSFractions[POSTag.PROPER_NOUN_POSSESSIVE.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'V':
-                    POSFractions[POSTag.VERB.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'A':
-                    POSFractions[POSTag.ADJECTIVE.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'R':
-                    POSFractions[POSTag.ADVERB.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case '!':
-                    POSFractions[POSTag.INTERJECTION.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'D':
-                    POSFractions[POSTag.DETERMINER.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'P':
-                    POSFractions[POSTag.PRE_POST_POSITION.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case '&':
-                    POSFractions[POSTag.COORDINATING_CONJUNCTION.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'T':
-                    POSFractions[POSTag.VERB_PARTICLE.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'X':
-                    POSFractions[POSTag.EXISTENTIAL_THERE.ordinal()] = tag.getValue()/validTags;
-                    break;
-                case '$':
-                    POSFractions[POSTag.NUMERAL.ordinal()] = tag.getValue()/validTags;
-                    break;
-                case ',':
-                    POSFractions[POSTag.PUNCTUATION.ordinal()] = tag.getValue()/validTags;
-                    break;
-                case 'G':
-                    POSFractions[POSTag.GENERIC.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'L':
-                    POSFractions[POSTag.NOMINAL_VERBAL.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'M':
-                    POSFractions[POSTag.PROPER_NOUN_VERBAL.ordinal()] = tag.getValue()/validTags;
-                    break;
                 case 'Y':
-                    POSFractions[POSTag.EXISTENTIAL_VERBAL.ordinal()] = tag.getValue()/validTags;
+                case 'G':
+                    numWords += tag.getValue().size();
+                    for (String token : tag.getValue())
+                        totalWordCharacterCount += token.length();
                     break;
                 default:
-                    logger.error("Unknown tag");
                     break;
             }
         }
+        avgWordLength = ((double)totalWordCharacterCount)/numWords;
+
+        numEmoticonsInTweet = Math.max(emoticonCount(), emoticonCountViaPOS);
     }
 
 
@@ -520,6 +537,8 @@ public class TweetFeatureVectorGenerator {
         featureVector.append(contentType.getContentType());
         featureVector.append("|");
         featureVector.append(source.getTweetSource());
+        featureVector.append("|");
+        featureVector.append(fractionFormat.format(avgWordLength));
 
         for(double componentFraction : componentFractions){
             featureVector.append("|");
