@@ -7,7 +7,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.kiji.mapreduce.MapReduceJob;
+import org.kiji.mapreduce.KijiMapReduceJob;
 import org.kiji.mapreduce.gather.KijiGatherJobBuilder;
 import org.kiji.mapreduce.output.TextMapReduceJobOutput;
 import org.kiji.schema.KijiURI;
@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public class TweetToCSV extends Configured {
 
-    public MapReduceJob mapReduceJob = null;
+    public KijiMapReduceJob mapReduceJob = null;
 
     public static Logger logger =
             Logger.getLogger(TweetToCSV.class);

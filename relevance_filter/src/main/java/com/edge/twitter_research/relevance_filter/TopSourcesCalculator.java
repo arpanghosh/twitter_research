@@ -9,8 +9,8 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import org.kiji.mapreduce.KijiMapReduceJob;
 import org.kiji.mapreduce.KijiMapReduceJobBuilder;
-import org.kiji.mapreduce.MapReduceJob;
 import org.kiji.mapreduce.gather.KijiGatherJobBuilder;
 import org.kiji.mapreduce.input.AvroKeyValueMapReduceJobInput;
 import org.kiji.mapreduce.output.AvroKeyValueMapReduceJobOutput;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 public class TopSourcesCalculator extends Configured{
 
 
-    public ArrayList<MapReduceJob> mapReduceJobs = null;
+    public ArrayList<KijiMapReduceJob> mapReduceJobs = null;
 
     public static Logger logger =
             Logger.getLogger(TopSourcesCalculator.class);
@@ -39,7 +39,7 @@ public class TopSourcesCalculator extends Configured{
 
         PropertyConfigurator.configure(this.getClass()
                 .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
-        mapReduceJobs = new ArrayList<MapReduceJob>();
+        mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
         try{
             Configuration hBaseConfiguration =
@@ -104,7 +104,7 @@ public class TopSourcesCalculator extends Configured{
 
         boolean isSuccessful = false;
 
-        for (MapReduceJob mapReduceJob : topSourcesCalculator.mapReduceJobs){
+        for (KijiMapReduceJob mapReduceJob : topSourcesCalculator.mapReduceJobs){
             try{
                 isSuccessful = mapReduceJob.run();
                 if (!isSuccessful)
