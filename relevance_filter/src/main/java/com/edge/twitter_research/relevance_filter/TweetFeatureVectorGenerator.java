@@ -143,7 +143,6 @@ public class TweetFeatureVectorGenerator {
     }
 
 
-    private Logger logger;
     private Pattern emoticonMatchPattern;
     private Pattern mobileSourceMatchPattern;
     private DecimalFormat fractionFormat;
@@ -175,7 +174,6 @@ public class TweetFeatureVectorGenerator {
 
 
     public TweetFeatureVectorGenerator() throws IOException{
-        logger = Logger.getLogger(TweetFeatureVectorGenerator.class);
 
         twitterDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 
@@ -231,7 +229,6 @@ public class TweetFeatureVectorGenerator {
         try{
             tweetText = simpleTweet.getText().toString();
         }catch (NullPointerException nullPointerException){
-            logger.warn("Tweet text is null", nullPointerException);
             tweetText = "";
         }
 
@@ -441,15 +438,6 @@ public class TweetFeatureVectorGenerator {
                                         hashtagChars + mediaChars +
                                         tweetText.split(" ").length - 1))/tweetText.length();
 
-        if (componentFractions[0] +
-                componentFractions[1] +
-                componentFractions[2] +
-                componentFractions[3] +
-                componentFractions[4] > 1.0){
-            logger.error("Error in calculating component fractions: " + tweetText + "\n" + tweetText.length() + "\n"
-                    + urlChars + "\n" + hashtagChars + "\n" + mentionChars + "\n" + mediaChars);
-        }
-
     }
 
 
@@ -457,9 +445,9 @@ public class TweetFeatureVectorGenerator {
         try{
             return twitterDateFormat.parse(simpleTweet.getCreatedAt().toString());
         }catch(ParseException parseException){
-            logger.error("Date string is not valid", parseException);
+            parseException.printStackTrace();
         }catch (NullPointerException nullPointerException){
-            logger.warn("createdAt in SimpleTweet is null", nullPointerException);
+            nullPointerException.printStackTrace();
         }
         return null;
     }
