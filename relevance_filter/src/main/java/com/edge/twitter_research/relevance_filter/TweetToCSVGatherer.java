@@ -75,7 +75,7 @@ public class TweetToCSVGatherer
 
     @Override
     public Class<?> getOutputValueClass() {
-        return CharSequence.class;
+        return Text.class;
     }
 
     @Override

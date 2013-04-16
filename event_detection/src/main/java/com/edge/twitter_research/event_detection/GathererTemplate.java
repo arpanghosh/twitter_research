@@ -43,7 +43,7 @@ public class GathererTemplate
 
     @Override
     public Class<?> getOutputValueClass() {
-        return CharSequence.class;
+        return Text.class;
     }
 
     @Override

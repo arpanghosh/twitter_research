@@ -83,7 +83,7 @@ public class TweetToFeatureVectorGatherer
 
     @Override
     public Class<?> getOutputValueClass() {
-        return CharSequence.class;
+        return Text.class;
     }
 
     @Override
