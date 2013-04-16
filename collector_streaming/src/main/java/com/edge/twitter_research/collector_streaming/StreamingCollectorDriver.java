@@ -22,39 +22,40 @@ public class StreamingCollectorDriver {
 
     public static void main(String[] args){
 
-        PropertyConfigurator.configure(StreamingCollectorDriver.class.getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(StreamingCollectorDriver
+                .class.getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         try{
 
-        ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.setDebugEnabled(true)
+            ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+            configurationBuilder.setDebugEnabled(true)
                 .setOAuthConsumerKey(Constants.OAUTH_CONSUMER_KEY)
                 .setOAuthConsumerSecret(Constants.OAUTH_CONSUMER_SECRET)
                 .setOAuthAccessToken(Constants.OAUTH_ACCESS_TOKEN)
                 .setOAuthAccessTokenSecret(Constants.OAUTH_ACCESS_TOKEN_SECRET);
 
-        LinkedBlockingQueue<Status> tweetStorageQueue =
+            LinkedBlockingQueue<Status> tweetStorageQueue =
                 new LinkedBlockingQueue<Status>();
 
-        GetStatusesSampleStreamListener listener =
+            GetStatusesSampleStreamListener listener =
                 new GetStatusesSampleStreamListener(tweetStorageQueue);
-        TwitterStream twitterStream =
+            TwitterStream twitterStream =
                 new TwitterStreamFactory(configurationBuilder.build()).getInstance();
-        twitterStream.addListener(listener);
+            twitterStream.addListener(listener);
 
-        Thread getStatusesSampleStreamThread =
+            Thread getStatusesSampleStreamThread =
                 new GetStatusesSampleStreamThread(twitterStream);
 
-        Thread tweetStorageThread =
+            Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
                                         GlobalConstants.SAMPLE_TWEET_STORAGE_TABLE_NAME);
 
-        tweetStorageThread.start();
-        getStatusesSampleStreamThread.start();
+            tweetStorageThread.start();
+            getStatusesSampleStreamThread.start();
 
 
-        getStatusesSampleStreamThread.join();
-        tweetStorageThread.join();
+            getStatusesSampleStreamThread.join();
+            tweetStorageThread.join();
 
 
         }catch (InterruptedException interruptedException){

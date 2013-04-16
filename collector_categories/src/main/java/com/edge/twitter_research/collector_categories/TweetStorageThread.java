@@ -26,10 +26,12 @@ public class TweetStorageThread extends Thread {
         this.inputQueue = inputQueue;
         this.kijiConnection =
                 new KijiConnection(this.getClass()
-                                    .getResourceAsStream(Constants.CATEGORY_TWEET_STORE_TABLE_LAYOUT_FILE_NAME),
+                                    .getResourceAsStream(Constants
+                                            .CATEGORY_TWEET_STORE_TABLE_LAYOUT_FILE_NAME),
                                                         tableName);
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(this.getClass()
+                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
     }
 
     public void run(){

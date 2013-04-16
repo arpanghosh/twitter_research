@@ -37,11 +37,13 @@ public class GetUserSuggestionsForSlugThread extends Thread {
         this.inputQueue = inputQueue;
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(this.getClass()
+                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         this.kijiConnection =
                 new KijiConnection(this.getClass()
-                                    .getResourceAsStream(Constants.USERS_LAST_TWEET_ID_STORE_TABLE_LAYOUT_FILE_NAME),
+                                    .getResourceAsStream(Constants
+                                            .USERS_LAST_TWEET_ID_STORE_TABLE_LAYOUT_FILE_NAME),
                                                         tableName);
     }
 
@@ -80,13 +82,12 @@ public class GetUserSuggestionsForSlugThread extends Thread {
                             twitterException.getRateLimitStatus() != null){
                         logger.warn("GetUserSuggestionsForSlugThread Rate Limit Reached",
                                 twitterException);
-                        CategoryCollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
+                        Timer.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
                     }else{
                         logger.error("Exception while fetching users for a Slug from Twitter",
                                 twitterException);
                         crisisMailer.sendEmailAlert(twitterException);
-                        CategoryCollectorDriver
-                                .putToSleep(GlobalConstants
+                        Timer.putToSleep(GlobalConstants
                                         .BACKOFF_AFTER_TWITTER_API_FAILURE);
                     }
                 }catch (Exception unknownException){

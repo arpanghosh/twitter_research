@@ -20,12 +20,12 @@ public class GetStatusesSampleStreamListener implements StatusListener {
     public GetStatusesSampleStreamListener(LinkedBlockingQueue<Status> outputQueue){
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(this.getClass()
+                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
     }
 
     @Override
     public void onStatus(Status status) {
-        //System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText());
         outputQueue.add(status);
     }
 

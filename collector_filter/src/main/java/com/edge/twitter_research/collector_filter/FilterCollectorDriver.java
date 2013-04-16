@@ -20,18 +20,6 @@ public class FilterCollectorDriver {
     private static CrisisMailer crisisMailer =
             CrisisMailer.getCrisisMailer();
 
-    public static void putToSleep(int seconds){
-        boolean slept = false;
-        do{
-            try{
-                Thread.sleep(seconds * 1000);
-                slept = true;
-            }catch (InterruptedException interruptedException){
-                logger.warn("Exception while trying to sleep",
-                        interruptedException);
-            }
-        }while(!slept);
-    }
 
     public static void main(String[] args){
 
@@ -43,37 +31,38 @@ public class FilterCollectorDriver {
 
         String phraseFilePath = args[0];
 
-        PropertyConfigurator.configure(FilterCollectorDriver.class.getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(FilterCollectorDriver.class
+                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         try{
 
-        ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.setDebugEnabled(true)
+            ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+            configurationBuilder.setDebugEnabled(true)
                 .setOAuthConsumerKey(Constants.OAUTH_CONSUMER_KEY)
                 .setOAuthConsumerSecret(Constants.OAUTH_CONSUMER_SECRET)
                 .setOAuthAccessToken(Constants.OAUTH_ACCESS_TOKEN)
                 .setOAuthAccessTokenSecret(Constants.OAUTH_ACCESS_TOKEN_SECRET);
-        Configuration configuration = configurationBuilder.build();
+            Configuration configuration = configurationBuilder.build();
 
-        LinkedBlockingQueue<Status> tweetStorageQueue =
+            LinkedBlockingQueue<Status> tweetStorageQueue =
                 new LinkedBlockingQueue<Status>();
 
 
-        Thread tweetStorageThread =
+            Thread tweetStorageThread =
                 new TweetStorageThread(tweetStorageQueue,
                                         GlobalConstants.FILTER_TWEET_STORAGE_TABLE_NAME);
 
-        Thread phraseFetchingThread =
+            Thread phraseFetchingThread =
                 new PhraseFetchingThread(phraseFilePath,
                                         tweetStorageQueue,
                                         configuration);
 
-        tweetStorageThread.start();
-        phraseFetchingThread.start();
+            tweetStorageThread.start();
+            phraseFetchingThread.start();
 
 
-        tweetStorageThread.join();
-        phraseFetchingThread.join();
+            tweetStorageThread.join();
+            phraseFetchingThread.join();
 
 
         }catch (InterruptedException interruptedException){

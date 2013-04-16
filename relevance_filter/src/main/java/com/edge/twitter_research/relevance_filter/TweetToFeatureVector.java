@@ -14,6 +14,9 @@ import org.kiji.schema.KijiURI;
 
 import java.io.IOException;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class TweetToFeatureVector extends Configured {
 
     public MapReduceJob mapReduceJob = null;
@@ -26,7 +29,8 @@ public class TweetToFeatureVector extends Configured {
                        float samplingRate,
                        String dataSetType){
 
-        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(this.getClass()
+                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         try{
             Configuration hBaseConfiguration =
@@ -40,11 +44,24 @@ public class TweetToFeatureVector extends Configured {
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
 
+            String additionalJarsPath = "";
+
+            try{
+                additionalJarsPath = InetAddress.getLocalHost().getHostName().equals("master")?
+                                        Constants.ADDTIONAL_JARS_PATH_KIJI_CLUSTER :
+                                        Constants.ADDTIONAL_JARS_PATH_BENTO;
+            }catch (UnknownHostException unknownHostException){
+                logger.error(unknownHostException);
+                unknownHostException.printStackTrace();
+                System.exit(-1);
+            }
+
             this.mapReduceJob = KijiGatherJobBuilder.create()
                     .withConf(hBaseConfiguration)
                     .withGatherer(TweetToFeatureVectorGatherer.class)
                     .withInputTable(tableUri)
                     .withOutput(new TextMapReduceJobOutput(new Path(outputFilePath), 1))
+                    .addJarDirectory(new Path(additionalJarsPath))
                     .build();
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);

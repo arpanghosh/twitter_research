@@ -23,7 +23,8 @@ public class GetSuggestedUserCategoriesThread extends Thread {
         this.twitterFactory = twitterFactory;
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(this.getClass()
+                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
     }
 
 
@@ -38,8 +39,7 @@ public class GetSuggestedUserCategoriesThread extends Thread {
                     outputQueue.add(category.getSlug());
                 }
 
-                CategoryCollectorDriver
-                        .putToSleep(Math.max(Constants.COLLECTION_INTERVAL_IN_SECS,
+                Timer.putToSleep(Math.max(Constants.COLLECTION_INTERVAL_IN_SECS,
                                     categories.getRateLimitStatus()
                                             .getSecondsUntilReset() + 1));
 
@@ -48,13 +48,12 @@ public class GetSuggestedUserCategoriesThread extends Thread {
                         twitterException.getRateLimitStatus() != null){
                     logger.warn("GetSuggestedUserCategoriesThread Rate Limit Reached",
                             twitterException);
-                    CategoryCollectorDriver.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
+                    Timer.putToSleep(GlobalConstants.RATE_LIMIT_WINDOW);
                 }else{
                     logger.error("Exception while fetching SuggestedUserCategories from Twitter",
                             twitterException);
                     crisisMailer.sendEmailAlert(twitterException);
-                    CategoryCollectorDriver
-                            .putToSleep(GlobalConstants
+                    Timer.putToSleep(GlobalConstants
                                     .BACKOFF_AFTER_TWITTER_API_FAILURE);
                 }
             } catch (Exception unknownException){

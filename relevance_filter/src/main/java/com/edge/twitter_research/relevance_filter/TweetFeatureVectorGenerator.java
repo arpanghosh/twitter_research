@@ -357,6 +357,7 @@ public class TweetFeatureVectorGenerator {
         avgWordLength = ((double)totalWordCharacterCount)/numWords;
 
         numEmoticonsInTweet = Math.max(emoticonCount(), emoticonCountViaPOS);
+
     }
 
 

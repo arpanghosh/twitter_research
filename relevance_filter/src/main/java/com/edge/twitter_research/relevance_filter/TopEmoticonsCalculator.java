@@ -40,14 +40,15 @@ public class TopEmoticonsCalculator extends Configured{
                                     String resultFilePath,
                                     int splits){
 
-        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(this.getClass()
+                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
 
         mapReduceJobs = new ArrayList<MapReduceJob>();
 
         try{
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
-            //hBaseConfiguration.setInt("hbase.client.scanner.caching", 500);
+            hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
             setConf(hBaseConfiguration);
 

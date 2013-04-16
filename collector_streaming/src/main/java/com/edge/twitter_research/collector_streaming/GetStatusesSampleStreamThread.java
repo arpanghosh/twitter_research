@@ -16,7 +16,8 @@ public class GetStatusesSampleStreamThread extends Thread {
 
     public GetStatusesSampleStreamThread(TwitterStream twitterStream){
         this.twitterStream = twitterStream;
-        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(this.getClass()
+                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
         this.crisisMailer = CrisisMailer.getCrisisMailer();
     }
 

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.edge.twitter_research.core.CrisisMailer;
+import com.edge.twitter_research.core.Timer;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import twitter4j.FilterQuery;
@@ -37,7 +38,8 @@ public class PhraseFetchingThread extends Thread {
     public PhraseFetchingThread(String PhraseFilePath,
                                 LinkedBlockingQueue<Status> tweetStorageQueue,
                                 Configuration configuration){
-        PropertyConfigurator.configure(this.getClass().getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(this.getClass()
+                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
         crisisMailer = CrisisMailer.getCrisisMailer();
         phrases = new HashSet<String>();
         phraseFilePath = PhraseFilePath;
@@ -112,7 +114,7 @@ public class PhraseFetchingThread extends Thread {
                 break;
             }
 
-            FilterCollectorDriver.putToSleep(Constants.PHRASE_FILE_CHECKING_INTERVAL);
+            Timer.putToSleep(Constants.PHRASE_FILE_CHECKING_INTERVAL);
         }
 
         logger.error("PhraseFetchingThread has stopped of own free will");
@@ -127,7 +129,8 @@ public class PhraseFetchingThread extends Thread {
                     new TwitterStreamFactory(configuration).getInstance();
         phraseCollector.addListener(listener);
 
-        phraseCollector.filter(new FilterQuery(0, new long[0], phrases.toArray(new String[phrases.size()])));
+        phraseCollector.filter(new FilterQuery(0, new long[0],
+                                    phrases.toArray(new String[phrases.size()])));
     }
 
 
