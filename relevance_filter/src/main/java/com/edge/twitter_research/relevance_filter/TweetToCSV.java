@@ -25,8 +25,7 @@ public class TweetToCSV extends Configured {
                        String inputTableName,
                        float samplingRate){
 
-        PropertyConfigurator.configure(this.getClass()
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         try{
             Configuration hBaseConfiguration =

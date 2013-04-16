@@ -36,8 +36,7 @@ public class TopEmoticonsCalculator extends Configured{
                                     String resultFilePath,
                                     int splits){
 
-        PropertyConfigurator.configure(this.getClass()
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
