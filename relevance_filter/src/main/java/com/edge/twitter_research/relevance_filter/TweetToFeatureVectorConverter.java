@@ -14,16 +14,20 @@ import org.kiji.schema.KijiURI;
 
 import java.io.IOException;
 
-public class TweetToCSV extends Configured {
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+public class TweetToFeatureVectorConverter extends Configured {
 
     public KijiMapReduceJob mapReduceJob = null;
 
     public static Logger logger =
-            Logger.getLogger(TweetToCSV.class);
+            Logger.getLogger(TweetToFeatureVectorConverter.class);
 
-    public TweetToCSV (String outputFilePath,
+    public TweetToFeatureVectorConverter (String outputFilePath,
                        String inputTableName,
-                       float samplingRate){
+                       float samplingRate,
+                       String dataSetType){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
@@ -32,17 +36,31 @@ public class TweetToCSV extends Configured {
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
 
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
-            hBaseConfiguration.set("mapred.textoutputformat.separator", ",");
+            hBaseConfiguration.set("mapred.textoutputformat.separator", "|");
             hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
+            hBaseConfiguration.setBoolean("generating.training.set", dataSetType.equals("training"));
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
 
+            String additionalJarsPath = "";
+
+            try{
+                additionalJarsPath = InetAddress.getLocalHost().getHostName().equals("master")?
+                                        Constants.ADDTIONAL_JARS_PATH_KIJI_CLUSTER :
+                                        Constants.ADDTIONAL_JARS_PATH_BENTO;
+            }catch (UnknownHostException unknownHostException){
+                logger.error(unknownHostException);
+                unknownHostException.printStackTrace();
+                System.exit(-1);
+            }
+
             this.mapReduceJob = KijiGatherJobBuilder.create()
                     .withConf(hBaseConfiguration)
-                    .withGatherer(TweetToCSVGatherer.class)
+                    .withGatherer(TweetToFeatureVectorGatherer.class)
                     .withInputTable(tableUri)
                     .withOutput(new TextMapReduceJobOutput(new Path(outputFilePath), 1))
+                    .addJarDirectory(new Path(additionalJarsPath))
                     .build();
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);
@@ -57,26 +75,41 @@ public class TweetToCSV extends Configured {
     public static void main(String[] args){
 
         if (args.length < 3){
-            System.out.println("Usage: TweetToCSV " +
+            System.out.println("Usage: TweetToFeatureVectorConverter " +
                     "<input_table_name> " +
                     "<HDFS_output_file_path> " +
+                    "<data_type (testing or training)> " +
                     "<sampling_rate (%)>");
             return;
         }
 
+        String dataSet = args[2];
+        if (!dataSet.equals("training") && !dataSet.equals("testing")){
+            System.out.println("Enter a valid dataset type");
+            return;
+        }
+
+
         String inputTableName = args[0];
         String HDFSOutputFilePath = args[1];
-        float samplingRate = Float.parseFloat(args[2]);
+        float samplingRate;
+        if (dataSet.equals("training"))
+            samplingRate = 100;
+        else if (args.length > 3)
+            samplingRate = Float.parseFloat(args[3]);
+        else
+            samplingRate = 50;
 
-        TweetToCSV tweetToCSV =
-                new TweetToCSV(HDFSOutputFilePath,
+        TweetToFeatureVectorConverter tweetToFeatureVector =
+                new TweetToFeatureVectorConverter(HDFSOutputFilePath,
                         inputTableName,
-                        samplingRate);
+                        samplingRate,
+                        dataSet);
 
         boolean isSuccessful = false;
-        if (tweetToCSV.mapReduceJob != null){
+        if (tweetToFeatureVector.mapReduceJob != null){
             try{
-                isSuccessful = tweetToCSV.mapReduceJob.run();
+                isSuccessful = tweetToFeatureVector.mapReduceJob.run();
             }catch (Exception unknownException){
                 logger.error("Unknown Exception while running MapReduce Job", unknownException);
                 System.exit(1);

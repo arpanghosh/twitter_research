@@ -12,8 +12,8 @@ public class Constants {
     public static final String TWEET_OBJECT_COLUMN_NAME = "tweet";
     public static final String TWEET_RELEVANCE_LABEL_COLUMN_NAME = "relevance_label";
 
-    public static final String RELEVANT_RELEVANCE_LABEL = "topic-related";
-    public static final String NOT_RELEVANT_RELEVANCE_LABEL = "not-topic-related";
+    public static final String RELEVANT_RELEVANCE_LABEL = "topic-based";
+    public static final String NOT_RELEVANT_RELEVANCE_LABEL = "not-topic-based";
     public static final String NOT_ENGLISH_RELEVANCE_LABEL = "not-english";
 
     public static final String ADDTIONAL_JARS_PATH_BENTO = "hdfs://localhost:8020/extraJars";

@@ -2,6 +2,7 @@ package com.edge.twitter_research.relevance_filter;
 
 
 import com.edge.twitter_research.core.SimpleTweet;
+import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -35,21 +36,27 @@ public class TweetToFeatureVectorGatherer
     public void gather(KijiRowData input, GathererContext<LongWritable, Text> context)
             throws IOException {
 
-        String relevanceLabel =
+        Utf8 relevanceLabel =
                 input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
                         Constants.TWEET_RELEVANCE_LABEL_COLUMN_NAME);
 
         if (generatingTrainingSet){
 
-            if (relevanceLabel != null &&
-                    (relevanceLabel.equals(Constants.RELEVANT_RELEVANCE_LABEL) ||
-                            relevanceLabel.equals(Constants.NOT_RELEVANT_RELEVANCE_LABEL))){
-                SimpleTweet tweet = input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
-                                                                Constants.TWEET_OBJECT_COLUMN_NAME);
-                String tweetFeatureVector = tweetFeatureVectorGenerator.getFeatureVector(tweet);
+            if (relevanceLabel != null){
+                String relevanceLabelString = relevanceLabel.toString();
 
-                context.write(new LongWritable(tweet.getId()),
-                                new Text(tweetFeatureVector));
+                if(relevanceLabelString.equals(Constants.RELEVANT_RELEVANCE_LABEL) ||
+                            relevanceLabelString.equals(Constants.NOT_RELEVANT_RELEVANCE_LABEL)){
+                    SimpleTweet tweet = input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
+                                                                Constants.TWEET_OBJECT_COLUMN_NAME);
+                    String tweetFeatureVector =
+                        tweetFeatureVectorGenerator.getFeatureVector(tweet,
+                                                                    relevanceLabelString);
+
+                    context.write(new LongWritable(tweet.getId()),
+                                    new Text(tweetFeatureVector));
+
+                }
             }
         }else{
 
@@ -61,7 +68,7 @@ public class TweetToFeatureVectorGatherer
                                                     Constants.TWEET_OBJECT_COLUMN_NAME);
 
                     String tweetFeatureVector = tweetFeatureVectorGenerator
-                            .getFeatureVector(tweet);
+                                                                .getFeatureVector(tweet);
 
                     context.write(new LongWritable(tweet.getId()),
                             new Text(tweetFeatureVector));

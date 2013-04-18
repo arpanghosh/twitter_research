@@ -142,6 +142,18 @@ public class TweetFeatureVectorGenerator {
         EXISTENTIAL_VERBAL;
     }
 
+    private enum TweetRelevanceLabel{
+        NOT_ENGLISH("not-english"),
+        TOPIC_BASED("topic-based"),
+        NOT_TOPIC_BASED("not-topic-based");
+
+        private final String relevanceLabel;
+        TweetRelevanceLabel(String relevanceLabel){
+            this.relevanceLabel = relevanceLabel;
+        }
+        public String getTweetRelevanceLabel(){return relevanceLabel;}
+    }
+
 
     private Pattern emoticonMatchPattern;
     private Pattern mobileSourceMatchPattern;
@@ -226,6 +238,28 @@ public class TweetFeatureVectorGenerator {
 
 
     public String getFeatureVector(SimpleTweet simpleTweet){
+        generateFeatureVector(simpleTweet);
+        return featureVectorToString();
+    }
+
+
+    public String getFeatureVector(SimpleTweet simpleTweet,
+                                   String relevanceLabel){
+        generateFeatureVector(simpleTweet);
+
+        int relevanceLabelInt = 0;
+        if (relevanceLabel.equals(TweetRelevanceLabel.TOPIC_BASED.getTweetRelevanceLabel()))
+            relevanceLabelInt = TweetRelevanceLabel.TOPIC_BASED.ordinal();
+        else if (relevanceLabel.equals(TweetRelevanceLabel.NOT_TOPIC_BASED.getTweetRelevanceLabel()))
+            relevanceLabelInt = TweetRelevanceLabel.NOT_TOPIC_BASED.ordinal();
+        else if (relevanceLabel.equals(TweetRelevanceLabel.NOT_ENGLISH.getTweetRelevanceLabel()))
+            relevanceLabelInt = TweetRelevanceLabel.NOT_ENGLISH.ordinal();
+
+        return (featureVectorToString() + "|" + relevanceLabelInt);
+    }
+
+
+    private void generateFeatureVector(SimpleTweet simpleTweet){
         try{
             tweetText = simpleTweet.getText().toString();
         }catch (NullPointerException nullPointerException){
@@ -267,8 +301,6 @@ public class TweetFeatureVectorGenerator {
         source = determineTweetSource(simpleTweet);
 
         setPOSFractionsAvgWordLengthAndNumEmoticons();
-
-        return featureVectorToString();
     }
 
 

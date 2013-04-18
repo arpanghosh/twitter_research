@@ -1,0 +1,33 @@
+{
+  name  : "category_relevance_label_temp_table",
+  keys_format : {
+    encoding : "FORMATTED",
+    salt : {
+      hash_size : 4
+    },
+    components : [{
+      name : "tweet_id",
+      type : "STRING"
+    }]
+  },
+  locality_groups : [{
+    name : "tweet",
+    in_memory : false,
+    max_versions : 1,
+    ttl_seconds : 2147483647,
+    compression_type : "NONE",
+    families : [{
+      name : "tweet_relevance_label",
+      columns : [{
+        name : "relevance_label",
+        description : "Relevance label for a tweet",
+        column_schema : {
+            storage : "UID",
+            type : "INLINE",
+            value : '"string"'
+        }
+      }]
+    }]
+  }],
+  version : "layout-1.1"
+}
