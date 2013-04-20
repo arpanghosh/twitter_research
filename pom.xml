@@ -15,6 +15,7 @@
     <module>collector_filter</module>
     <module>relevance_filter</module>
     <module>event_detection</module>
+    <module>queries</module>
   </modules>
 
   <parent>
