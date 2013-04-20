@@ -1,6 +1,7 @@
 package com.edge.twitter_research.relevance_filter;
 
 
+import com.edge.twitter_research.core.GlobalConstants;
 import com.edge.twitter_research.core.SimpleTweet;
 import org.apache.avro.Schema;
 import org.apache.avro.mapred.AvroKey;
@@ -36,7 +37,8 @@ public class SourcesGatherer
             throws IOException {
 
         SimpleTweet simpleTweet =
-                input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME, Constants.TWEET_OBJECT_COLUMN_NAME);
+                input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                        GlobalConstants.TWEET_COLUMN_NAME);
 
         context.write(new AvroKey<CharSequence>(Jsoup.parse(simpleTweet.getSource().toString()).text()), ONE);
     }
@@ -46,7 +48,8 @@ public class SourcesGatherer
     public KijiDataRequest getDataRequest() {
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
-                .add(Constants.TWEET_COLUMN_FAMILY_NAME, Constants.TWEET_OBJECT_COLUMN_NAME);
+                .add(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                            GlobalConstants.TWEET_COLUMN_NAME);
         return builder.build();
     }
 

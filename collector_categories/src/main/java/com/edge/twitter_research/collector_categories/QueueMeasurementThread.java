@@ -25,8 +25,7 @@ public class QueueMeasurementThread extends Thread {
         this.users = users;
         this.tweets = tweets;
 
-        PropertyConfigurator.configure(this.getClass()
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
     }
 
     public void run(){

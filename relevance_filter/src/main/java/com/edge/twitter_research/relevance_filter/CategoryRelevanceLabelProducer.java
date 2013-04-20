@@ -1,6 +1,7 @@
 package com.edge.twitter_research.relevance_filter;
 
 
+import com.edge.twitter_research.core.GlobalConstants;
 import com.edge.twitter_research.core.SimpleTweet;
 import org.apache.avro.util.Utf8;
 import org.kiji.mapreduce.kvstore.KeyValueStore;
@@ -22,8 +23,8 @@ public class CategoryRelevanceLabelProducer
 
     @Override
     public KijiDataRequest getDataRequest() {
-        return KijiDataRequest.create(Constants.TWEET_COLUMN_FAMILY_NAME,
-                                        Constants.TWEET_OBJECT_COLUMN_NAME);
+        return KijiDataRequest.create(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                        GlobalConstants.TWEET_COLUMN_NAME);
     }
 
 
@@ -31,8 +32,8 @@ public class CategoryRelevanceLabelProducer
     @Override
     public String getOutputColumn() {
         // This is the output column of the kiji table that we write to.
-        return (Constants.TWEET_COLUMN_FAMILY_NAME + ":" +
-                Constants.TWEET_RELEVANCE_LABEL_COLUMN_NAME);
+        return (GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME + ":" +
+                GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME);
     }
 
     /** {@inheritDoc} */
@@ -41,8 +42,8 @@ public class CategoryRelevanceLabelProducer
         // Open the key value store reader.
         KeyValueStoreReader<String, Utf8> relevanceLabelReader = context.getStore("relevanceLabels");
 
-        SimpleTweet simpleTweet = input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
-                                                            Constants.TWEET_OBJECT_COLUMN_NAME);
+        SimpleTweet simpleTweet = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                                            GlobalConstants.TWEET_COLUMN_NAME);
         Utf8 label = relevanceLabelReader.get(simpleTweet.getId().toString());
 
         if (label != null)

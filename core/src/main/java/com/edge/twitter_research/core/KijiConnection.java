@@ -124,11 +124,13 @@ public class KijiConnection extends Configured {
                             .withInstanceName(KConstants.DEFAULT_INSTANCE_NAME)
                             .build(),
                     getConf());
+
             KijiTableLayout kijiTableLayout =
                     KijiTableLayout
                             .createFromEffectiveJson(tableLayoutPath);
 
             kiji.createTable(kijiTableLayout.getDesc());
+
             kijiTable = kiji.openTable(tableName);
 
             kijiTableReader = kijiTable.openTableReader();
@@ -138,6 +140,7 @@ public class KijiConnection extends Configured {
             if (exception instanceof KijiAlreadyExistsException ||
                     exception instanceof RuntimeException){
                 try{
+                    logger.error(exception);
                     kijiTable = kiji.openTable(tableName);
                     kijiTableReader = kijiTable.openTableReader();
                     kijiTableWriter = kijiTable.openTableWriter();

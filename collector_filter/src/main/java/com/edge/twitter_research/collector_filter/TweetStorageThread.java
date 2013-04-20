@@ -30,8 +30,7 @@ public class TweetStorageThread extends Thread {
                                     .getResourceAsStream(Constants
                                             .FILTER_TWEET_STORE_TABLE_LAYOUT_FILE_NAME), tableName);
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(this.getClass()
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
     }
 
     public void run(){
@@ -69,21 +68,22 @@ public class TweetStorageThread extends Thread {
                 EntityId tweetId =
                         kijiConnection.kijiTable.getEntityId(tweet.getId());
                 kijiConnection.kijiTableWriter.put(tweetId,
-                        GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
+                        GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
                         GlobalConstants.TWEET_COLUMN_NAME,
                         System.currentTimeMillis(),
                         SimpleTweetGenerator.generateSimpleTweet(tweet));
                 kijiConnection.kijiTableWriter.put(tweetId,
-                        GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
+                        GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
                         GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
                         System.currentTimeMillis(),
                         null);
+                /*
                 kijiConnection.kijiTableWriter.put(tweetId,
-                        GlobalConstants.TWEET_COLUMN_FAMILY_NAME,
-                        GlobalConstants.PHRASE_LABEL_COLUMN_NAME,
+                        GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                        GlobalConstants.COMPANY_DATA_COLUMN_NAME,
                         System.currentTimeMillis(),
                         null);
-
+                */
         }
     }
 }

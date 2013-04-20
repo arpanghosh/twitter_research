@@ -1,6 +1,7 @@
 package com.edge.twitter_research.relevance_filter;
 
 
+import com.edge.twitter_research.core.GlobalConstants;
 import org.apache.avro.Schema;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
@@ -32,8 +33,8 @@ public class RelevanceLabelWriter
 
         for (AvroValue<CharSequence> label : values){
             context.put(context.getEntityId(key.datum()),
-                                        Constants.TWEET_COLUMN_FAMILY_NAME,
-                                        Constants.TWEET_RELEVANCE_LABEL_COLUMN_NAME,
+                                        GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                        GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
                                         label.datum());
         }
     }

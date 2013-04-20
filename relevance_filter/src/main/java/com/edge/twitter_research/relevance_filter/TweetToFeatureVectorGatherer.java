@@ -1,6 +1,7 @@
 package com.edge.twitter_research.relevance_filter;
 
 
+import com.edge.twitter_research.core.GlobalConstants;
 import com.edge.twitter_research.core.SimpleTweet;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -37,18 +38,18 @@ public class TweetToFeatureVectorGatherer
             throws IOException {
 
         Utf8 relevanceLabel =
-                input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
-                        Constants.TWEET_RELEVANCE_LABEL_COLUMN_NAME);
+                input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                            GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME);
 
         if (generatingTrainingSet){
 
             if (relevanceLabel != null){
                 String relevanceLabelString = relevanceLabel.toString();
 
-                if(relevanceLabelString.equals(Constants.RELEVANT_RELEVANCE_LABEL) ||
-                            relevanceLabelString.equals(Constants.NOT_RELEVANT_RELEVANCE_LABEL)){
-                    SimpleTweet tweet = input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
-                                                                Constants.TWEET_OBJECT_COLUMN_NAME);
+                if(relevanceLabelString.equals(GlobalConstants.RELEVANT_RELEVANCE_LABEL) ||
+                            relevanceLabelString.equals(GlobalConstants.NOT_RELEVANT_RELEVANCE_LABEL)){
+                    SimpleTweet tweet = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                                                GlobalConstants.TWEET_COLUMN_NAME);
                     String tweetFeatureVector =
                         tweetFeatureVectorGenerator.getFeatureVector(tweet,
                                                                     relevanceLabelString);
@@ -64,8 +65,8 @@ public class TweetToFeatureVectorGatherer
                 if (Math.random() < threshold){
 
                     SimpleTweet tweet =
-                            input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
-                                                    Constants.TWEET_OBJECT_COLUMN_NAME);
+                            input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                                    GlobalConstants.TWEET_COLUMN_NAME);
 
                     String tweetFeatureVector = tweetFeatureVectorGenerator
                                                                 .getFeatureVector(tweet);
@@ -83,7 +84,7 @@ public class TweetToFeatureVectorGatherer
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
                 .withMaxVersions(1)
-                .addFamily(Constants.TWEET_COLUMN_FAMILY_NAME);
+                .addFamily(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME);
         return builder.build();
     }
 

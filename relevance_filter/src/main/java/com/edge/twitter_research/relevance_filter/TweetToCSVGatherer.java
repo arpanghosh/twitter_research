@@ -1,6 +1,7 @@
 package com.edge.twitter_research.relevance_filter;
 
 
+import com.edge.twitter_research.core.GlobalConstants;
 import com.edge.twitter_research.core.SimpleTweet;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
@@ -11,6 +12,7 @@ import org.kiji.schema.KijiDataRequest;
 import org.kiji.schema.KijiDataRequestBuilder;
 import org.kiji.schema.KijiRowData;
 
+import javax.xml.bind.annotation.XmlElementDecl;
 import java.io.IOException;
 
 public class TweetToCSVGatherer
@@ -34,8 +36,8 @@ public class TweetToCSVGatherer
 
         if (Math.random() < threshold){
 
-            SimpleTweet tweet = input.getMostRecentValue(Constants.TWEET_COLUMN_FAMILY_NAME,
-                                                            Constants.TWEET_OBJECT_COLUMN_NAME);
+            SimpleTweet tweet = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                                            GlobalConstants.TWEET_COLUMN_NAME);
 
             String tweetWithoutCommas = tweet.getText().toString()
                                         .replace(",", " ")
@@ -67,8 +69,8 @@ public class TweetToCSVGatherer
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
                 .withMaxVersions(1)
-                .add(Constants.TWEET_COLUMN_FAMILY_NAME,
-                        Constants.TWEET_OBJECT_COLUMN_NAME);
+                .add(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                        GlobalConstants.TWEET_COLUMN_NAME);
         return builder.build();
     }
 

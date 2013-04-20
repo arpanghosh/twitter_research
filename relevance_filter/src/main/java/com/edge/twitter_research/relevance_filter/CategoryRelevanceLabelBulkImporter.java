@@ -1,5 +1,6 @@
 package com.edge.twitter_research.relevance_filter;
 
+import com.edge.twitter_research.core.GlobalConstants;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.kiji.mapreduce.KijiTableContext;
@@ -23,8 +24,8 @@ public class CategoryRelevanceLabelBulkImporter
 
         context.put(context.getEntityId(id),
                     "tweet_relevance_label",
-                    Constants.TWEET_RELEVANCE_LABEL_COLUMN_NAME,
-                        relevanceLabel );
+                    GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
+                        relevanceLabel);
     }
 }
 

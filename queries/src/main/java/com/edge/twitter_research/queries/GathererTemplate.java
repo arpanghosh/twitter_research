@@ -2,6 +2,7 @@ package com.edge.twitter_research.queries;
 
 
 
+import com.edge.twitter_research.core.GlobalConstants;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.kiji.mapreduce.gather.GathererContext;
@@ -36,7 +37,7 @@ public class GathererTemplate
         final KijiDataRequestBuilder builder = KijiDataRequest.builder();
         builder.newColumnsDef()
                 .withMaxVersions(1)
-                .addFamily(Constants.TWEET_COLUMN_FAMILY_NAME);
+                .addFamily(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME);
         return builder.build();
     }
 

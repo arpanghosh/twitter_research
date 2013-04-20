@@ -1,5 +1,6 @@
 package com.edge.twitter_research.relevance_filter;
 
+import com.edge.twitter_research.core.GlobalConstants;
 import com.edge.twitter_research.core.KijiConnection;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -55,8 +56,8 @@ public class CategoryRelevanceLabelImporter
 
             try{
                 additionalJarsPath = InetAddress.getLocalHost().getHostName().equals("master")?
-                        Constants.ADDTIONAL_JARS_PATH_KIJI_CLUSTER :
-                        Constants.ADDTIONAL_JARS_PATH_BENTO;
+                        GlobalConstants.ADDTIONAL_JARS_PATH_KIJI_CLUSTER :
+                        GlobalConstants.ADDTIONAL_JARS_PATH_BENTO;
             }catch (UnknownHostException unknownHostException){
                 logger.error(unknownHostException);
                 unknownHostException.printStackTrace();
@@ -72,7 +73,8 @@ public class CategoryRelevanceLabelImporter
                     .build());
 
             KijiTableKeyValueStore.Builder kvStoreBuilder = KijiTableKeyValueStore.builder();
-            kvStoreBuilder.withColumn("tweet_relevance_label", Constants.TWEET_RELEVANCE_LABEL_COLUMN_NAME).withTable(tempTableUri);
+            kvStoreBuilder.withColumn("tweet_relevance_label",
+                    GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME).withTable(tempTableUri);
 
             mapReduceJobs.add(KijiProduceJobBuilder.create()
                                 .withConf(hBaseConfiguration)

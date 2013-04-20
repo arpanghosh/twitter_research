@@ -30,14 +30,24 @@ public class GlobalConstants {
 
 
     /*Columns in Kiji tweet tables*/
-    public static final String TWEET_COLUMN_FAMILY_NAME = "tweet_object";
+    public static final String TWEET_OBJECT_COLUMN_FAMILY_NAME = "tweet_object";
     public static final String TWEET_COLUMN_NAME = "tweet";
     public static final String RELEVANCE_LABEL_COLUMN_NAME = "relevance_label";
     public static final String TOPIC_LABEL_COLUMN_NAME = "topic_label";
-    public static final String PHRASE_LABEL_COLUMN_NAME = "phrase_label";
+    public static final String COMPANY_DATA_COLUMN_NAME = "company_data";
+
+
+    /*Labels*/
+    public static final String RELEVANT_RELEVANCE_LABEL = "topic-based";
+    public static final String NOT_RELEVANT_RELEVANCE_LABEL = "not-topic-based";
+    public static final String NOT_ENGLISH_RELEVANCE_LABEL = "not-english";
 
 
     /*Tweet properties*/
     public static final long INVALID_TWEET_ID = -1L;
+
+
+    public static final String ADDTIONAL_JARS_PATH_BENTO = "hdfs://localhost:8020/extraJars";
+    public static final String ADDTIONAL_JARS_PATH_KIJI_CLUSTER = "hdfs://master:54310/user/hduser/extraJars";
 
 }

@@ -1,6 +1,5 @@
 package com.edge.twitter_research.relevance_filter;
 
-import org.apache.log4j.Logger;
 
 import com.edge.twitter_research.core.*;
 
@@ -206,7 +205,7 @@ public class TweetFeatureVectorGenerator {
 
         componentFractions = new double[5];
 
-        fractionFormat = new DecimalFormat("#.00000");
+        fractionFormat = new DecimalFormat("0.00000");
 
         tweetPOStagger = new Tagger();
         tweetPOStagger.loadModel(Constants.POS_TAGGING_MODEL_FILE_PATH);

@@ -1,6 +1,7 @@
 package com.edge.twitter_research.queries;
 
 
+import com.edge.twitter_research.core.GlobalConstants;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -43,8 +44,8 @@ public class GatherReduceDriverTemplate extends Configured {
 
             try{
                 additionalJarsPath = InetAddress.getLocalHost().getHostName().equals("master")?
-                        Constants.ADDTIONAL_JARS_PATH_KIJI_CLUSTER :
-                        Constants.ADDTIONAL_JARS_PATH_BENTO;
+                        GlobalConstants.ADDTIONAL_JARS_PATH_KIJI_CLUSTER :
+                        GlobalConstants.ADDTIONAL_JARS_PATH_BENTO;
             }catch (UnknownHostException unknownHostException){
                 logger.error(unknownHostException);
                 unknownHostException.printStackTrace();

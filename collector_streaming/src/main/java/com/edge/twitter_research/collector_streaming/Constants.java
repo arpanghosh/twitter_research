@@ -18,5 +18,5 @@ public class Constants {
     public static final String SAMPLE_TWEET_STORE_TABLE_LAYOUT_FILE_NAME =
             "/sample_tweet_store_layout.json";
     public static final String LOG4J_PROPERTIES_FILE_PATH =
-            "/log4j.properties";
+            System.getProperty("user.home") + "/twitter_research/collector_streaming/log4j.properties";
 }

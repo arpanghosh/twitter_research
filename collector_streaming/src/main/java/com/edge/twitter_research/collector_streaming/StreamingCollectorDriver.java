@@ -22,8 +22,7 @@ public class StreamingCollectorDriver {
 
     public static void main(String[] args){
 
-        PropertyConfigurator.configure(StreamingCollectorDriver
-                .class.getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         try{
 

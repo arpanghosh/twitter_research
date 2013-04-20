@@ -39,8 +39,7 @@ public class GetUserTimelineThread extends Thread {
                                             .USERS_LAST_TWEET_ID_STORE_TABLE_LAYOUT_FILE_NAME),
                                                         tableName);
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(this.getClass()
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
     }
 
 

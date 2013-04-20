@@ -23,8 +23,7 @@ public class CategoryCollectorDriver {
 
     public static void main(String[] args){
 
-        PropertyConfigurator.configure(CategoryCollectorDriver.class
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         try{
 

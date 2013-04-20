@@ -24,7 +24,7 @@ public class Constants {
     public static final String USERS_LAST_TWEET_ID_STORE_TABLE_LAYOUT_FILE_NAME =
             "/users_last_tweet_id_layout.json";
     public static final String LOG4J_PROPERTIES_FILE_PATH =
-            "/log4j.properties";
+            System.getProperty("user.home") + "/twitter_research/collector_categories/log4j.properties";
 
     /*Column details*/
     public static final String LAST_TWEET_ID_COLUMN_FAMILY_NAME = "last_since_id";

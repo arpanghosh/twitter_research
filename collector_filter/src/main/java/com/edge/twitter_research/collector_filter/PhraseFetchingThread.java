@@ -38,8 +38,7 @@ public class PhraseFetchingThread extends Thread {
     public PhraseFetchingThread(String PhraseFilePath,
                                 LinkedBlockingQueue<Status> tweetStorageQueue,
                                 Configuration configuration){
-        PropertyConfigurator.configure(this.getClass()
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
         crisisMailer = CrisisMailer.getCrisisMailer();
         phrases = new HashSet<String>();
         phraseFilePath = PhraseFilePath;

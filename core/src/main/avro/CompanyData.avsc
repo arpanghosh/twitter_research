@@ -1,0 +1,14 @@
+{
+  "type" : "record",
+  "namespace" : "com.edge.twitter_research.core",
+  "name" : "CompanyData",
+  "description" : "An object to represent a company name and its area",
+  "fields" : [
+    { "type" : ["string", "null"],
+      "name" : "companyName"
+    },
+    { "type" : ["string", "null"],
+      "name" : "companyArea"
+    }
+  ]
+}

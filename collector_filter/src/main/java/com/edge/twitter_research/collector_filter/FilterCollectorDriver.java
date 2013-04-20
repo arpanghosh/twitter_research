@@ -31,8 +31,7 @@ public class FilterCollectorDriver {
 
         String phraseFilePath = args[0];
 
-        PropertyConfigurator.configure(FilterCollectorDriver.class
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         try{
 

@@ -20,8 +20,7 @@ public class GetStatusesFilterStreamListener implements StatusListener {
     public GetStatusesFilterStreamListener(LinkedBlockingQueue<Status> outputQueue){
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(this.getClass()
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
     }
 
     @Override

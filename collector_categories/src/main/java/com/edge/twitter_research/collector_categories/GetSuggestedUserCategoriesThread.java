@@ -23,8 +23,7 @@ public class GetSuggestedUserCategoriesThread extends Thread {
         this.twitterFactory = twitterFactory;
         this.outputQueue = outputQueue;
         this.crisisMailer = CrisisMailer.getCrisisMailer();
-        PropertyConfigurator.configure(this.getClass()
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
     }
 
 
