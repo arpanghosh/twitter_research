@@ -46,7 +46,7 @@ public class Constants {
 
 
         GOOGLE("google", Area.COMPUTERS_AND_ELECTRONICS, "google"),
-        HP("hp", Area.COMPUTERS_AND_ELECTRONICS, "hp"),
+        //HP("hp", Area.COMPUTERS_AND_ELECTRONICS, "hp"),
         APPLE("apple", Area.COMPUTERS_AND_ELECTRONICS, "apple"),
         MICROSOFT("microsoft", Area.COMPUTERS_AND_ELECTRONICS, "microsoft"),
         DELL("dell", Area.COMPUTERS_AND_ELECTRONICS, "dell"),
@@ -59,7 +59,7 @@ public class Constants {
         AMERICAN_EXPRESS("american_express", Area.PERSONAL_FINANCE, "(\\Qamerican express\\E|\\Qamex\\E)"),
 
 
-        DURABLE_GOODS("ge", Area.DURABLE_GOODS, "ge"),
+        //GE("ge", Area.DURABLE_GOODS, "ge"),
         SEARS("sears", Area.DURABLE_GOODS, "sears"),
         KEURIG("keurig", Area.DURABLE_GOODS, "keurig"),
         ELECTROLUX("electrolux", Area.DURABLE_GOODS, "electrolux"),

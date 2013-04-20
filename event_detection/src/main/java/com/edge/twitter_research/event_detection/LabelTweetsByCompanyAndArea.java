@@ -1,44 +1,98 @@
-Unstaged changes after reset:
-M	collector_categories/src/main/java/com/edge/twitter_research/collector_categories/CategoryCollectorDriver.java
-M	collector_categories/src/main/java/com/edge/twitter_research/collector_categories/Constants.java
-M	collector_categories/src/main/java/com/edge/twitter_research/collector_categories/GetSuggestedUserCategoriesThread.java
-M	collector_categories/src/main/java/com/edge/twitter_research/collector_categories/GetUserSuggestionsForSlugThread.java
-M	collector_categories/src/main/java/com/edge/twitter_research/collector_categories/GetUserTimelineThread.java
-M	collector_categories/src/main/java/com/edge/twitter_research/collector_categories/QueueMeasurementThread.java
-M	collector_categories/src/main/java/com/edge/twitter_research/collector_categories/TweetStorageThread.java
-D	collector_categories/src/main/java/resources/log4j.properties
-M	collector_filter/src/main/java/com/edge/twitter_research/collector_filter/Constants.java
-M	collector_filter/src/main/java/com/edge/twitter_research/collector_filter/FilterCollectorDriver.java
-M	collector_filter/src/main/java/com/edge/twitter_research/collector_filter/GetStatusesFilterStreamListener.java
-M	collector_filter/src/main/java/com/edge/twitter_research/collector_filter/PhraseFetchingThread.java
-M	collector_filter/src/main/java/com/edge/twitter_research/collector_filter/TweetStorageThread.java
-D	collector_filter/src/main/java/resources/log4j.properties
-M	collector_streaming/src/main/java/com/edge/twitter_research/collector_streaming/Constants.java
-M	collector_streaming/src/main/java/com/edge/twitter_research/collector_streaming/GetStatusesSampleStreamListener.java
-M	collector_streaming/src/main/java/com/edge/twitter_research/collector_streaming/GetStatusesSampleStreamThread.java
-M	collector_streaming/src/main/java/com/edge/twitter_research/collector_streaming/StreamingCollectorDriver.java
-M	collector_streaming/src/main/java/com/edge/twitter_research/collector_streaming/TweetStorageThread.java
-D	collector_streaming/src/main/java/resources/log4j.properties
-M	core/src/main/java/com/edge/twitter_research/core/GlobalConstants.java
-M	core/src/main/java/com/edge/twitter_research/core/KijiConnection.java
-M	event_detection/src/main/java/com/edge/twitter_research/event_detection/Constants.java
-D	event_detection/src/main/java/com/edge/twitter_research/event_detection/GatherReduceDriverTemplate.java
-D	event_detection/src/main/java/com/edge/twitter_research/event_detection/GathererTemplate.java
-M	event_detection/src/main/java/com/edge/twitter_research/event_detection/LabelTweetsByCompanyAndArea.java
-M	event_detection/src/main/java/com/edge/twitter_research/event_detection/LabelTweetsByCompanyProducer.java
-D	event_detection/src/main/java/resources/log4j.properties
-M	pom.xml
-M	queries/src/main/java/com/edge/twitter_research/queries/Constants.java
-M	queries/src/main/java/com/edge/twitter_research/queries/GatherReduceDriverTemplate.java
-M	queries/src/main/java/com/edge/twitter_research/queries/GathererTemplate.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/CategoryRelevanceLabelBulkImporter.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/CategoryRelevanceLabelImporter.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/CategoryRelevanceLabelProducer.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/Constants.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/RelevanceLabelWriter.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/SimpleRelevanceLabelImporter.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/SourcesGatherer.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/TweetFeatureVectorGenerator.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/TweetToCSVGatherer.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/TweetToFeatureVectorConverter.java
-M	relevance_filter/src/main/java/com/edge/twitter_research/relevance_filter/TweetToFeatureVectorGatherer.java
+package com.edge.twitter_research.event_detection;
+
+
+import com.edge.twitter_research.core.GlobalConstants;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.kiji.mapreduce.KijiMapReduceJob;
+
+import org.kiji.mapreduce.output.DirectKijiTableMapReduceJobOutput;
+import org.kiji.mapreduce.produce.KijiProduceJobBuilder;
+import org.kiji.schema.KijiURI;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+public class LabelTweetsByCompanyAndArea extends Configured {
+
+    public KijiMapReduceJob mapReduceJob = null;
+
+    public static Logger logger =
+            Logger.getLogger(LabelTweetsByCompanyAndArea.class);
+
+    public LabelTweetsByCompanyAndArea (String tableName){
+
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
+
+        try{
+            Configuration hBaseConfiguration =
+                    HBaseConfiguration.addHbaseResources(new Configuration(true));
+
+
+            KijiURI tableUri =
+                    KijiURI.newBuilder(String.format("kiji://.env/default/%s", tableName)).build();
+
+            String additionalJarsPath = "";
+
+            try{
+                additionalJarsPath = InetAddress.getLocalHost().getHostName().equals("master")?
+                        GlobalConstants.ADDTIONAL_JARS_PATH_KIJI_CLUSTER :
+                        GlobalConstants.ADDTIONAL_JARS_PATH_BENTO;
+            }catch (UnknownHostException unknownHostException){
+                logger.error(unknownHostException);
+                unknownHostException.printStackTrace();
+                System.exit(-1);
+            }
+
+            this.mapReduceJob = KijiProduceJobBuilder.create()
+                    .withConf(hBaseConfiguration)
+                    .withInputTable(tableUri)
+                    .withProducer(LabelTweetsByCompanyProducer.class)
+                    .withOutput(new DirectKijiTableMapReduceJobOutput(tableUri,1))
+                    .addJarDirectory(new Path(additionalJarsPath))
+                    .build();
+        }catch (IOException ioException){
+            logger.error("IO Exception while configuring MapReduce Job", ioException);
+            System.exit(1);
+        } catch (Exception unknownException){
+            logger.error("Unknown Exception while configuring MapReduce Job", unknownException);
+            System.exit(1);
+        }
+    }
+
+
+    public static void main(String[] args){
+
+        if (args.length < 2){
+            System.out.println("Usage: SimpleRelevanceLabelImporter " +
+                    "<table_name>");
+            return;
+        }
+
+        String tableName = args[0];
+
+
+        LabelTweetsByCompanyAndArea labelTweetsByCompanyAndArea =
+                new LabelTweetsByCompanyAndArea(tableName);
+
+        boolean isSuccessful = false;
+        if (labelTweetsByCompanyAndArea.mapReduceJob != null){
+            try{
+                isSuccessful = labelTweetsByCompanyAndArea.mapReduceJob.run();
+            }catch (Exception unknownException){
+                logger.error("Unknown Exception while running MapReduce Job", unknownException);
+                System.exit(1);
+            }
+        }
+
+        String result = isSuccessful ? "Successful" : "Failure";
+        logger.info(result);
+    }
+
+}
+
