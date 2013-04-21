@@ -1,0 +1,59 @@
+{
+  name  : "user_tweet_store",
+  keys_format : {
+    encoding : "FORMATTED",
+    salt : {
+      hash_size : 4
+    },
+    components : [{
+      name : "user_id",
+      type : "LONG"
+    },
+    {
+      name : "company",
+      type : "STRING"
+    },
+    {
+      name : "company_area",
+      type : "STRING"
+    }]
+  },
+  locality_groups : [{
+    name : "tweet_as_object",
+    description : "This locality group stores each tweet as an object",
+    in_memory : false,
+    max_versions : 1000,
+    ttl_seconds : 2147483647,
+    compression_type : "NONE",
+    families : [{
+      name : "tweet_object",
+      description : "This column family stores each tweet as an object",
+      columns : [{
+        name : "tweet",
+        description : "object representation of a tweet",
+        column_schema : {
+          storage : "UID",
+          type : "CLASS",
+          value : "com.edge.twitter_research.core.SimpleTweet"
+        }
+      }, {
+        name : "relevance_label",
+        description : "Relevance label for a tweet",
+        column_schema : {
+            storage : "UID",
+            type : "INLINE",
+            value : "[\"string\",\"null\"]"
+        }
+      }, {
+        name : "topic_label",
+        description : "Topic label for a tweet",
+        column_schema : {
+            storage : "UID",
+            type : "INLINE",
+            value : "[\"string\",\"null\"]"
+        }
+      }]
+    }]
+  }],
+  version : "layout-1.1"
+}
