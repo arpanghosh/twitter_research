@@ -16,6 +16,7 @@
     <module>collector_user</module>
     <module>relevance_filter</module>
     <module>event_detection</module>
+    <module>topic_detection</module>
     <module>queries</module>
   </modules>
 
