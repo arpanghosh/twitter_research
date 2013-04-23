@@ -14,7 +14,7 @@
     name : "tweet_as_object",
     description : "This locality group stores each tweet as an object",
     in_memory : false,
-    max_versions : 1,
+    max_versions : 10,
     ttl_seconds : 2147483647,
     compression_type : "NONE",
     families : [{
@@ -37,12 +37,12 @@
             value : "[\"string\",\"null\"]"
         }
       }, {
-        name : "phrase_label",
-        description : "Phrase label for a tweet",
+        name : "company_data",
+        description : "company data for a tweet",
         column_schema : {
             storage : "UID",
-            type : "INLINE",
-            value : "[\"string\",\"null\"]"
+            type : "CLASS",
+            value : "com.edge.twitter_research.core.CompanyData"
         }
       }]
     }]
