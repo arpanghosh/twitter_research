@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.kiji.mapreduce.KijiMapReduceJob;
 import org.kiji.mapreduce.gather.KijiGatherJobBuilder;
+import org.kiji.mapreduce.output.AvroKeyValueMapReduceJobOutput;
 import org.kiji.mapreduce.output.TextMapReduceJobOutput;
 import org.kiji.schema.KijiURI;
 
@@ -24,7 +25,7 @@ public class GatherReduceDriverTemplate extends Configured {
     public static Logger logger =
             Logger.getLogger(GatherReduceDriverTemplate.class);
 
-    public GatherReduceDriverTemplate (String outputFilePath,
+    public GatherReduceDriverTemplate (String intermediateFilePath,
                                         String inputTableName){
 
         PropertyConfigurator.configure(this.getClass()
@@ -57,7 +58,7 @@ public class GatherReduceDriverTemplate extends Configured {
                     .withGatherer(GathererTemplate.class)
                     .withReducer(ReducerTemplate.class)
                     .withInputTable(tableUri)
-                    .withOutput(new TextMapReduceJobOutput(new Path(outputFilePath), 1))
+                    .withOutput(new AvroKeyValueMapReduceJobOutput(new Path(intermediateFilePath),1))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build();
 
@@ -76,17 +77,17 @@ public class GatherReduceDriverTemplate extends Configured {
         if (args.length < 2){
             System.out.println("Usage: GatherReduceDriverTemplate " +
                     "<input_table_name> " +
-                    "<HDFS_output_file_path>");
+                    "<HDFS_Intermediate_file_path>");
             return;
         }
 
 
         String inputTableName = args[0];
-        String HDFSOutputFilePath = args[1];
+        String HDFSIntermediateFilePath = args[1];
 
 
         GatherReduceDriverTemplate gatherReduceDriverTemplate =
-                                new GatherReduceDriverTemplate(HDFSOutputFilePath,
+                                new GatherReduceDriverTemplate(HDFSIntermediateFilePath,
                                                                 inputTableName);
 
 

@@ -1,0 +1,17 @@
+@namespace("com.edge.twitter_research.queries")
+
+protocol QueriesRecords {
+
+  /** A count of the number of times a company has been mentioned on a specific date. */
+  record CompanyOccuranceCount {
+    string name;
+    int count;
+  }
+
+  /** A count of the number of times a source has been used. */
+    record TweetsToday {
+      array<CompanyOccuranceCount> tweetstoday;
+    }
+
+
+}
