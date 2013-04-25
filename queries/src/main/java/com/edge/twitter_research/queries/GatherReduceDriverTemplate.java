@@ -28,8 +28,7 @@ public class GatherReduceDriverTemplate extends Configured {
     public GatherReduceDriverTemplate (String intermediateFilePath,
                                         String inputTableName){
 
-        PropertyConfigurator.configure(this.getClass()
-                .getResourceAsStream(Constants.LOG4J_PROPERTIES_FILE_PATH));
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         try{
             Configuration hBaseConfiguration =
