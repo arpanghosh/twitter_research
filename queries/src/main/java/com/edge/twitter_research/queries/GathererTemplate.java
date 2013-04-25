@@ -5,7 +5,7 @@ package com.edge.twitter_research.queries;
 import com.edge.twitter_research.core.CompanyData;
 import com.edge.twitter_research.core.GlobalConstants;
 import com.edge.twitter_research.core.SimpleTweet;
-import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.kiji.mapreduce.gather.GathererContext;
 import org.kiji.mapreduce.gather.KijiGatherer;
@@ -19,13 +19,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class GathererTemplate
-        extends KijiGatherer<LongWritable, Text> {
+        extends KijiGatherer<IntWritable, Text> {
 
     private Calendar c;
     private SimpleDateFormat twitterDateFormat;
 
     @Override
-    public void setup(GathererContext<LongWritable, Text> context) throws IOException {
+    public void setup(GathererContext<IntWritable, Text> context) throws IOException {
         super.setup(context); // Any time you override setup, call super.setup(context);
         Calendar c = Calendar.getInstance();
         SimpleDateFormat twitterDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
@@ -33,7 +33,7 @@ public class GathererTemplate
 
 
     @Override
-    public void gather(KijiRowData input, GathererContext<LongWritable, Text> context)
+    public void gather(KijiRowData input, GathererContext<IntWritable, Text> context)
             throws IOException {
 
         SimpleTweet tweet = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
@@ -56,7 +56,7 @@ public class GathererTemplate
                 input.getValues(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
                         GlobalConstants.COMPANY_DATA_COLUMN_NAME);
         for(CompanyData company : companies.values())
-        context.write(new LongWritable(atDate), new Text(company.getCompanyName().toString()));
+        context.write(new IntWritable(atDate), new Text(company.getCompanyName().toString()));
     }
 
 
@@ -78,7 +78,7 @@ public class GathererTemplate
 
     @Override
     public Class<?> getOutputKeyClass() {
-        return LongWritable.class;
+        return IntWritable.class;
     }
 
 
