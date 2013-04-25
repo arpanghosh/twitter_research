@@ -68,8 +68,8 @@ public class LabelTweetsByCompanyAndArea extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
-            System.out.println("Usage: SimpleRelevanceLabelImporter " +
+        if (args.length < 1){
+            System.out.println("Usage: LabelTweetsByCompanyAndArea " +
                     "<table_name>");
             return;
         }
