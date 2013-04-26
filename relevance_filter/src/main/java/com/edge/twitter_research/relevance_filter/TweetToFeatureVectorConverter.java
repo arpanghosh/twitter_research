@@ -45,7 +45,7 @@ public class TweetToFeatureVectorConverter extends Configured {
 
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
             hBaseConfiguration.set("mapred.textoutputformat.separator", "|");
-            hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
+            //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
             hBaseConfiguration.setBoolean("generating.training.set", dataSetType.equals("training"));
 
             KijiURI tableUri =
