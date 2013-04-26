@@ -49,10 +49,15 @@ public class TweetToFeatureVectorGatherer
                 Utf8 relevanceLabel =
                         input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
                                                 GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME);
-
-                tweetFeatureVector =
+                try{
+                    tweetFeatureVector =
                         tweetFeatureVectorGenerator.getFeatureVector(tweet,
                                                     relevanceLabel.toString());
+                }catch (NullPointerException npe){
+                    /*Somehow nulls are being returned even after filter*/
+                    return;
+                }
+
             }else{
                 tweetFeatureVector = tweetFeatureVectorGenerator.getFeatureVector(tweet);
             }
