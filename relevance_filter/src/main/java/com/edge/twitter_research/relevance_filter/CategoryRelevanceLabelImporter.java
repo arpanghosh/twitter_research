@@ -42,6 +42,7 @@ public class CategoryRelevanceLabelImporter
         try{
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
+            hBaseConfiguration.set("temporary.table.name", tempTableName);
 
             KijiURI outputTableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", outputTableName)).build();
@@ -64,6 +65,7 @@ public class CategoryRelevanceLabelImporter
                 System.exit(-1);
             }
 
+            /*
             mapReduceJobs.add(KijiBulkImportJobBuilder.create()
                     .withConf(hBaseConfiguration)
                     .withBulkImporter(CategoryRelevanceLabelBulkImporter.class)
@@ -71,7 +73,7 @@ public class CategoryRelevanceLabelImporter
                     .withOutput(new DirectKijiTableMapReduceJobOutput(tempTableUri, 1))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build());
-
+            */
             KijiTableKeyValueStore.Builder kvStoreBuilder = KijiTableKeyValueStore.builder();
             kvStoreBuilder.withColumn("tweet_relevance_label",
                     GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME).withTable(tempTableUri);
@@ -83,6 +85,7 @@ public class CategoryRelevanceLabelImporter
                                 .withInputTable(outputTableUri)
                                 .withOutput(new DirectKijiTableMapReduceJobOutput(outputTableUri, 1))
                                 .build());
+
 
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);
