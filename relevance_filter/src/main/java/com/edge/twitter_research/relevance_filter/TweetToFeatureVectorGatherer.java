@@ -37,44 +37,28 @@ public class TweetToFeatureVectorGatherer
     public void gather(KijiRowData input, GathererContext<LongWritable, Text> context)
             throws IOException {
 
-        Utf8 relevanceLabel =
-                input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
-                                            GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME);
+        if (Math.random() < threshold){
 
-        if (generatingTrainingSet){
+            SimpleTweet tweet =
+                    input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                                        GlobalConstants.TWEET_COLUMN_NAME);
 
-            if (relevanceLabel != null){
-                String relevanceLabelString = relevanceLabel.toString();
+            String tweetFeatureVector;
 
-                if(relevanceLabelString.equals(GlobalConstants.RELEVANT_RELEVANCE_LABEL) ||
-                            relevanceLabelString.equals(GlobalConstants.NOT_RELEVANT_RELEVANCE_LABEL)){
-                    SimpleTweet tweet = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
-                                                                GlobalConstants.TWEET_COLUMN_NAME);
-                    String tweetFeatureVector =
+            if (generatingTrainingSet){
+                Utf8 relevanceLabel =
+                        input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                                GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME);
+
+                tweetFeatureVector =
                         tweetFeatureVectorGenerator.getFeatureVector(tweet,
-                                                                    relevanceLabelString);
-
-                    context.write(new LongWritable(tweet.getId()),
-                                    new Text(tweetFeatureVector));
-
-                }
+                                                    relevanceLabel.toString());
+            }else{
+                tweetFeatureVector = tweetFeatureVectorGenerator.getFeatureVector(tweet);
             }
-        }else{
 
-            if (relevanceLabel == null){
-                if (Math.random() < threshold){
-
-                    SimpleTweet tweet =
-                            input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
-                                                    GlobalConstants.TWEET_COLUMN_NAME);
-
-                    String tweetFeatureVector = tweetFeatureVectorGenerator
-                                                                .getFeatureVector(tweet);
-
-                    context.write(new LongWritable(tweet.getId()),
+            context.write(new LongWritable(tweet.getId()),
                             new Text(tweetFeatureVector));
-                }
-            }
         }
     }
 

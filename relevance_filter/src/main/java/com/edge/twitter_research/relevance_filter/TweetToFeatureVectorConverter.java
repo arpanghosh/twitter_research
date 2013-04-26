@@ -2,6 +2,11 @@ package com.edge.twitter_research.relevance_filter;
 
 
 import com.edge.twitter_research.core.GlobalConstants;
+import org.apache.avro.Schema;
+import org.kiji.schema.DecodedCell;
+import org.kiji.schema.filter.ColumnValueEqualsRowFilter;
+import org.kiji.schema.filter.KijiRowFilter;
+import org.kiji.schema.filter.OrRowFilter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -12,11 +17,13 @@ import org.kiji.mapreduce.KijiMapReduceJob;
 import org.kiji.mapreduce.gather.KijiGatherJobBuilder;
 import org.kiji.mapreduce.output.TextMapReduceJobOutput;
 import org.kiji.schema.KijiURI;
+import org.kiji.schema.filter.Filters;
 
 import java.io.IOException;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class TweetToFeatureVectorConverter extends Configured {
 
@@ -56,13 +63,39 @@ public class TweetToFeatureVectorConverter extends Configured {
                 System.exit(-1);
             }
 
+            KijiRowFilter filter;
+
+            if (dataSetType.equals("training")){
+
+                ColumnValueEqualsRowFilter filter1 =  new ColumnValueEqualsRowFilter(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
+                                new DecodedCell<String>(Schema.create(Schema.Type.STRING),
+                                        GlobalConstants.RELEVANT_RELEVANCE_LABEL));
+
+                ColumnValueEqualsRowFilter filter2 =  new ColumnValueEqualsRowFilter(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                                GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
+                                new DecodedCell<String>(Schema.create(Schema.Type.STRING),
+                                        GlobalConstants.NOT_RELEVANT_RELEVANCE_LABEL));
+
+                filter = Filters.or(filter1, filter2);
+
+            }else{
+                filter =  new ColumnValueEqualsRowFilter(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                        GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
+                        new DecodedCell<String>(Schema.create(Schema.Type.NULL),
+                                null));
+            }
+
+
             this.mapReduceJob = KijiGatherJobBuilder.create()
                     .withConf(hBaseConfiguration)
                     .withGatherer(TweetToFeatureVectorGatherer.class)
                     .withInputTable(tableUri)
+                    .withFilter(filter)
                     .withOutput(new TextMapReduceJobOutput(new Path(outputFilePath), 1))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build();
+
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);
             System.exit(1);
