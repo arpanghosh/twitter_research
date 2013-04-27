@@ -21,7 +21,7 @@ public class TweetToCSVConverter extends Configured {
     public static Logger logger =
             Logger.getLogger(TweetToCSVConverter.class);
 
-    public TweetToCSVConverter (String outputFilePath,
+    public TweetToCSVConverter (String rootFilePath,
                        String inputTableName,
                        float samplingRate){
 
@@ -42,7 +42,7 @@ public class TweetToCSVConverter extends Configured {
                     .withConf(hBaseConfiguration)
                     .withGatherer(TweetToCSVGatherer.class)
                     .withInputTable(tableUri)
-                    .withOutput(new TextMapReduceJobOutput(new Path(outputFilePath), 1))
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath + "/result/" + inputTableName), 1))
                     .build();
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);
@@ -59,17 +59,17 @@ public class TweetToCSVConverter extends Configured {
         if (args.length < 3){
             System.out.println("Usage: TweetToCSVConverter " +
                     "<input_table_name> " +
-                    "<HDFS_output_file_path> " +
+                    "<HDFS_job_root_file_path> " +
                     "<sampling_rate (%)>");
             return;
         }
 
         String inputTableName = args[0];
-        String HDFSOutputFilePath = args[1];
+        String HDFSjobRootFilePath = args[1];
         float samplingRate = Float.parseFloat(args[2]);
 
         TweetToCSVConverter tweetToCSVConverter =
-                new TweetToCSVConverter(HDFSOutputFilePath,
+                new TweetToCSVConverter(HDFSjobRootFilePath,
                         inputTableName,
                         samplingRate);
 

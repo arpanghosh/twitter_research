@@ -33,7 +33,7 @@ public class CategoryRelevanceLabelImporter
 
     public CategoryRelevanceLabelImporter (String outputTableName,
                                            String tempTableName,
-                                          String inputFilePath){
+                                          String rootFilePath){
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
@@ -65,15 +65,15 @@ public class CategoryRelevanceLabelImporter
                 System.exit(-1);
             }
 
-            /*
+
             mapReduceJobs.add(KijiBulkImportJobBuilder.create()
                     .withConf(hBaseConfiguration)
                     .withBulkImporter(CategoryRelevanceLabelBulkImporter.class)
-                    .withInput(new TextMapReduceJobInput(new Path(inputFilePath)))
+                    .withInput(new TextMapReduceJobInput(new Path(rootFilePath + "/input/" + outputTableName)))
                     .withOutput(new DirectKijiTableMapReduceJobOutput(tempTableUri, 1))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build());
-            */
+
             KijiTableKeyValueStore.Builder kvStoreBuilder = KijiTableKeyValueStore.builder();
             kvStoreBuilder.withColumn("tweet_relevance_label",
                     GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME).withTable(tempTableUri);
@@ -99,23 +99,22 @@ public class CategoryRelevanceLabelImporter
 
     public static void main(String[] args){
 
-        if (args.length < 3){
+        if (args.length < 2){
             System.out.println("Usage: CategoryRelevanceLabelImporter " +
-                    "<HDFS_input_file_path> " +
-                    "<temp_table_name> " +
+                    "<HDFS_job_root_file_path> " +
                     "<output_table_name>");
             return;
         }
 
 
-        String HDFSInputFilePath = args[0];
-        String tempTableName = args[1];
-        String outputTableName = args[2];
+        String HDFSjobRootFilePath = args[0];
+        String tempTableName = "category_relevance_label_temp_table";
+        String outputTableName = args[1];
 
         CategoryRelevanceLabelImporter categoryRelevanceLabelImporter =
                 new CategoryRelevanceLabelImporter(outputTableName,
                                                     tempTableName,
-                                                    HDFSInputFilePath);
+                                                    HDFSjobRootFilePath);
 
         boolean isSuccessful = false;
 

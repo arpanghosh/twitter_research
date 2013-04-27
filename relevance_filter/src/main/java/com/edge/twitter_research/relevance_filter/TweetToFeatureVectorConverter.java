@@ -32,7 +32,7 @@ public class TweetToFeatureVectorConverter extends Configured {
     public static Logger logger =
             Logger.getLogger(TweetToFeatureVectorConverter.class);
 
-    public TweetToFeatureVectorConverter (String outputFilePath,
+    public TweetToFeatureVectorConverter (String rootFilePath,
                        String inputTableName,
                        float samplingRate,
                        String dataSetType){
@@ -92,7 +92,7 @@ public class TweetToFeatureVectorConverter extends Configured {
                     .withGatherer(TweetToFeatureVectorGatherer.class)
                     .withInputTable(tableUri)
                     .withFilter(filter)
-                    .withOutput(new TextMapReduceJobOutput(new Path(outputFilePath), 1))
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath + "/result/" + inputTableName), 1))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build();
 
@@ -111,7 +111,7 @@ public class TweetToFeatureVectorConverter extends Configured {
         if (args.length < 3){
             System.out.println("Usage: TweetToFeatureVectorConverter " +
                     "<input_table_name> " +
-                    "<HDFS_output_file_path> " +
+                    "<HDFS_job_root_file_path> " +
                     "<data_type (testing or training)> " +
                     "<sampling_rate (%)>");
             return;
@@ -125,7 +125,7 @@ public class TweetToFeatureVectorConverter extends Configured {
 
 
         String inputTableName = args[0];
-        String HDFSOutputFilePath = args[1];
+        String HDFSjobRootFilePath = args[1];
         float samplingRate;
         if (dataSet.equals("training"))
             samplingRate = 100;
@@ -135,7 +135,7 @@ public class TweetToFeatureVectorConverter extends Configured {
             samplingRate = 50;
 
         TweetToFeatureVectorConverter tweetToFeatureVector =
-                new TweetToFeatureVectorConverter(HDFSOutputFilePath,
+                new TweetToFeatureVectorConverter(HDFSjobRootFilePath,
                         inputTableName,
                         samplingRate,
                         dataSet);

@@ -31,9 +31,7 @@ public class TopEmoticonsCalculator extends Configured{
             Logger.getLogger(TopEmoticonsCalculator.class);
 
 
-    public TopEmoticonsCalculator (String intermediateFilePath,
-                                    String inputFilePath,
-                                    String resultFilePath,
+    public TopEmoticonsCalculator (String rootFilePath,
                                     int splits){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
@@ -47,9 +45,9 @@ public class TopEmoticonsCalculator extends Configured{
 
             setConf(hBaseConfiguration);
 
-            Path inputPath = new Path(inputFilePath);
-            Path intermediatePath = new Path(intermediateFilePath);
-            Path resultPath = new Path(resultFilePath);
+            Path inputPath = new Path(rootFilePath + "/input");
+            Path intermediatePath = new Path(rootFilePath + "/intermediate");
+            Path resultPath = new Path(rootFilePath + "/result");
 
             mapReduceJobs.add(KijiMapReduceJobBuilder.create()
                     .withConf(hBaseConfiguration)
@@ -79,24 +77,18 @@ public class TopEmoticonsCalculator extends Configured{
 
     public static void main(String[] args){
 
-        if (args.length < 4){
+        if (args.length < 2){
             System.out.println("Usage: TopEmoticonsCalculator " +
-                    "<HDFS_input_file_path> " +
-                    "<HDFS_output_file_path> " +
-                    "<HDFS_intermediate_file_path> " +
+                    "<HDFS_job_root_file_path> " +
                     "<splits>");
             return;
         }
 
-        String HDFSInputFilePath = args[0];
-        String HDFSOutputFilePath = args[1];
-        String HDFSIntermediateFilePath = args[2];
-        int splits = Integer.parseInt(args[3]);
+        String HDFSjobRootFilePath = args[0];
+        int splits = Integer.parseInt(args[1]);
 
         TopEmoticonsCalculator topEmoticonsCalculator =
-                new TopEmoticonsCalculator(HDFSIntermediateFilePath,
-                        HDFSInputFilePath,
-                        HDFSOutputFilePath,
+                new TopEmoticonsCalculator(HDFSjobRootFilePath,
                         splits);
 
         boolean isSuccessful = false;

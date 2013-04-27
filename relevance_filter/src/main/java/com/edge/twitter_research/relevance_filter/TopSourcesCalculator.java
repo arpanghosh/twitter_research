@@ -32,9 +32,8 @@ public class TopSourcesCalculator extends Configured{
             Logger.getLogger(TopSourcesCalculator.class);
 
 
-    public TopSourcesCalculator (String intermediateFilePath,
+    public TopSourcesCalculator (String rootFilePath,
                                     String inputTableName,
-                                    String resultFilePath,
                                     int splits){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
@@ -47,8 +46,8 @@ public class TopSourcesCalculator extends Configured{
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
-            Path intermediatePath = new Path(intermediateFilePath);
-            Path resultPath = new Path(resultFilePath);
+            Path intermediatePath = new Path(rootFilePath + "/intermediate/" + inputTableName);
+            Path resultPath = new Path(rootFilePath + "/result" + inputTableName);
 
 
             mapReduceJobs.add(KijiGatherJobBuilder.create()
@@ -81,24 +80,21 @@ public class TopSourcesCalculator extends Configured{
 
     public static void main(String[] args){
 
-        if (args.length < 4){
+        if (args.length < 3){
             System.out.println("Usage: TopSourcesCalculator " +
                     "<input_table_name> " +
-                    "<HDFS_intermediate_file_path> " +
-                    "<HDFS_result_file_path> " +
+                    "<HDFS_job_root_file_path> " +
                     "<splits>");
             return;
         }
 
         String inputTableName = args[0];
-        String HDFSIntermediateFilePath = args[1];
-        String HDFSResultFilePath = args[2];
-        int splits = Integer.parseInt(args[3]);
+        String HDFSjobRootFilePath = args[1];
+        int splits = Integer.parseInt(args[2]);
 
         TopSourcesCalculator topSourcesCalculator =
-                new TopSourcesCalculator(HDFSIntermediateFilePath,
+                new TopSourcesCalculator(HDFSjobRootFilePath,
                         inputTableName,
-                        HDFSResultFilePath,
                         splits);
 
         boolean isSuccessful = false;

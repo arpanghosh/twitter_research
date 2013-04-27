@@ -26,7 +26,7 @@ public class SimpleRelevanceLabelImporter extends Configured {
     public static Logger logger =
             Logger.getLogger(SimpleRelevanceLabelImporter.class);
 
-    public SimpleRelevanceLabelImporter (String inputFilePath,
+    public SimpleRelevanceLabelImporter (String rootFilePath,
                                           String outputTableName){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
@@ -53,7 +53,7 @@ public class SimpleRelevanceLabelImporter extends Configured {
 
             this.mapReduceJob = KijiMapReduceJobBuilder.create()
                     .withConf(hBaseConfiguration)
-                    .withInput(new TextMapReduceJobInput(new Path(inputFilePath)))
+                    .withInput(new TextMapReduceJobInput(new Path(rootFilePath + "/input/" + outputTableName)))
                     .withMapper(IDLabelMapper.class)
                     .withReducer(RelevanceLabelWriter.class)
                     .withOutput(new DirectKijiTableMapReduceJobOutput(tableUri,1))
@@ -73,17 +73,17 @@ public class SimpleRelevanceLabelImporter extends Configured {
 
         if (args.length < 2){
             System.out.println("Usage: SimpleRelevanceLabelImporter " +
-                    "<HDFS_input_file_path> " +
+                    "<HDFS_job_root_file_path> " +
                     "<output_table_name>");
             return;
         }
 
-        String HDFSInputFilePath = args[0];
+        String HDFSjobRootFilePath = args[0];
         String outputTableName = args[1];
 
 
         SimpleRelevanceLabelImporter simpleRelevanceLabelImporter =
-                new SimpleRelevanceLabelImporter(HDFSInputFilePath,
+                new SimpleRelevanceLabelImporter(HDFSjobRootFilePath,
                                                 outputTableName);
 
         boolean isSuccessful = false;
