@@ -1,0 +1,41 @@
+@namespace("com.edge.twitter_research.topic_detection")
+
+protocol TopicDetectionRecords {
+
+  /* A wrapper to bundle together a user and company he/she is talking about */
+  record UserCompany {
+    long userId;
+    string companyName;
+    string companyArea;
+  }
+
+  /* A wrapper to contain the basic elements of a SimpleUser */
+  record User {
+    long userId;
+    string screenName;
+    boolean isVerified;
+    string createdAt;
+    int numFollowers;
+    int numFriends;
+    int numStatuses;
+    int numListed;
+  }
+
+  /* A wrapper for User and version(tweet id) */
+  record UserVersion{
+    User user;
+    long version;
+  }
+
+  /* A wrapper for User and count */
+  record UserCount{
+    User user;
+    int count;
+  }
+
+  /* A container to store multiple UserCounts */
+  record UserCountList{
+    array<UserCount> userCountList;
+  }
+
+}

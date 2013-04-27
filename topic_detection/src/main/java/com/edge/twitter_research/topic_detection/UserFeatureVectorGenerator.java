@@ -2,10 +2,14 @@ package com.edge.twitter_research.topic_detection;
 
 
 import com.edge.twitter_research.core.*;
+import org.apache.mahout.math.RandomAccessSparseVector;
+import org.apache.mahout.math.SequentialAccessSparseVector;
+import org.apache.mahout.math.Vector;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,24 +32,54 @@ public class UserFeatureVectorGenerator {
         }
     }
 
+    private final int NUM_FEATURES = 6;
 
     private SimpleDateFormat twitterDateFormat;
+    private double[] features;
+    private Vector vector;
 
-    private int verified;
-    private Year yearOfAccountCreation;
-    private int friendsCount;
-    private int followersCount;
-    private int listedCount;
-    private int statusesCount;
+    int isUserVerified;
+    int yearOfAccountCreation;
+    int friendsCount;
+    int followersCount;
+    int statusesCount;
+    int listedCount;
 
 
     public UserFeatureVectorGenerator() throws IOException {
+
         twitterDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+        features = new double[NUM_FEATURES];
+        vector = new SequentialAccessSparseVector(NUM_FEATURES);
     }
 
 
-    public String getFeatureVector(SimpleUser simpleUser){
+    public Vector getFeatureVector(SimpleUser simpleUser){
         generateFeatureVector(simpleUser);
+
+        features[0] = isUserVerified;
+        features[1] = yearOfAccountCreation;
+        features[2] = friendsCount;
+        features[3] = followersCount;
+        features[4] = statusesCount;
+        features[5] = listedCount;
+
+        vector.assign(features);
+
+        return vector;
+    }
+
+
+    public String getCSV(SimpleUser simpleUser){
+        generateFeatureVector(simpleUser);
+
+        return featureVectorToString();
+    }
+
+
+    public String getCSV(User user){
+        generateFeatureVector(user);
+
         return featureVectorToString();
     }
 
@@ -53,18 +87,41 @@ public class UserFeatureVectorGenerator {
 
     private void generateFeatureVector(SimpleUser simpleUser){
 
-        verified = simpleUser.getVerified()? 1:0;
-        yearOfAccountCreation = getYearOfAccountCreation(getDateObject(simpleUser));
+        isUserVerified = simpleUser.getVerified()? 1:0;
+
+        yearOfAccountCreation =
+                getYearOfAccountCreation(getDateObject(simpleUser.getCreatedAt().toString())).year;
+
         friendsCount = simpleUser.getFriendsCount();
+
         followersCount = simpleUser.getFollowersCount();
+
         statusesCount = simpleUser.getStatusesCount();
+
         listedCount = simpleUser.getListedCount();
     }
 
 
-    private Date getDateObject(SimpleUser simpleUser){
+    private void generateFeatureVector(User user){
+
+        isUserVerified = user.getIsVerified()? 1:0;
+
+        yearOfAccountCreation =
+                getYearOfAccountCreation(getDateObject(user.getCreatedAt().toString())).year;
+
+        friendsCount = user.getNumFriends();
+
+        followersCount = user.getNumFollowers();
+
+        statusesCount = user.getNumStatuses();
+
+        listedCount = user.getNumListed();
+    }
+
+
+    private Date getDateObject(String dateString){
         try{
-            return twitterDateFormat.parse(simpleUser.getCreatedAt().toString());
+            return twitterDateFormat.parse(dateString);
         }catch(ParseException parseException){
             parseException.printStackTrace();
         }catch (NullPointerException nullPointerException){
@@ -99,17 +156,17 @@ public class UserFeatureVectorGenerator {
 
     private String featureVectorToString(){
         StringBuilder featureVector = new StringBuilder();
-        featureVector.append(verified);
-        featureVector.append("|");
-        featureVector.append(yearOfAccountCreation.year);
-        featureVector.append("|");
+        featureVector.append(isUserVerified);
+        featureVector.append(",");
+        featureVector.append(yearOfAccountCreation);
+        featureVector.append(",");
         featureVector.append(friendsCount);
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(followersCount);
-        featureVector.append("|");
-        featureVector.append(listedCount);
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(statusesCount);
+        featureVector.append(",");
+        featureVector.append(listedCount);
 
         return featureVector.toString();
     }
