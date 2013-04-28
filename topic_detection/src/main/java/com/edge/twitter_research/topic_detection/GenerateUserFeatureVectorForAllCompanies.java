@@ -33,7 +33,8 @@ public class GenerateUserFeatureVectorForAllCompanies extends Configured {
 
 
     public GenerateUserFeatureVectorForAllCompanies (String tableName,
-                                                 String jobRootFilePath){
+                                                 String jobRootFilePath,
+                                                  int numReducers){
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
@@ -72,7 +73,7 @@ public class GenerateUserFeatureVectorForAllCompanies extends Configured {
                     .withFilter(filter)
                     .withReducer(UserCompanyMentionCounterSorter.class)
                     .withInputTable(tableUri)
-                    .withOutput(new AvroKeyValueMapReduceJobOutput(intermediatePath, 1))
+                    .withOutput(new AvroKeyValueMapReduceJobOutput(intermediatePath, numReducers))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build());
 
@@ -81,7 +82,7 @@ public class GenerateUserFeatureVectorForAllCompanies extends Configured {
                     .withMapper(CountedUserCompanyMentionMapper.class)
                     .withReducer(PerCompanyUserSorter.class)
                     .withInput(new AvroKeyValueMapReduceJobInput(intermediatePath))
-                    .withOutput(new AvroKeyValueMapReduceJobOutput(resultPath, 1))
+                    .withOutput(new AvroKeyValueMapReduceJobOutput(resultPath, numReducers))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build());
 
@@ -98,19 +99,22 @@ public class GenerateUserFeatureVectorForAllCompanies extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: GenerateUserFeatureVectorForACompany " +
                     "<input_table_name> " +
-                    "<HDFS_job_root_file_path>");
+                    "<HDFS_job_root_file_path> " +
+                    "<num_reducers>");
             return;
         }
 
         String inputTableName = args[0];
         String HDFSjobRootFilePath = args[1];
+        int numReducers = Integer.parseInt(args[2]);
 
         GenerateUserFeatureVectorForAllCompanies generateUserFeatureVectorForAllCompanies =
                 new GenerateUserFeatureVectorForAllCompanies(inputTableName,
-                                                        HDFSjobRootFilePath);
+                                                        HDFSjobRootFilePath,
+                                                        numReducers);
 
         boolean isSuccessful = false;
 
