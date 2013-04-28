@@ -28,7 +28,8 @@ public class LabelTweetsByCompanyAndArea extends Configured {
 
     public LabelTweetsByCompanyAndArea (String tableName,
                                         String jobRootPath,
-                                        float samplingRate){
+                                        float samplingRate,
+                                        int numReducers){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
@@ -57,7 +58,7 @@ public class LabelTweetsByCompanyAndArea extends Configured {
                     .withConf(hBaseConfiguration)
                     .withInputTable(tableUri)
                     .withProducer(LabelTweetsByCompanyProducer.class)
-                    .withOutput(new HFileMapReduceJobOutput(tableUri, HFilePath))
+                    .withOutput(new DirectKijiTableMapReduceJobOutput(tableUri, numReducers))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build();
         }catch (IOException ioException){
@@ -72,20 +73,22 @@ public class LabelTweetsByCompanyAndArea extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 3){
+        if (args.length < 4){
             System.out.println("Usage: LabelTweetsByCompanyAndArea " +
                     "<table_name> " +
                     "<HDFS_job_root_path> " +
-                    "<sampling_rate>");
+                    "<sampling_rate> " +
+                    "<num_reducers>");
             return;
         }
 
         String tableName = args[0];
         String HDFSJobRootPath = args[1];
         float samplingRate = Float.parseFloat(args[2]);
+        int numReducers = Integer.parseInt(args[3]);
 
         LabelTweetsByCompanyAndArea labelTweetsByCompanyAndArea =
-                new LabelTweetsByCompanyAndArea(tableName, HDFSJobRootPath, samplingRate);
+                new LabelTweetsByCompanyAndArea(tableName, HDFSJobRootPath, samplingRate, numReducers);
 
         long tic = 0L, toc = 0L;
         boolean isSuccessful = false;
