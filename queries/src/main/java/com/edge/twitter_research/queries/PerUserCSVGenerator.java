@@ -77,6 +77,8 @@ public class PerUserCSVGenerator
         double averageRetweets = 0.0;
         int numOriginals = 0;
         int numRetweets = 0;
+        int numMentions = 0;
+        int numURLs = 0;
         long maxRetweets;
 
         for (SimpleTweet simpleTweet : categoryUserTweets){
@@ -86,6 +88,12 @@ public class PerUserCSVGenerator
                 numRetweets++;
             else
                 numOriginals++;
+
+            if (simpleTweet.getUrlEntities().size() > 0)
+                numURLs++;
+
+            if (simpleTweet.getUserMentionEntities().size() > 0)
+                numMentions++;
         }
 
         averageRetweets = averageRetweets/categoryUserTweets.size();
@@ -100,9 +108,15 @@ public class PerUserCSVGenerator
         features.append(",");
         features.append(maxRetweets);
         features.append(",");
+        features.append(categoryUserTweets.size());
+        features.append(",");
         features.append(numOriginals);
         features.append(",");
         features.append(numRetweets);
+        features.append(",");
+        features.append(numURLs);
+        features.append(",");
+        features.append(numMentions);
         features.append(",");
         features.append(representative.getUser().getStatusesCount());
         features.append(",");
