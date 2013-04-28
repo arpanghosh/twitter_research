@@ -37,7 +37,7 @@ public class LabelTweetsByCompanyAndArea extends Configured {
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
-            hBaseConfiguration.setInt("hbase.client.scanner.caching", 5000);
+            hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", tableName)).build();
