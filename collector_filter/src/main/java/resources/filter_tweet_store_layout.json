@@ -37,7 +37,7 @@
             value : "[\"string\",\"null\"]"
         }
       }, {
-        name : "company_data",
+        name : "company_data_final",
         description : "company data for a tweet",
         column_schema : {
             storage : "UID",
