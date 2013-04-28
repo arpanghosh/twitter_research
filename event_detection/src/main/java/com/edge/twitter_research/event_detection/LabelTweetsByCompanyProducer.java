@@ -8,6 +8,7 @@ import org.kiji.mapreduce.KijiContext;
 import org.kiji.mapreduce.produce.KijiProducer;
 import org.kiji.mapreduce.produce.ProducerContext;
 import org.kiji.schema.KijiDataRequest;
+import org.kiji.schema.KijiDataRequestBuilder;
 import org.kiji.schema.KijiRowData;
 
 import java.io.IOException;
@@ -31,8 +32,11 @@ public class LabelTweetsByCompanyProducer
 
     @Override
     public KijiDataRequest getDataRequest() {
-        return KijiDataRequest.create(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
-                                        GlobalConstants.TWEET_COLUMN_NAME);
+        final KijiDataRequestBuilder builder = KijiDataRequest.builder();
+        builder.newColumnsDef()
+                .withMaxVersions(1)
+                .addFamily(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME);
+        return builder.build();
     }
 
     /** {@inheritDoc} */
@@ -52,12 +56,16 @@ public class LabelTweetsByCompanyProducer
                     GlobalConstants.TWEET_COLUMN_NAME);
             String tweetText = tweet.getText().toString().toLowerCase();
 
-            for (Constants.Company company : Constants.Company.values()){
-                Matcher matcher =
-                        company.patternMatcher.reset(tweetText);
+            if (!input.containsColumn(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                    GlobalConstants.COMPANY_DATA_COLUMN_NAME)){
 
-                if (matcher.find()){
-                    context.put(new CompanyData(company.name, company.area.name));
+                for (Constants.Company company : Constants.Company.values()){
+                    Matcher matcher =
+                            company.patternMatcher.reset(tweetText);
+
+                    if (matcher.find()){
+                        context.put(new CompanyData(company.name, company.area.name));
+                    }
                 }
             }
         }
