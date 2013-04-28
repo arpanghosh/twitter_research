@@ -13,7 +13,9 @@
     <module>collector_categories</module>
     <module>collector_streaming</module>
     <module>collector_filter</module>
-    <module>collector_user</module>
+      <!--
+      <module>collector_user</module>
+      -->
     <module>relevance_filter</module>
     <module>event_detection</module>
     <module>topic_detection</module>
