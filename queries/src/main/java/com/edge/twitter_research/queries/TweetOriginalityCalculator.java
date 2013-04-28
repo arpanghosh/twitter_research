@@ -26,7 +26,7 @@ public class TweetOriginalityCalculator extends Configured {
     public static Logger logger =
             Logger.getLogger(PerTimeTweetVolumeForAllCompanies.class);
 
-    public TweetOriginalityCalculator (String rootFilePath){
+    public TweetOriginalityCalculator (String rootFilePath, int numReducers){
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
@@ -64,7 +64,7 @@ public class TweetOriginalityCalculator extends Configured {
                         .withGatherer(UsersGatherer.class)
                         .withReducer(PerUserCSVGenerator.class)
                         .withInputTable(categoryTableUri)
-                        .withOutput(new TextMapReduceJobOutput(categoryResultFilePath, 1))
+                        .withOutput(new TextMapReduceJobOutput(categoryResultFilePath, numReducers))
                         .addJarDirectory(new Path(additionalJarsPath))
                         .build());
 
@@ -75,7 +75,7 @@ public class TweetOriginalityCalculator extends Configured {
                     .withGatherer(UsersGatherer.class)
                     .withReducer(PerUserCSVGenerator.class)
                     .withInputTable(sampleTableUri)
-                    .withOutput(new TextMapReduceJobOutput(sampleResultFilePath, 1))
+                    .withOutput(new TextMapReduceJobOutput(sampleResultFilePath, numReducers))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build());
 
@@ -92,18 +92,20 @@ public class TweetOriginalityCalculator extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 1){
+        if (args.length < 2){
             System.out.println("Usage: TweetOriginalityCalculator " +
-                    "<HDFS_job_root_file_path>" );
+                    "<HDFS_job_root_file_path> " +
+                    "<num_reducers>");
             return;
         }
 
 
         String HDFSjobRootFilePath = args[0];
+        int numReducers = Integer.parseInt(args[1]);
 
 
         TweetOriginalityCalculator tweetOriginalityCalculator =
-                new TweetOriginalityCalculator(HDFSjobRootFilePath);
+                new TweetOriginalityCalculator(HDFSjobRootFilePath, numReducers);
 
 
         boolean isSuccessful = false;

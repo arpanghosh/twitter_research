@@ -32,7 +32,8 @@ public class PerTimeTweetVolumeForAllCompanies extends Configured {
 
     public PerTimeTweetVolumeForAllCompanies (String rootFilePath,
                                                 String inputTableName,
-                                                String granularity){
+                                                String granularity,
+                                                int numReducers){
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
@@ -78,7 +79,7 @@ public class PerTimeTweetVolumeForAllCompanies extends Configured {
                         .withFilter(filter)
                         .withReducer(PerTimeCompanyTweetCounter.class)
                         .withInputTable(tableUri)
-                        .withOutput(new AvroKeyValueMapReduceJobOutput(intermediateFilePath, 1))
+                        .withOutput(new AvroKeyValueMapReduceJobOutput(intermediateFilePath, numReducers))
                         .addJarDirectory(new Path(additionalJarsPath))
                         .build());
             }
@@ -89,7 +90,7 @@ public class PerTimeTweetVolumeForAllCompanies extends Configured {
                     .withMapper(TimeCompanyOccurrencesMapper.class)
                     .withReducer(PerCompanyCSVGenerator.class)
                     .withInput(new AvroKeyValueMapReduceJobInput(intermediateFilePath))
-                    .withOutput(new TextMapReduceJobOutput(resultFilePath, 1))
+                    .withOutput(new TextMapReduceJobOutput(resultFilePath, numReducers))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build());
 
@@ -106,10 +107,11 @@ public class PerTimeTweetVolumeForAllCompanies extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: PerTimeTweetVolumeForAllCompanies " +
                     "<HDFS_job_root_file_path> " +
-                    "<granularity>");
+                    "<granularity> " +
+                    "<num_reducers>");
             return;
         }
 
@@ -117,12 +119,14 @@ public class PerTimeTweetVolumeForAllCompanies extends Configured {
         String inputTableName = "filter_tweet_store";
         String HDFSjobRootFilePath = args[0];
         String granularity = args[1];
+        int numReducers = Integer.parseInt(args[2]);
 
 
         PerTimeTweetVolumeForAllCompanies perTimeTweetVolumeForAllCompanies =
                                 new PerTimeTweetVolumeForAllCompanies(HDFSjobRootFilePath,
                                                                 inputTableName,
-                                                                granularity);
+                                                                granularity,
+                                                                numReducers);
 
 
         boolean isSuccessful = false;
