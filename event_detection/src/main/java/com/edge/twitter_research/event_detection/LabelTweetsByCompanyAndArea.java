@@ -11,6 +11,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.kiji.mapreduce.KijiMapReduceJob;
 
 import org.kiji.mapreduce.output.DirectKijiTableMapReduceJobOutput;
+import org.kiji.mapreduce.output.HFileMapReduceJobOutput;
 import org.kiji.mapreduce.produce.KijiProduceJobBuilder;
 import org.kiji.schema.KijiURI;
 
@@ -25,7 +26,8 @@ public class LabelTweetsByCompanyAndArea extends Configured {
     public static Logger logger =
             Logger.getLogger(LabelTweetsByCompanyAndArea.class);
 
-    public LabelTweetsByCompanyAndArea (String tableName){
+    public LabelTweetsByCompanyAndArea (String tableName,
+                                        String jobRootPath){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
@@ -36,6 +38,7 @@ public class LabelTweetsByCompanyAndArea extends Configured {
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", tableName)).build();
+            Path HFilePath = new Path(jobRootPath + "/hfiles");
 
             String additionalJarsPath = "";
 
@@ -53,7 +56,7 @@ public class LabelTweetsByCompanyAndArea extends Configured {
                     .withConf(hBaseConfiguration)
                     .withInputTable(tableUri)
                     .withProducer(LabelTweetsByCompanyProducer.class)
-                    .withOutput(new DirectKijiTableMapReduceJobOutput(tableUri,1))
+                    .withOutput(new HFileMapReduceJobOutput(tableUri, HFilePath))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build();
         }catch (IOException ioException){
@@ -68,22 +71,27 @@ public class LabelTweetsByCompanyAndArea extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 1){
+        if (args.length < 2){
             System.out.println("Usage: LabelTweetsByCompanyAndArea " +
-                    "<table_name>");
+                    "<table_name> " +
+                    "<HDFS_job_root_path>");
             return;
         }
 
         String tableName = args[0];
+        String HDFSJobRootPath = args[1];
 
 
         LabelTweetsByCompanyAndArea labelTweetsByCompanyAndArea =
-                new LabelTweetsByCompanyAndArea(tableName);
+                new LabelTweetsByCompanyAndArea(tableName, HDFSJobRootPath);
 
+        long tic = 0L, toc = 0L;
         boolean isSuccessful = false;
         if (labelTweetsByCompanyAndArea.mapReduceJob != null){
             try{
+                tic = System.currentTimeMillis();
                 isSuccessful = labelTweetsByCompanyAndArea.mapReduceJob.run();
+                toc = System.currentTimeMillis();
             }catch (Exception unknownException){
                 logger.error("Unknown Exception while running MapReduce Job", unknownException);
                 System.exit(1);
@@ -92,6 +100,7 @@ public class LabelTweetsByCompanyAndArea extends Configured {
 
         String result = isSuccessful ? "Successful" : "Failure";
         logger.info(result);
+        logger.info("time taken : " + (toc - tic)/1000 + " seconds");
     }
 
 }
