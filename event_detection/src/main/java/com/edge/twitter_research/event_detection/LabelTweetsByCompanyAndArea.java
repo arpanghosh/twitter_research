@@ -59,7 +59,7 @@ public class LabelTweetsByCompanyAndArea extends Configured {
                     .withConf(hBaseConfiguration)
                     .withInputTable(tableUri)
                     .withProducer(LabelTweetsByCompanyProducer.class)
-                    .withOutput(new DirectKijiTableMapReduceJobOutput(tableUri, numReducers))
+                    .withOutput(new DirectKijiTableMapReduceJobOutput(tableUri))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build();
         }catch (IOException ioException){
