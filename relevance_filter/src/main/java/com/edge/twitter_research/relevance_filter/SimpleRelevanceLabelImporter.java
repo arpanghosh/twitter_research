@@ -27,7 +27,8 @@ public class SimpleRelevanceLabelImporter extends Configured {
             Logger.getLogger(SimpleRelevanceLabelImporter.class);
 
     public SimpleRelevanceLabelImporter (String rootFilePath,
-                                          String outputTableName){
+                                          String outputTableName,
+                                          int numReducers){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
@@ -56,7 +57,7 @@ public class SimpleRelevanceLabelImporter extends Configured {
                     .withInput(new TextMapReduceJobInput(new Path(rootFilePath + "/input/" + outputTableName)))
                     .withMapper(IDLabelMapper.class)
                     .withReducer(RelevanceLabelWriter.class)
-                    .withOutput(new DirectKijiTableMapReduceJobOutput(tableUri,1))
+                    .withOutput(new DirectKijiTableMapReduceJobOutput(tableUri, numReducers))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build();
         }catch (IOException ioException){
@@ -71,20 +72,23 @@ public class SimpleRelevanceLabelImporter extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: SimpleRelevanceLabelImporter " +
                     "<HDFS_job_root_file_path> " +
-                    "<output_table_name>");
+                    "<output_table_name> " +
+                    "<num_reducers>");
             return;
         }
 
         String HDFSjobRootFilePath = args[0];
         String outputTableName = args[1];
+        int numReducers = Integer.parseInt(args[2]);
 
 
         SimpleRelevanceLabelImporter simpleRelevanceLabelImporter =
                 new SimpleRelevanceLabelImporter(HDFSjobRootFilePath,
-                                                outputTableName);
+                                                outputTableName,
+                                                numReducers);
 
         boolean isSuccessful = false;
         if (simpleRelevanceLabelImporter.mapReduceJob != null){

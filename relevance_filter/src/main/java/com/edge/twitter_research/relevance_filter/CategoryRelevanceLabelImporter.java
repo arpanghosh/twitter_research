@@ -33,7 +33,8 @@ public class CategoryRelevanceLabelImporter
 
     public CategoryRelevanceLabelImporter (String outputTableName,
                                            String tempTableName,
-                                          String rootFilePath){
+                                          String rootFilePath,
+                                          int numReducers){
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
@@ -70,7 +71,7 @@ public class CategoryRelevanceLabelImporter
                     .withConf(hBaseConfiguration)
                     .withBulkImporter(CategoryRelevanceLabelBulkImporter.class)
                     .withInput(new TextMapReduceJobInput(new Path(rootFilePath + "/input/" + outputTableName)))
-                    .withOutput(new DirectKijiTableMapReduceJobOutput(tempTableUri, 1))
+                    .withOutput(new DirectKijiTableMapReduceJobOutput(tempTableUri, numReducers))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build());
 
@@ -99,10 +100,11 @@ public class CategoryRelevanceLabelImporter
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: CategoryRelevanceLabelImporter " +
                     "<HDFS_job_root_file_path> " +
-                    "<output_table_name>");
+                    "<output_table_name> " +
+                    "<num_reducers>");
             return;
         }
 
@@ -110,11 +112,13 @@ public class CategoryRelevanceLabelImporter
         String HDFSjobRootFilePath = args[0];
         String tempTableName = "category_relevance_label_temp_table";
         String outputTableName = args[1];
+        int numReducers = Integer.parseInt(args[2]);
 
         CategoryRelevanceLabelImporter categoryRelevanceLabelImporter =
                 new CategoryRelevanceLabelImporter(outputTableName,
                                                     tempTableName,
-                                                    HDFSjobRootFilePath);
+                                                    HDFSjobRootFilePath,
+                                                    numReducers);
 
         boolean isSuccessful = false;
 
