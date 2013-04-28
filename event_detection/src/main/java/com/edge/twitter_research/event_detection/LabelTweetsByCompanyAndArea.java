@@ -27,14 +27,15 @@ public class LabelTweetsByCompanyAndArea extends Configured {
             Logger.getLogger(LabelTweetsByCompanyAndArea.class);
 
     public LabelTweetsByCompanyAndArea (String tableName,
-                                        String jobRootPath){
+                                        String jobRootPath,
+                                        float samplingRate){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         try{
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
-
+            hBaseConfiguration.setFloat("sampling.rate", samplingRate);
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", tableName)).build();
@@ -71,19 +72,20 @@ public class LabelTweetsByCompanyAndArea extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: LabelTweetsByCompanyAndArea " +
                     "<table_name> " +
-                    "<HDFS_job_root_path>");
+                    "<HDFS_job_root_path> " +
+                    "<sampling_rate>");
             return;
         }
 
         String tableName = args[0];
         String HDFSJobRootPath = args[1];
-
+        float samplingRate = Float.parseFloat(args[2]);
 
         LabelTweetsByCompanyAndArea labelTweetsByCompanyAndArea =
-                new LabelTweetsByCompanyAndArea(tableName, HDFSJobRootPath);
+                new LabelTweetsByCompanyAndArea(tableName, HDFSJobRootPath, samplingRate);
 
         long tic = 0L, toc = 0L;
         boolean isSuccessful = false;
