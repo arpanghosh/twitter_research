@@ -1,6 +1,7 @@
 package com.edge.twitter_research.event_detection;
 
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Constants {
@@ -129,13 +130,13 @@ public class Constants {
 
 
         public final String name;
-        public final Pattern pattern;
+        public final Matcher patternMatcher;
         public final Area area;
 
         Company(String company, Area area, String pattern){
             this.name = company;
             this.area = area;
-            this.pattern = Pattern.compile(pattern);
+            this.patternMatcher = Pattern.compile(pattern).matcher("");
         }
     }
 

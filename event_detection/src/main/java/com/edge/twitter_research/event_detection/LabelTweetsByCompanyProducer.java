@@ -36,7 +36,7 @@ public class LabelTweetsByCompanyProducer
                                                      GlobalConstants.TWEET_COLUMN_NAME);
         for (Constants.Company company : Constants.Company.values()){
             Matcher matcher =
-                    company.pattern.matcher(tweet.getText().toString().toLowerCase());
+                    company.patternMatcher.reset(tweet.getText().toString().toLowerCase());
 
             if (matcher.find()){
                 context.put(new CompanyData(company.name, company.area.name));
