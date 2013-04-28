@@ -34,15 +34,19 @@ public class LabelTweetsByCompanyProducer
     public void produce(KijiRowData input, ProducerContext context) throws IOException {
         SimpleTweet tweet = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
                                                      GlobalConstants.TWEET_COLUMN_NAME);
+        String tweetText = tweet.getText().toString().toLowerCase();
+
         for (Constants.Company company : Constants.Company.values()){
             Matcher matcher =
-                    company.patternMatcher.reset(tweet.getText().toString().toLowerCase());
+                    company.patternMatcher.reset(tweetText);
 
             if (matcher.find()){
                 context.put(new CompanyData(company.name, company.area.name));
             }
         }
+
     }
+
 
 }
 
