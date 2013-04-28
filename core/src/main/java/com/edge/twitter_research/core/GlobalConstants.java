@@ -35,7 +35,7 @@ public class GlobalConstants {
     public static final String TWEET_COLUMN_NAME = "tweet";
     public static final String RELEVANCE_LABEL_COLUMN_NAME = "relevance_label";
     public static final String TOPIC_LABEL_COLUMN_NAME = "topic_label";
-    public static final String COMPANY_DATA_COLUMN_NAME = "company_data_new";
+    public static final String COMPANY_DATA_COLUMN_NAME = "company_data_final";
 
 
     /*Labels*/
