@@ -2,15 +2,54 @@
 
 protocol QueriesRecords {
 
-  /** A count of the number of times a company has been mentioned on a specific date. */
-  record CompanyOccuranceCount {
-    string name;
-    int count;
-  }
+    /* A wrapper for date elements at different granularities*/
+    record GranularDate {
+        int year;
+        int monthOfYear;
+        int weekOfMonth;
+        int dayOfMonth;
+        int HourOfDay;
+    }
 
-  /** A count of the number of times a source has been used. */
-    record TweetsToday {
-      array<CompanyOccuranceCount> tweetstoday;
+
+
+
+
+    /* A wrapper for 2 int counter */
+    record TweetTypes {
+        int retweetCount;
+        int regularCount;
+    }
+
+    /** A wrapper for the number of occurrences of a company and the time unit in which they occur */
+        record CompanyTweetCountInTimeUnit {
+            GranularDate granularDate;
+            TweetTypes count;
+        }
+
+
+
+    /* A wrapper for CompanyData and the number of time the company occurs in a time unit */
+    record CompanyOccurrenceCount {
+        string companyName;
+        string companyArea;
+        TweetTypes count;
+    }
+
+
+
+     /* A wrapper for CompanyData and the type of occurrence */
+        record CompanyOccurrenceType {
+            string companyName;
+            string companyArea;
+            boolean isRetweet;
+        }
+
+
+
+    /** A list to store CompanyOccurrenceCount for all companies in a time unit  */
+    record CompanyTweetCountsInTimeUnit {
+        array<CompanyOccurrenceCount> companyTweetCountsInTimeUnit;
     }
 
 
