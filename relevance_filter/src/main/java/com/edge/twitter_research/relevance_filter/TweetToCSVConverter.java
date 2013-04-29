@@ -75,7 +75,7 @@ public class TweetToCSVConverter extends Configured {
                     .withGatherer(TweetToCSVGatherer.class)
                     .withInputTable(tableUri)
                     .withFilter(filter)
-                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath + "/result/" + inputTableName + "/" + type + "/" + samplingRate), 1))
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath + "/result/" + inputTableName + "_" + type + "_" + samplingRate), 1))
                     .build();
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);
