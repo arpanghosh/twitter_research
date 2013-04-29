@@ -44,7 +44,7 @@ public class TweetToFeatureVectorConverter extends Configured {
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
 
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
-            hBaseConfiguration.set("mapred.textoutputformat.separator", "|");
+            hBaseConfiguration.set("mapred.textoutputformat.separator", ",");
             //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
             hBaseConfiguration.setBoolean("generating.training.set", dataSetType.equals("training"));
 

@@ -254,7 +254,7 @@ public class TweetFeatureVectorGenerator {
         else if (relevanceLabel.equals(TweetRelevanceLabel.NOT_ENGLISH.getTweetRelevanceLabel()))
             relevanceLabelInt = TweetRelevanceLabel.NOT_ENGLISH.ordinal();
 
-        return (featureVectorToString() + "|" + relevanceLabelInt);
+        return (featureVectorToString() + "," + relevanceLabelInt);
     }
 
 
@@ -529,44 +529,44 @@ public class TweetFeatureVectorGenerator {
     private String featureVectorToString(){
         StringBuilder featureVector = new StringBuilder();
         featureVector.append(userFollowers);
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(userFriends);
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(userIsVerified.getVerified());
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(userTotalTweets);
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(timeOfDay.getTimeOfDay());
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(dayOfWeek.getDayOfWeek());
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(urlLocationInTweet.getURLLocation());
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(retweetCount);
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(numCharsInTweet);
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(numEmoticonsInTweet);
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(hasContributors.getContributor());
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(tweetType.getTweetType());
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(tweetNature.getTweetNature());
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(contentType.getContentType());
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(source.getTweetSource());
-        featureVector.append("|");
+        featureVector.append(",");
         featureVector.append(fractionFormat.format(avgWordLength));
 
         for(double componentFraction : componentFractions){
-            featureVector.append("|");
+            featureVector.append(",");
             featureVector.append(fractionFormat.format(componentFraction));
         }
 
         for(double POSFraction : POSFractions){
-            featureVector.append("|");
+            featureVector.append(",");
             featureVector.append(fractionFormat.format(POSFraction));
         }
 
