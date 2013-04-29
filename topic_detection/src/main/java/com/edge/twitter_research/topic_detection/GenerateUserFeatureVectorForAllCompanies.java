@@ -4,6 +4,7 @@ package com.edge.twitter_research.topic_detection;
 import com.edge.twitter_research.core.GlobalConstants;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
@@ -67,15 +68,20 @@ public class GenerateUserFeatureVectorForAllCompanies extends Configured {
                 System.exit(-1);
             }
 
-            mapReduceJobs.add(KijiGatherJobBuilder.create()
-                    .withConf(hBaseConfiguration)
-                    .withGatherer(UserCompanyGatherer.class)
-                    .withFilter(filter)
-                    .withReducer(UserCompanyMentionCounterSorter.class)
-                    .withInputTable(tableUri)
-                    .withOutput(new AvroKeyValueMapReduceJobOutput(intermediatePath, numReducers))
-                    .addJarDirectory(new Path(additionalJarsPath))
-                    .build());
+            FileSystem fs = FileSystem.newInstance(hBaseConfiguration);
+
+            if (!fs.exists(intermediatePath)){
+
+                mapReduceJobs.add(KijiGatherJobBuilder.create()
+                        .withConf(hBaseConfiguration)
+                        .withGatherer(UserCompanyGatherer.class)
+                        .withFilter(filter)
+                        .withReducer(UserCompanyMentionCounterSorter.class)
+                        .withInputTable(tableUri)
+                        .withOutput(new AvroKeyValueMapReduceJobOutput(intermediatePath, numReducers))
+                        .addJarDirectory(new Path(additionalJarsPath))
+                        .build());
+            }
 
             mapReduceJobs.add(KijiMapReduceJobBuilder.create()
                     .withConf(hBaseConfiguration)
