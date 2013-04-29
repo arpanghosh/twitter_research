@@ -27,7 +27,7 @@ public class TweetOriginalityCalculator extends Configured {
     public static Logger logger =
             Logger.getLogger(PerTimeTweetVolumeForAllCompanies.class);
 
-    public TweetOriginalityCalculator (String rootFilePath, int numReducers, float samplingRate){
+    public TweetOriginalityCalculator (String rootFilePath, int numReducers, float samplingRate, String categoryOrSample){
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
@@ -59,8 +59,7 @@ public class TweetOriginalityCalculator extends Configured {
                 System.exit(-1);
             }
 
-            FileSystem fs = FileSystem.newInstance(hBaseConfiguration);
-            if (!fs.exists(categoryResultFilePath)){
+            if (categoryOrSample.equals("category")){
 
                 mapReduceJobs.add(KijiGatherJobBuilder.create()
                         .withConf(hBaseConfiguration)
@@ -70,7 +69,7 @@ public class TweetOriginalityCalculator extends Configured {
                         .withOutput(new TextMapReduceJobOutput(categoryResultFilePath, numReducers))
                         .addJarDirectory(new Path(additionalJarsPath))
                         .build());
-            }
+            }else if (categoryOrSample.equals("sample")){
 
 
             mapReduceJobs.add(KijiGatherJobBuilder.create()
@@ -81,6 +80,7 @@ public class TweetOriginalityCalculator extends Configured {
                     .withOutput(new TextMapReduceJobOutput(sampleResultFilePath, numReducers))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build());
+            }
 
 
         }catch (IOException ioException){
@@ -95,11 +95,12 @@ public class TweetOriginalityCalculator extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 3){
+        if (args.length < 4){
             System.out.println("Usage: TweetOriginalityCalculator " +
                     "<HDFS_job_root_file_path> " +
                     "<num_reducers> " +
-                    "<sampling_rate>");
+                    "<sampling_rate> " +
+                    "<category_or_users>");
             return;
         }
 
@@ -107,10 +108,11 @@ public class TweetOriginalityCalculator extends Configured {
         String HDFSjobRootFilePath = args[0];
         int numReducers = Integer.parseInt(args[1]);
         float samplingRate = Float.parseFloat(args[2]);
+        String categoryOrSample = args[3];
 
 
         TweetOriginalityCalculator tweetOriginalityCalculator =
-                new TweetOriginalityCalculator(HDFSjobRootFilePath, numReducers, samplingRate);
+                new TweetOriginalityCalculator(HDFSjobRootFilePath, numReducers, samplingRate, categoryOrSample);
 
 
         boolean isSuccessful = false;
