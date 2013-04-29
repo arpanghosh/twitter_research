@@ -130,14 +130,22 @@ public class PerCompanyCSVGenerator
             features.append(",");
             features.append(entry.getKey().getMonthOfYear());
             features.append(",");
-            features.append(entry.getKey().getWeekOfMonth());
+            features.append(entry.getKey().getWeekOfYear());
             features.append(",");
 
             if (granularity.equals("daily")){
+                features.append(entry.getKey().getDayOfYear());
+                features.append(",");
                 features.append(entry.getKey().getDayOfMonth());
                 features.append(",");
+                features.append(entry.getKey().getDayOfWeek());
+                features.append(",");
             }else if (granularity.equals("hourly")){
+                features.append(entry.getKey().getDayOfYear());
+                features.append(",");
                 features.append(entry.getKey().getDayOfMonth());
+                features.append(",");
+                features.append(entry.getKey().getDayOfWeek());
                 features.append(",");
                 features.append(entry.getKey().getHourOfDay());
                 features.append(",");

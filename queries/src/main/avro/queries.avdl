@@ -6,8 +6,10 @@ protocol QueriesRecords {
     record GranularDate {
         int year;
         int monthOfYear;
-        int weekOfMonth;
+        int weekOfYear;
+        int dayOfYear;
         int dayOfMonth;
+        int dayOfWeek;
         int HourOfDay;
     }
 

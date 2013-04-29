@@ -65,8 +65,10 @@ public class TimeCompanyGatherer
 
         granularDate.setYear(calendar.get(Calendar.YEAR));
         granularDate.setMonthOfYear(calendar.get(Calendar.MONTH));
-        granularDate.setWeekOfMonth(calendar.get(Calendar.WEEK_OF_MONTH));
+        granularDate.setWeekOfYear(calendar.get(Calendar.WEEK_OF_YEAR));
+        granularDate.setDayOfYear(calendar.get(Calendar.DAY_OF_YEAR));
         granularDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
+        granularDate.setDayOfWeek(calendar.get(Calendar.DAY_OF_WEEK));
         granularDate.setHourOfDay(calendar.get(Calendar.HOUR_OF_DAY));
 
         NavigableMap<Long, CompanyData> companies =
