@@ -29,7 +29,8 @@ public class LabelTweetsByCompanyAndArea extends Configured {
     public LabelTweetsByCompanyAndArea (String tableName,
                                         String jobRootPath,
                                         float samplingRate,
-                                        int numReducers){
+                                        int numReducers,
+                                        int scanner){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
@@ -37,7 +38,7 @@ public class LabelTweetsByCompanyAndArea extends Configured {
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
-            hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
+            hBaseConfiguration.setInt("hbase.client.scanner.caching", scanner);
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", tableName)).build();
@@ -74,12 +75,13 @@ public class LabelTweetsByCompanyAndArea extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 4){
+        if (args.length < 5){
             System.out.println("Usage: LabelTweetsByCompanyAndArea " +
                     "<table_name> " +
                     "<HDFS_job_root_path> " +
                     "<sampling_rate> " +
-                    "<num_reducers>");
+                    "<num_reducers> "+
+                    "scanner");
             return;
         }
 
@@ -87,9 +89,10 @@ public class LabelTweetsByCompanyAndArea extends Configured {
         String HDFSJobRootPath = args[1];
         float samplingRate = Float.parseFloat(args[2]);
         int numReducers = Integer.parseInt(args[3]);
+        int scanner = Integer.parseInt(args[4]);
 
         LabelTweetsByCompanyAndArea labelTweetsByCompanyAndArea =
-                new LabelTweetsByCompanyAndArea(tableName, HDFSJobRootPath, samplingRate, numReducers);
+                new LabelTweetsByCompanyAndArea(tableName, HDFSJobRootPath, samplingRate, numReducers, scanner);
 
         long tic = 0L, toc = 0L;
         boolean isSuccessful = false;
