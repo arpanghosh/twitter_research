@@ -5,6 +5,9 @@ import com.edge.twitter_research.core.SimpleTweet;
 import org.apache.avro.Schema;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.kiji.mapreduce.avro.AvroKeyWriter;
 import org.kiji.mapreduce.avro.AvroValueWriter;
 import org.kiji.mapreduce.gather.GathererContext;
@@ -19,16 +22,27 @@ public class UsersGatherer
         extends KijiGatherer<AvroKey<Long>, AvroValue<SimpleTweet>>
         implements AvroKeyWriter, AvroValueWriter {
 
+    private double threshold;
+
+    @Override
+    public void setup(GathererContext<AvroKey<Long>, AvroValue<SimpleTweet>> context) throws IOException {
+        super.setup(context); // Any time you override setup, call super.setup(context);
+
+        Configuration conf = getConf();
+        threshold = conf.getFloat("sampling.rate", 100)/100.0;
+    }
+
 
     @Override
     public void gather(KijiRowData input, GathererContext<AvroKey<Long>, AvroValue<SimpleTweet>> context)
             throws IOException {
+        if (Math.random() < threshold){
+            SimpleTweet tweet = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                    GlobalConstants.TWEET_COLUMN_NAME);
 
-        SimpleTweet tweet = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
-                GlobalConstants.TWEET_COLUMN_NAME);
-
-        context.write(new AvroKey<Long>(tweet.getUser().getId()),
-                new AvroValue<SimpleTweet>(tweet));
+            context.write(new AvroKey<Long>(tweet.getUser().getId()),
+                    new AvroValue<SimpleTweet>(tweet));
+        }
     }
 
 

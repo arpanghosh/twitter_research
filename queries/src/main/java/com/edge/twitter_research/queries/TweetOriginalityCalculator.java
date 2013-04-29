@@ -26,7 +26,7 @@ public class TweetOriginalityCalculator extends Configured {
     public static Logger logger =
             Logger.getLogger(PerTimeTweetVolumeForAllCompanies.class);
 
-    public TweetOriginalityCalculator (String rootFilePath, int numReducers){
+    public TweetOriginalityCalculator (String rootFilePath, int numReducers, float samplingRate){
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
@@ -35,7 +35,7 @@ public class TweetOriginalityCalculator extends Configured {
         try{
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
-
+            hBaseConfiguration.setFloat("sampling.rate", samplingRate);
             hBaseConfiguration.set("mapred.textoutputformat.separator", ",");
             //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
@@ -92,20 +92,22 @@ public class TweetOriginalityCalculator extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: TweetOriginalityCalculator " +
                     "<HDFS_job_root_file_path> " +
-                    "<num_reducers>");
+                    "<num_reducers> " +
+                    "<sampling_rate>");
             return;
         }
 
 
         String HDFSjobRootFilePath = args[0];
         int numReducers = Integer.parseInt(args[1]);
+        float samplingRate = Float.parseFloat(args[3]);
 
 
         TweetOriginalityCalculator tweetOriginalityCalculator =
-                new TweetOriginalityCalculator(HDFSjobRootFilePath, numReducers);
+                new TweetOriginalityCalculator(HDFSjobRootFilePath, numReducers, samplingRate);
 
 
         boolean isSuccessful = false;
