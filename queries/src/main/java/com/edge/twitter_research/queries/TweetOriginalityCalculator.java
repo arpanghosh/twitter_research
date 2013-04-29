@@ -103,7 +103,7 @@ public class TweetOriginalityCalculator extends Configured {
 
         String HDFSjobRootFilePath = args[0];
         int numReducers = Integer.parseInt(args[1]);
-        float samplingRate = Float.parseFloat(args[3]);
+        float samplingRate = Float.parseFloat(args[2]);
 
 
         TweetOriginalityCalculator tweetOriginalityCalculator =
