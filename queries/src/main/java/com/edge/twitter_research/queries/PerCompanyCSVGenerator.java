@@ -89,7 +89,9 @@ public class PerCompanyCSVGenerator
 
             if (granularity.equals("weekly")){
                 GranularDate granularDate = companyTweetCountInTimeUnit.getGranularDate();
+                granularDate.setDayOfYear(-1);
                 granularDate.setDayOfMonth(-1);
+                granularDate.setDayOfWeek(-1);
                 granularDate.setHourOfDay(-1);
 
                 if (perTimeCompanyCounts.containsKey(granularDate)){
