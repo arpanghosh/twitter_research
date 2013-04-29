@@ -37,7 +37,7 @@ public class TweetOriginalityCalculator extends Configured {
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
             hBaseConfiguration.set("mapred.textoutputformat.separator", ",");
-            //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
+            hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
             Path categoryResultFilePath = new Path(rootFilePath + "/result/" + "category_tweet_store");
             Path sampleResultFilePath = new Path(rootFilePath + "/result/" + "sample_tweet_store");
@@ -61,7 +61,7 @@ public class TweetOriginalityCalculator extends Configured {
 
             mapReduceJobs.add(KijiGatherJobBuilder.create()
                         .withConf(hBaseConfiguration)
-                        .withGatherer(UsersGatherer.class)
+                        .withGatherer(CategoryUsersGatherer.class)
                         .withReducer(PerUserCSVGenerator.class)
                         .withInputTable(categoryTableUri)
                         .withOutput(new TextMapReduceJobOutput(categoryResultFilePath, numReducers))
