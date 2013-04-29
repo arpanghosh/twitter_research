@@ -41,22 +41,28 @@ public class PerCompanyCSVGenerator
         perTimeCompanyCounts = new TreeMap<GranularDate, TweetTypes>(new Comparator<GranularDate>() {
             @Override
             public int compare(GranularDate granularDate1, GranularDate granularDate2) {
-                Calendar c1 = Calendar.getInstance();
-                Calendar c2 = Calendar.getInstance();
 
-                c1.set(granularDate1.getYear(),
-                        granularDate1.getMonthOfYear(),
-                        granularDate1.getDayOfMonth(),
-                        granularDate1.getHourOfDay(),
-                        0);
+                if (granularity.equals("weekly")){
+                    return granularDate1.getWeekOfYear().compareTo(granularDate2.getWeekOfYear());
+                }else if (granularity.equals("daily")){
+                    return granularDate1.getDayOfYear().compareTo(granularDate2.getDayOfYear());
+                }else{
+                    Calendar c1 = Calendar.getInstance();
+                    Calendar c2 = Calendar.getInstance();
 
-                c2.set(granularDate2.getYear(),
-                        granularDate2.getMonthOfYear(),
-                        granularDate2.getDayOfMonth(),
-                        granularDate2.getHourOfDay(),
-                        0);
+                    c1.set(granularDate1.getYear(),
+                            granularDate1.getMonthOfYear(),
+                            granularDate1.getDayOfMonth(),
+                            granularDate1.getHourOfDay(),
+                            0);
 
-                return c1.getTime().compareTo(c2.getTime());
+                    c2.set(granularDate2.getYear(),
+                            granularDate2.getMonthOfYear(),
+                            granularDate2.getDayOfMonth(),
+                            granularDate2.getHourOfDay(),
+                            0);
+                    return c1.getTime().compareTo(c2.getTime());
+                }
             }
         });
 
