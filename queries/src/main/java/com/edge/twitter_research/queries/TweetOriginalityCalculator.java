@@ -4,6 +4,7 @@ package com.edge.twitter_research.queries;
 import com.edge.twitter_research.core.GlobalConstants;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
@@ -58,8 +59,10 @@ public class TweetOriginalityCalculator extends Configured {
                 System.exit(-1);
             }
 
+            FileSystem fs = FileSystem.newInstance(hBaseConfiguration);
+            if (!fs.exists(categoryResultFilePath)){
 
-            mapReduceJobs.add(KijiGatherJobBuilder.create()
+                mapReduceJobs.add(KijiGatherJobBuilder.create()
                         .withConf(hBaseConfiguration)
                         .withGatherer(CategoryUsersGatherer.class)
                         .withReducer(PerUserCSVGenerator.class)
@@ -67,7 +70,7 @@ public class TweetOriginalityCalculator extends Configured {
                         .withOutput(new TextMapReduceJobOutput(categoryResultFilePath, numReducers))
                         .addJarDirectory(new Path(additionalJarsPath))
                         .build());
-
+            }
 
 
             mapReduceJobs.add(KijiGatherJobBuilder.create()
