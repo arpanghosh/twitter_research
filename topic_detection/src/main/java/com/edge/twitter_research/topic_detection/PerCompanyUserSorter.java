@@ -90,7 +90,14 @@ public class PerCompanyUserSorter
             }
         });
 
-        int filter = (int)(sortedUsers.get(0).getCount() * threshold/100.0);
+        double topAverage = 0.0;
+        int i;
+        for (i = 0; i < Math.min(3,sortedUsers.size()); i++){
+            topAverage += sortedUsers.get(i).getCount();
+        }
+        topAverage = topAverage/i;
+
+        int filter = (int)(topAverage * threshold/100.0);
 
         sortedUserCountList.setUserCountList(select(sortedUsers, having(on(UserCount.class).getCount(),
                 greaterThan(filter))));
