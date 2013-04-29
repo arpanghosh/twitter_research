@@ -4,13 +4,17 @@ import com.edge.twitter_research.core.CompanyData;
 import org.apache.avro.Schema;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
-import org.apache.avro.mapred.tether.TetherJob;
-import org.apache.hadoop.io.Text;
 import org.kiji.mapreduce.KijiReducer;
 import org.kiji.mapreduce.avro.AvroKeyReader;
 import org.kiji.mapreduce.avro.AvroKeyWriter;
 import org.kiji.mapreduce.avro.AvroValueReader;
 import org.kiji.mapreduce.avro.AvroValueWriter;
+
+import static ch.lambdaj.Lambda.select;
+import static ch.lambdaj.Lambda.having;
+import static ch.lambdaj.Lambda.on;
+import static org.hamcrest.Matchers.greaterThan;
+
 
 import java.io.IOException;
 import java.util.*;
@@ -81,7 +85,10 @@ public class PerCompanyUserSorter
             }
         });
 
-        sortedUserCountList.setUserCountList(sortedUsers);
+        int threshold = (int)(sortedUsers.get(0).getCount() * 0.1);
+
+        sortedUserCountList.setUserCountList(select(sortedUsers, having(on(UserCount.class).getCount(),
+                greaterThan(threshold))));
 
         context.write(key,
                 new AvroValue<UserCountList>(sortedUserCountList));
