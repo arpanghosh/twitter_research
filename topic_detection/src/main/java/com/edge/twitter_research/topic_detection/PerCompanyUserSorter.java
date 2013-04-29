@@ -4,6 +4,7 @@ import com.edge.twitter_research.core.CompanyData;
 import org.apache.avro.Schema;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
+import org.apache.hadoop.conf.Configuration;
 import org.kiji.mapreduce.KijiReducer;
 import org.kiji.mapreduce.avro.AvroKeyReader;
 import org.kiji.mapreduce.avro.AvroKeyWriter;
@@ -14,6 +15,7 @@ import static ch.lambdaj.Lambda.select;
 import static ch.lambdaj.Lambda.having;
 import static ch.lambdaj.Lambda.on;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.theInstance;
 
 
 import java.io.IOException;
@@ -26,6 +28,7 @@ public class PerCompanyUserSorter
 
     private ArrayList<UserCount> sortedUsers;
     private UserCountList sortedUserCountList;
+    private int threshold = 0;
 
     @Override
     public void setup(Context context) throws IOException, InterruptedException{
@@ -33,6 +36,8 @@ public class PerCompanyUserSorter
 
         sortedUsers = new ArrayList<UserCount>();
         sortedUserCountList = new UserCountList();
+        Configuration conf = context.getConfiguration();
+        threshold = conf.getInt("threshold", 10);
     }
 
     @Override
@@ -85,10 +90,10 @@ public class PerCompanyUserSorter
             }
         });
 
-        int threshold = (int)(sortedUsers.get(0).getCount() * 0.1);
+        int filter = (int)(sortedUsers.get(0).getCount() * threshold/100.0);
 
         sortedUserCountList.setUserCountList(select(sortedUsers, having(on(UserCount.class).getCount(),
-                greaterThan(threshold))));
+                greaterThan(filter))));
 
         context.write(key,
                 new AvroValue<UserCountList>(sortedUserCountList));

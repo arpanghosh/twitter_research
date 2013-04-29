@@ -35,7 +35,8 @@ public class GenerateUserFeatureVectorForAllCompanies extends Configured {
 
     public GenerateUserFeatureVectorForAllCompanies (String tableName,
                                                  String jobRootFilePath,
-                                                  int numReducers){
+                                                  int numReducers,
+                                                  int threshold){
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
@@ -46,6 +47,7 @@ public class GenerateUserFeatureVectorForAllCompanies extends Configured {
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
             //hBaseConfiguration.set("mapred.textoutputformat.separator", "|");
             //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
+            hBaseConfiguration.setInt("threshold", threshold);
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", tableName)).build();
@@ -105,22 +107,24 @@ public class GenerateUserFeatureVectorForAllCompanies extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 3){
+        if (args.length < 4){
             System.out.println("Usage: GenerateUserFeatureVectorForACompany " +
                     "<input_table_name> " +
                     "<HDFS_job_root_file_path> " +
-                    "<num_reducers>");
+                    "<num_reducers> " +
+                    "<threshold>");
             return;
         }
 
         String inputTableName = args[0];
         String HDFSjobRootFilePath = args[1];
         int numReducers = Integer.parseInt(args[2]);
+        int threshold = Integer.parseInt(args[3]);
 
         GenerateUserFeatureVectorForAllCompanies generateUserFeatureVectorForAllCompanies =
                 new GenerateUserFeatureVectorForAllCompanies(inputTableName,
                                                         HDFSjobRootFilePath,
-                                                        numReducers);
+                                                        numReducers, threshold);
 
         boolean isSuccessful = false;
 
