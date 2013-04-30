@@ -52,7 +52,7 @@ public class GenerateUserFeatureVectorForAllCompanies extends Configured {
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", tableName)).build();
             Path intermediatePath = new Path(jobRootFilePath + "/intermediate");
-            Path resultPath = new Path(jobRootFilePath + "/result");
+            Path resultPath = new Path(jobRootFilePath + "/result_" + threshold);
 
             HasColumnDataRowFilter filter =
                     new HasColumnDataRowFilter(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
