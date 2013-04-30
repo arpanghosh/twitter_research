@@ -86,7 +86,7 @@ public class NearestNeighborTweetTopicCategorization {
 
                 try{
                     Evaluation eval = new Evaluation(vectorizedData);
-                    eval.crossValidateModel(nearestNeighborClassifier, vectorizedData, 10,
+                    eval.crossValidateModel(nearestNeighborClassifier, vectorizedData, 5,
                             new Random(System.currentTimeMillis()));
 
                     FileOutputStream resultOutputStream =

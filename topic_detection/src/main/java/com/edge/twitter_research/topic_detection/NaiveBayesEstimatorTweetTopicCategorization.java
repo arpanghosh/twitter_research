@@ -88,7 +88,7 @@ public class NaiveBayesEstimatorTweetTopicCategorization {
 
                 try{
                     Evaluation eval = new Evaluation(vectorizedData);
-                    eval.crossValidateModel(naiveBayesEstimatorClassifier, vectorizedData, 10,
+                    eval.crossValidateModel(naiveBayesEstimatorClassifier, vectorizedData, 5,
                             new Random(System.currentTimeMillis()));
 
                     FileOutputStream resultOutputStream =

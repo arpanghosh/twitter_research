@@ -89,7 +89,7 @@ public class SVMTweetTopicCategorization {
 
                 try{
                     Evaluation eval = new Evaluation(vectorizedData);
-                    eval.crossValidateModel(svmClassifier, vectorizedData, 10,
+                    eval.crossValidateModel(svmClassifier, vectorizedData, 5,
                             new Random(System.currentTimeMillis()));
 
                     FileOutputStream resultOutputStream =

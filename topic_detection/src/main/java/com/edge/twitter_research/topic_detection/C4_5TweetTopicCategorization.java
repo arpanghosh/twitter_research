@@ -86,7 +86,7 @@ public class C4_5TweetTopicCategorization {
 
                 try{
                     Evaluation eval = new Evaluation(vectorizedData);
-                    eval.crossValidateModel(j48Classifier, vectorizedData, 10,
+                    eval.crossValidateModel(j48Classifier, vectorizedData, 5,
                             new Random(System.currentTimeMillis()));
 
                     FileOutputStream resultOutputStream =

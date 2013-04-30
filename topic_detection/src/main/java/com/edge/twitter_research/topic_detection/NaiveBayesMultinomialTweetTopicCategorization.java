@@ -87,7 +87,7 @@ public class NaiveBayesMultinomialTweetTopicCategorization {
 
                 try{
                     Evaluation eval = new Evaluation(vectorizedData);
-                    eval.crossValidateModel(naiveBayesMultinomialClassifier, vectorizedData, 10,
+                    eval.crossValidateModel(naiveBayesMultinomialClassifier, vectorizedData, 5,
                             new Random(System.currentTimeMillis()));
 
                     FileOutputStream resultOutputStream =
