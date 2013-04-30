@@ -28,10 +28,14 @@ public class NaiveBayesTweetTopicCategorization {
 
         String rootPath = args[0];
         File dataFolder = new File(rootPath + "/data");
-        String resultFolderPath = rootPath + "/results/";
+        String resultFolderPath = rootPath + "/results/NaiveBayes/";
 
         CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
         Logger logger = Logger.getLogger(NaiveBayesTweetTopicCategorization.class);
+
+        File resultFolder = new File(resultFolderPath);
+        if (!resultFolder.exists())
+            resultFolder.mkdir();
 
 
         CSVLoader csvLoader = new CSVLoader();
