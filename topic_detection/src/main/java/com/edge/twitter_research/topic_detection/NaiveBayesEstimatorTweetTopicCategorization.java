@@ -2,11 +2,10 @@ package com.edge.twitter_research.topic_detection;
 
 
 import com.edge.twitter_research.core.CrisisMailer;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayesMultinomial;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
 import weka.filters.Filter;
@@ -17,21 +16,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
-public class NaiveBayesTweetTopicCategorization {
+
+public class NaiveBayesEstimatorTweetTopicCategorization {
 
     public static void main(String[] args){
 
         if (args.length < 1){
-            System.out.println("usage: NaiveBayesTweetTopicCategorization <root_path>");
+            System.out.println("usage: NaiveBayesEstimatorTweetTopicCategorization <root_path>");
             System.exit(-1);
         }
 
         String rootPath = args[0];
         File dataFolder = new File(rootPath + "/data");
-        String resultFolderPath = rootPath + "/results/NaiveBayes/";
+        String resultFolderPath = rootPath + "/results/NaiveBayesEstimator/";
 
         CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
-        Logger logger = Logger.getLogger(NaiveBayesTweetTopicCategorization.class);
+        Logger logger = Logger.getLogger(NaiveBayesMultinomialTweetTopicCategorization.class);
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         File resultFolder = new File(resultFolderPath);
@@ -77,7 +77,8 @@ public class NaiveBayesTweetTopicCategorization {
                     System.exit(-1);
                 }
 
-                NaiveBayesMultinomial naiveBayesMultinomialClassifier = new NaiveBayesMultinomial();
+                NaiveBayes naiveBayesEstimatorClassifier = new NaiveBayes();
+                naiveBayesEstimatorClassifier.setUseKernelEstimator(true);
 
                 /*
                 FilteredClassifier filteredClassifier = new FilteredClassifier();
@@ -87,7 +88,7 @@ public class NaiveBayesTweetTopicCategorization {
 
                 try{
                     Evaluation eval = new Evaluation(vectorizedData);
-                    eval.crossValidateModel(naiveBayesMultinomialClassifier, vectorizedData, 10,
+                    eval.crossValidateModel(naiveBayesEstimatorClassifier, vectorizedData, 10,
                             new Random(System.currentTimeMillis()));
 
                     FileOutputStream resultOutputStream =
