@@ -141,6 +141,17 @@ public class TweetFeatureVectorGenerator {
         EXISTENTIAL_VERBAL;
     }
 
+    private enum Fraction{
+        QUARTER(1),
+        HALF(2),
+        THREE_FOURTHS(3),
+        FULL(4);
+
+        private final int label;
+        Fraction(int label){this.label = label;}
+        public int getFraction(){return label;}
+    }
+
     private enum TweetRelevanceLabel{
         NOT_ENGLISH("not-english"),
         TOPIC_BASED("topic-based"),
@@ -175,7 +186,7 @@ public class TweetFeatureVectorGenerator {
     private TweetNature tweetNature;
     private ContentType contentType;
     private TweetSource source;
-    private double[] componentFractions;
+    private Fraction[] componentFractions;
     private long userFriends;
     private long userFollowers;
     private int userTotalTweets;
@@ -203,7 +214,7 @@ public class TweetFeatureVectorGenerator {
                 "\\E|\\Q[;\\E|\\Q:?\\E|\\Q8-]\\E|\\Q:*(\\E|\\Qo;\\E|\\QD8\\E|\\Q;}\\E|\\Q;[\\E|\\Q:o/\\E|\\Q:oP\\E|\\Q:-]\\E|" +
                 "\\Q:oD\\E|\\Q8/\\E|\\Q8(\\E|\\Qo(^-^)o\\E)");
 
-        componentFractions = new double[5];
+        componentFractions = new Fraction[5];
 
         fractionFormat = new DecimalFormat("0.00000");
 
@@ -236,13 +247,15 @@ public class TweetFeatureVectorGenerator {
     }
 
 
-    public String getFeatureVector(SimpleTweet simpleTweet){
+    public String getFeatureVector(SimpleTweet simpleTweet,
+                                   String type){
         generateFeatureVector(simpleTweet);
-        return featureVectorToString();
+        return featureVectorToString(type);
     }
 
 
     public String getFeatureVector(SimpleTweet simpleTweet,
+                                   String type,
                                    String relevanceLabel){
         generateFeatureVector(simpleTweet);
 
@@ -254,7 +267,7 @@ public class TweetFeatureVectorGenerator {
         else if (relevanceLabel.equals(TweetRelevanceLabel.NOT_ENGLISH.getTweetRelevanceLabel()))
             relevanceLabelInt = TweetRelevanceLabel.NOT_ENGLISH.ordinal();
 
-        return (featureVectorToString() + "," + relevanceLabelInt);
+        return (featureVectorToString(type) + "," + relevanceLabelInt);
     }
 
 
@@ -460,15 +473,27 @@ public class TweetFeatureVectorGenerator {
             mediaChars += mediaEntity.getMediaURL().length();
         }
 
-        componentFractions[0] = urlChars/tweetText.length();
-        componentFractions[1] = hashtagChars/tweetText.length();
-        componentFractions[2] = mentionChars/tweetText.length();
-        componentFractions[3] = mediaChars/tweetText.length();
-        componentFractions[4] = (tweetText.length() -
-                                (urlChars + mentionChars +
-                                        hashtagChars + mediaChars +
-                                        tweetText.split(" ").length - 1))/tweetText.length();
 
+        double[] fractions = new double[5];
+        fractions[0] = urlChars/tweetText.length();
+        fractions[1] = hashtagChars/tweetText.length();
+        fractions[2] = mentionChars/tweetText.length();
+        fractions[3] = mediaChars/tweetText.length();
+        fractions[4] = (tweetText.length() -
+                                (urlChars + mentionChars +
+                                    hashtagChars + mediaChars +
+                                    tweetText.split(" ").length - 1))/tweetText.length();
+
+        for (int i = 0; i < fractions.length; i++){
+            if (fractions[i] < 0.25)
+                componentFractions[i] = Fraction.QUARTER;
+            else if (fractions[i] < 0.5)
+                componentFractions[i] = Fraction.HALF;
+            else if (fractions[i] < 0.75)
+                componentFractions[i] = Fraction.THREE_FOURTHS;
+            else
+                componentFractions[i] = Fraction.FULL;
+        }
     }
 
 
@@ -526,48 +551,56 @@ public class TweetFeatureVectorGenerator {
     }
 
 
-    private String featureVectorToString(){
+    private String featureVectorToString(String type){
         StringBuilder featureVector = new StringBuilder();
-        featureVector.append(userFollowers);
-        featureVector.append(",");
-        featureVector.append(userFriends);
-        featureVector.append(",");
-        featureVector.append(userIsVerified.getVerified());
-        featureVector.append(",");
-        featureVector.append(userTotalTweets);
-        featureVector.append(",");
-        featureVector.append(timeOfDay.getTimeOfDay());
-        featureVector.append(",");
-        featureVector.append(dayOfWeek.getDayOfWeek());
-        featureVector.append(",");
-        featureVector.append(urlLocationInTweet.getURLLocation());
-        featureVector.append(",");
-        featureVector.append(retweetCount);
-        featureVector.append(",");
-        featureVector.append(numCharsInTweet);
-        featureVector.append(",");
-        featureVector.append(numEmoticonsInTweet);
-        featureVector.append(",");
-        featureVector.append(hasContributors.getContributor());
-        featureVector.append(",");
-        featureVector.append(tweetType.getTweetType());
-        featureVector.append(",");
-        featureVector.append(tweetNature.getTweetNature());
-        featureVector.append(",");
-        featureVector.append(contentType.getContentType());
-        featureVector.append(",");
-        featureVector.append(source.getTweetSource());
-        featureVector.append(",");
-        featureVector.append(fractionFormat.format(avgWordLength));
 
-        for(double componentFraction : componentFractions){
+        if (type.equals("user")){
+            featureVector.append(userFollowers);
             featureVector.append(",");
-            featureVector.append(fractionFormat.format(componentFraction));
+            featureVector.append(userFriends);
+            featureVector.append(",");
+            featureVector.append(userIsVerified.getVerified());
+            featureVector.append(",");
+            featureVector.append(userTotalTweets);
         }
 
-        for(double POSFraction : POSFractions){
+        if (type.equals("tweet")){
+            featureVector.append(timeOfDay.getTimeOfDay());
             featureVector.append(",");
-            featureVector.append(fractionFormat.format(POSFraction));
+            featureVector.append(dayOfWeek.getDayOfWeek());
+            featureVector.append(",");
+            featureVector.append(urlLocationInTweet.getURLLocation());
+            featureVector.append(",");
+            featureVector.append(retweetCount);
+            featureVector.append(",");
+            featureVector.append(numCharsInTweet);
+            featureVector.append(",");
+            featureVector.append(numEmoticonsInTweet);
+            featureVector.append(",");
+            featureVector.append(hasContributors.getContributor());
+            featureVector.append(",");
+            featureVector.append(tweetType.getTweetType());
+            featureVector.append(",");
+            featureVector.append(tweetNature.getTweetNature());
+            featureVector.append(",");
+            featureVector.append(contentType.getContentType());
+            featureVector.append(",");
+            featureVector.append(source.getTweetSource());
+            featureVector.append(",");
+            featureVector.append(fractionFormat.format(avgWordLength));
+
+            for(Fraction componentFraction : componentFractions){
+                featureVector.append(",");
+                featureVector.append(componentFraction.getFraction());
+            }
+        }
+
+        if (type.equals("language")){
+            featureVector.append(fractionFormat.format(POSFractions[0]));
+            for(int i = 1; i < POSFractions.length; i++){
+                featureVector.append(",");
+                featureVector.append(fractionFormat.format(POSFractions[i]));
+            }
         }
 
         return featureVector.toString();

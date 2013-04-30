@@ -82,7 +82,7 @@ public class TweetToCSVGatherer
 
             char[] tweetTextAsCharArray = tweet.getText().toString().toCharArray();
 
-            for (int i = 0; i < tweetTextAsCharArray.length - 1; i++){
+            for (int i = 0; i < tweetTextAsCharArray.length; i++){
                 if (!Character.isLetterOrDigit(tweetTextAsCharArray[i]))
                     tweetTextAsCharArray[i] = ' ';
             }

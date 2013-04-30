@@ -21,6 +21,7 @@ public class TweetToFeatureVectorGatherer
     private double threshold;
     private TweetFeatureVectorGenerator tweetFeatureVectorGenerator;
     private boolean generatingTrainingSet;
+    private String type;
 
     @Override
     public void setup(GathererContext<LongWritable, Text> context) throws IOException {
@@ -29,6 +30,7 @@ public class TweetToFeatureVectorGatherer
         Configuration conf = getConf();
         threshold = conf.getFloat("sampling.rate", 100)/100.0;
         generatingTrainingSet = conf.getBoolean("generating.training.set", false);
+        type = conf.get("type", "tweet");
         tweetFeatureVectorGenerator = new TweetFeatureVectorGenerator();
     }
 
@@ -59,7 +61,7 @@ public class TweetToFeatureVectorGatherer
                 }
 
             }else{
-                tweetFeatureVector = tweetFeatureVectorGenerator.getFeatureVector(tweet);
+                tweetFeatureVector = tweetFeatureVectorGenerator.getFeatureVector(tweet, type);
             }
 
             context.write(new LongWritable(tweet.getId()),
