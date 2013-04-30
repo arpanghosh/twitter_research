@@ -1,7 +1,10 @@
 package com.edge.twitter_research.topic_detection;
 
 import com.edge.twitter_research.core.CrisisMailer;
+import com.edge.twitter_research.core.GlobalConstants;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import twitter4j.conf.PropertyConfiguration;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.SMO;
 import weka.core.Instances;
@@ -30,7 +33,8 @@ public class SVMTweetTopicCategorization {
         String resultFolderPath = rootPath + "/results/SVM/";
 
         CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
-        Logger logger = Logger.getLogger(NaiveBayesTweetTopicCategorization.class);
+        Logger logger = Logger.getLogger(SVMTweetTopicCategorization.class);
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         File resultFolder = new File(resultFolderPath);
         if (!resultFolder.exists())

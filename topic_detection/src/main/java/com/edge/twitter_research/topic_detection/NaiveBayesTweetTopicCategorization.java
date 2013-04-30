@@ -4,6 +4,7 @@ package com.edge.twitter_research.topic_detection;
 import com.edge.twitter_research.core.CrisisMailer;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
 import weka.core.Instances;
@@ -31,6 +32,7 @@ public class NaiveBayesTweetTopicCategorization {
 
         CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
         Logger logger = Logger.getLogger(NaiveBayesTweetTopicCategorization.class);
+        PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         File resultFolder = new File(resultFolderPath);
         if (!resultFolder.exists())
