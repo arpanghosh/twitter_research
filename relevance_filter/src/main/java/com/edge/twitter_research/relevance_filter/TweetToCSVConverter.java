@@ -19,10 +19,13 @@ import org.kiji.schema.filter.Filters;
 import org.kiji.schema.filter.KijiRowFilter;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class TweetToCSVConverter extends Configured {
 
-    public KijiMapReduceJob mapReduceJob = null;
+    public ArrayList<KijiMapReduceJob> mapReduceJobs = null;
 
     public static Logger logger =
             Logger.getLogger(TweetToCSVConverter.class);
@@ -35,6 +38,9 @@ public class TweetToCSVConverter extends Configured {
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         try{
+
+            mapReduceJobs = new ArrayList<KijiMapReduceJob>();
+
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
 
@@ -70,13 +76,63 @@ public class TweetToCSVConverter extends Configured {
             }
 
 
-            this.mapReduceJob = KijiGatherJobBuilder.create()
+            String additionalJarsPath = "";
+
+            try{
+                additionalJarsPath = InetAddress.getLocalHost().getHostName().equals("master")?
+                        GlobalConstants.ADDTIONAL_JARS_PATH_KIJI_CLUSTER :
+                        GlobalConstants.ADDTIONAL_JARS_PATH_BENTO;
+            }catch (UnknownHostException unknownHostException){
+                logger.error(unknownHostException);
+                unknownHostException.printStackTrace();
+                System.exit(-1);
+            }
+
+
+            mapReduceJobs.add(KijiGatherJobBuilder.create()
                     .withConf(hBaseConfiguration)
                     .withGatherer(TweetToCSVGatherer.class)
                     .withInputTable(tableUri)
                     .withFilter(filter)
-                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath + "/result/" + inputTableName + "_" + type + "_" + samplingRate), 1))
-                    .build();
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath +
+                            "/result/" + inputTableName + "_" + type + "_" + "regular" + "_" + samplingRate), 1))
+                    .addJarDirectory(new Path(additionalJarsPath))
+                    .build());
+
+            mapReduceJobs.add(KijiGatherJobBuilder.create()
+                    .withConf(hBaseConfiguration)
+                    .withGatherer(TweetToCSVURLEmphasizer.class)
+                    .withInputTable(tableUri)
+                    .withFilter(filter)
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath +
+                            "/result/" + inputTableName + "_" + type + "_" + "URL" + "_" + samplingRate), 1))
+                    .addJarDirectory(new Path(additionalJarsPath))
+                    .build());
+
+            mapReduceJobs.add(KijiGatherJobBuilder.create()
+                    .withConf(hBaseConfiguration)
+                    .withGatherer(TweetToCSVMentionEmphasizer.class)
+                    .withInputTable(tableUri)
+                    .withFilter(filter)
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath +
+                            "/result/" + inputTableName + "_" + type + "_" + "mention" + "_" + samplingRate), 1))
+                    .addJarDirectory(new Path(additionalJarsPath))
+                    .build());
+
+            mapReduceJobs.add(KijiGatherJobBuilder.create()
+                    .withConf(hBaseConfiguration)
+                    .withGatherer(TweetToCSVHashtagEmphasizer.class)
+                    .withInputTable(tableUri)
+                    .withFilter(filter)
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath +
+                            "/result/" + inputTableName + "_" + type + "_" + "hash" + "_" + samplingRate), 1))
+                    .addJarDirectory(new Path(additionalJarsPath))
+                    .build());
+
+
+
+
+
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);
             System.exit(1);
@@ -94,7 +150,7 @@ public class TweetToCSVConverter extends Configured {
                     "<input_table_name> " +
                     "<HDFS_job_root_file_path> " +
                     "<sampling_rate (%)> " +
-                    "type");
+                    "<type>");
             return;
         }
 
@@ -110,13 +166,20 @@ public class TweetToCSVConverter extends Configured {
                         type);
 
         boolean isSuccessful = false;
-        if (tweetToCSVConverter.mapReduceJob != null){
-            try{
-                isSuccessful = tweetToCSVConverter.mapReduceJob.run();
-            }catch (Exception unknownException){
-                logger.error("Unknown Exception while running MapReduce Job", unknownException);
-                System.exit(1);
+
+        for (KijiMapReduceJob mapReduceJob : tweetToCSVConverter.mapReduceJobs){
+
+            if (mapReduceJob != null){
+                try{
+                    isSuccessful = mapReduceJob.run();
+                    if (!isSuccessful)
+                        break;
+                }catch (Exception unknownException){
+                    logger.error("Unknown Exception while running MapReduce Job", unknownException);
+                    System.exit(1);
+                }
             }
+
         }
 
         String result = isSuccessful ? "Successful" : "Failure";
