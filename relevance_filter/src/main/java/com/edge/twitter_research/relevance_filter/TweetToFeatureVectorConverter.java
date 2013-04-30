@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class TweetToFeatureVectorConverter extends Configured {
 
-    public KijiMapReduceJob mapReduceJob = null;
+    public ArrayList<KijiMapReduceJob> mapReduceJobs = null;
 
     public static Logger logger =
             Logger.getLogger(TweetToFeatureVectorConverter.class);
@@ -35,18 +35,19 @@ public class TweetToFeatureVectorConverter extends Configured {
     public TweetToFeatureVectorConverter (String rootFilePath,
                        String inputTableName,
                        float samplingRate,
-                       String dataSetType,
-                       String featureType){
+                       String dataSetType){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         try{
+            mapReduceJobs = new ArrayList<KijiMapReduceJob>();
+
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
 
             hBaseConfiguration.setFloat("sampling.rate", samplingRate);
             hBaseConfiguration.set("mapred.textoutputformat.separator", ",");
-            hBaseConfiguration.set("type", featureType);
+            //hBaseConfiguration.set("feature.type", featureType);
             //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
             hBaseConfiguration.setBoolean("generating.training.set", dataSetType.equals("training"));
 
@@ -89,14 +90,35 @@ public class TweetToFeatureVectorConverter extends Configured {
             }
 
 
-            this.mapReduceJob = KijiGatherJobBuilder.create()
+            mapReduceJobs.add(KijiGatherJobBuilder.create()
                     .withConf(hBaseConfiguration)
-                    .withGatherer(TweetToFeatureVectorGatherer.class)
+                    .withGatherer(TweetToFeatureVectorGathererTweet.class)
                     .withInputTable(tableUri)
                     .withFilter(filter)
-                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath + "/result/" + inputTableName + "_" + featureType), 1))
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath +
+                            "/result/" + inputTableName + "_" + "tweet"), 1))
                     .addJarDirectory(new Path(additionalJarsPath))
-                    .build();
+                    .build());
+
+            mapReduceJobs.add(KijiGatherJobBuilder.create()
+                    .withConf(hBaseConfiguration)
+                    .withGatherer(TweetToFeatureVectorGathererLanguage.class)
+                    .withInputTable(tableUri)
+                    .withFilter(filter)
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath +
+                            "/result/" + inputTableName + "_" + "language"), 1))
+                    .addJarDirectory(new Path(additionalJarsPath))
+                    .build());
+
+            mapReduceJobs.add(KijiGatherJobBuilder.create()
+                    .withConf(hBaseConfiguration)
+                    .withGatherer(TweetToFeatureVectorGathererUser.class)
+                    .withInputTable(tableUri)
+                    .withFilter(filter)
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath +
+                            "/result/" + inputTableName + "_" + "user"), 1))
+                    .addJarDirectory(new Path(additionalJarsPath))
+                    .build());
 
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);
@@ -110,12 +132,11 @@ public class TweetToFeatureVectorConverter extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 4){
+        if (args.length < 3){
             System.out.println("Usage: TweetToFeatureVectorConverter " +
                     "<input_table_name> " +
                     "<HDFS_job_root_file_path> " +
                     "<data_type (testing or training)> " +
-                    "<feature_type> " +
                     "<sampling_rate (%)>");
             return;
         }
@@ -126,14 +147,13 @@ public class TweetToFeatureVectorConverter extends Configured {
             return;
         }
 
-        String featureType = args[3];
         String inputTableName = args[0];
         String HDFSjobRootFilePath = args[1];
         float samplingRate;
         if (dataSet.equals("training"))
             samplingRate = 100;
         else if (args.length > 3)
-            samplingRate = Float.parseFloat(args[4]);
+            samplingRate = Float.parseFloat(args[3]);
         else
             samplingRate = 50;
 
@@ -141,17 +161,22 @@ public class TweetToFeatureVectorConverter extends Configured {
                 new TweetToFeatureVectorConverter(HDFSjobRootFilePath,
                         inputTableName,
                         samplingRate,
-                        dataSet,
-                        featureType);
+                        dataSet);
 
         boolean isSuccessful = false;
-        if (tweetToFeatureVector.mapReduceJob != null){
+
+        for (KijiMapReduceJob mapReduceJob : tweetToFeatureVector.mapReduceJobs){
+
+        if (mapReduceJob != null){
             try{
-                isSuccessful = tweetToFeatureVector.mapReduceJob.run();
+                isSuccessful = mapReduceJob.run();
+                if (!isSuccessful)
+                    break;
             }catch (Exception unknownException){
                 logger.error("Unknown Exception while running MapReduce Job", unknownException);
                 System.exit(1);
             }
+        }
         }
 
         String result = isSuccessful ? "Successful" : "Failure";

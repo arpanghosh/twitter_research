@@ -15,13 +15,14 @@ import org.kiji.schema.KijiRowData;
 
 import java.io.IOException;
 
-public class TweetToFeatureVectorGatherer
+
+public class TweetToFeatureVectorGathererLanguage
         extends KijiGatherer<LongWritable, Text> {
 
     private double threshold;
     private TweetFeatureVectorGenerator tweetFeatureVectorGenerator;
     private boolean generatingTrainingSet;
-    private String type;
+    //private String type;
 
     @Override
     public void setup(GathererContext<LongWritable, Text> context) throws IOException {
@@ -29,8 +30,8 @@ public class TweetToFeatureVectorGatherer
 
         Configuration conf = getConf();
         threshold = conf.getFloat("sampling.rate", 100)/100.0;
-        generatingTrainingSet = conf.getBoolean("generating.training.set", false);
-        type = conf.get("type", "tweet");
+        generatingTrainingSet = conf.getBoolean("generating.training.set", true);
+        //type = conf.get("feature.type", "tweet");
         tweetFeatureVectorGenerator = new TweetFeatureVectorGenerator();
     }
 
@@ -43,29 +44,29 @@ public class TweetToFeatureVectorGatherer
 
             SimpleTweet tweet =
                     input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
-                                                        GlobalConstants.TWEET_COLUMN_NAME);
+                            GlobalConstants.TWEET_COLUMN_NAME);
 
             String tweetFeatureVector;
 
             if (generatingTrainingSet){
                 Utf8 relevanceLabel =
                         input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
-                                                GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME);
+                                GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME);
                 try{
                     tweetFeatureVector =
-                        tweetFeatureVectorGenerator.getFeatureVector(tweet,
-                                                    relevanceLabel.toString());
+                            tweetFeatureVectorGenerator.getFeatureVector(tweet, "language",
+                                    relevanceLabel.toString());
                 }catch (NullPointerException npe){
                     /*Somehow nulls are being returned even after filter*/
                     return;
                 }
 
             }else{
-                tweetFeatureVector = tweetFeatureVectorGenerator.getFeatureVector(tweet, type);
+                tweetFeatureVector = tweetFeatureVectorGenerator.getFeatureVector(tweet, "language");
             }
 
             context.write(new LongWritable(tweet.getId()),
-                            new Text(tweetFeatureVector));
+                    new Text(tweetFeatureVector));
         }
     }
 
