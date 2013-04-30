@@ -31,7 +31,7 @@ public class NaiveBayesSimpleTweetTopicCategorization {
         String resultFolderPath = rootPath + "/results/NaiveBayesSimple/";
 
         CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
-        Logger logger = Logger.getLogger(NaiveBayesMultinomialTweetTopicCategorization.class);
+        Logger logger = Logger.getLogger(NaiveBayesSimpleTweetTopicCategorization.class);
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
         File resultFolder = new File(resultFolderPath);
