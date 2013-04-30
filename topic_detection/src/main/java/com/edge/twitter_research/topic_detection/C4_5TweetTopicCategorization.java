@@ -1,12 +1,11 @@
 package com.edge.twitter_research.topic_detection;
 
-
 import com.edge.twitter_research.core.CrisisMailer;
-
 import org.apache.log4j.Logger;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
 import weka.classifiers.meta.FilteredClassifier;
+import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
 import weka.filters.Filter;
@@ -17,18 +16,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
-public class NaiveBayesTweetTopicCategorization {
+
+public class C4_5TweetTopicCategorization {
 
     public static void main(String[] args){
 
         if (args.length < 1){
-            System.out.println("usage: NaiveBayesTweetTopicCategorization <root_path>");
+            System.out.println("usage: C4_5TweetTopicCategorization <root_path>");
             System.exit(-1);
         }
 
         String rootPath = args[0];
         File dataFolder = new File(rootPath + "/data");
-        String resultFolderPath = rootPath + "/results/NaiveBayes/";
+        String resultFolderPath = rootPath + "/results/C4_5/";
 
         CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
         Logger logger = Logger.getLogger(NaiveBayesTweetTopicCategorization.class);
@@ -76,17 +76,17 @@ public class NaiveBayesTweetTopicCategorization {
                     System.exit(-1);
                 }
 
-                NaiveBayesMultinomial naiveBayesMultinomialClassifier = new NaiveBayesMultinomial();
+                J48 j48Classifier = new J48();
 
                 /*
                 FilteredClassifier filteredClassifier = new FilteredClassifier();
                 filteredClassifier.setFilter(stringToWordVectorFilter);
-                filteredClassifier.setClassifier(naiveBayesMultinomialClassifier);
+                filteredClassifier.setClassifier(j48Classifier);
                 */
 
                 try{
                     Evaluation eval = new Evaluation(vectorizedData);
-                    eval.crossValidateModel(naiveBayesMultinomialClassifier, vectorizedData, 10,
+                    eval.crossValidateModel(j48Classifier, vectorizedData, 10,
                             new Random(System.currentTimeMillis()));
 
                     FileOutputStream resultOutputStream =
