@@ -28,7 +28,7 @@ public class NaiveBayesMultinomialTweetTopicCategorization {
 
         String rootPath = args[0];
         File dataFolder = new File(rootPath + "/data");
-        String resultFolderPath = rootPath + "/results/NaiveBayes/";
+        String resultFolderPath = rootPath + "/results/NaiveBayesMultinomial/";
 
         CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
         Logger logger = Logger.getLogger(NaiveBayesMultinomialTweetTopicCategorization.class);
