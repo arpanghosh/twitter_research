@@ -56,17 +56,10 @@ public class TweetToCSVConverter extends Configured {
 
             if (!type.equals("relevant")){
 
-                ColumnValueEqualsRowFilter filter1 =  new ColumnValueEqualsRowFilter(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
-                        GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
-                        new DecodedCell<String>(Schema.create(Schema.Type.STRING),
-                                GlobalConstants.NOT_RELEVANT_RELEVANCE_LABEL));
-
-                ColumnValueEqualsRowFilter filter2 =  new ColumnValueEqualsRowFilter(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+                filter =  new ColumnValueEqualsRowFilter(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
                         GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME,
                         new DecodedCell<String>(Schema.create(Schema.Type.NULL),
                                 null));
-
-                filter = Filters.or(filter1, filter2);
 
             }else{
                 filter =  new ColumnValueEqualsRowFilter(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
