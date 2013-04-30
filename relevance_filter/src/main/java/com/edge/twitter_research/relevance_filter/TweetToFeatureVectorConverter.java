@@ -94,7 +94,7 @@ public class TweetToFeatureVectorConverter extends Configured {
                     .withGatherer(TweetToFeatureVectorGatherer.class)
                     .withInputTable(tableUri)
                     .withFilter(filter)
-                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath + "/result/" + inputTableName + featureType), 1))
+                    .withOutput(new TextMapReduceJobOutput(new Path(rootFilePath + "/result/" + inputTableName + "_" + featureType), 1))
                     .addJarDirectory(new Path(additionalJarsPath))
                     .build();
 
@@ -133,7 +133,7 @@ public class TweetToFeatureVectorConverter extends Configured {
         if (dataSet.equals("training"))
             samplingRate = 100;
         else if (args.length > 3)
-            samplingRate = Float.parseFloat(args[3]);
+            samplingRate = Float.parseFloat(args[4]);
         else
             samplingRate = 50;
 

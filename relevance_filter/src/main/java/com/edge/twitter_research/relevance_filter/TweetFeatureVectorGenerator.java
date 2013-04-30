@@ -559,8 +559,6 @@ public class TweetFeatureVectorGenerator {
             featureVector.append(",");
             featureVector.append(userFriends);
             featureVector.append(",");
-            featureVector.append(userIsVerified.getVerified());
-            featureVector.append(",");
             featureVector.append(userTotalTweets);
         }
 
