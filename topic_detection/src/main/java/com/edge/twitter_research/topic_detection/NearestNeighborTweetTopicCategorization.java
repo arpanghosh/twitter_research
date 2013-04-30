@@ -3,7 +3,7 @@ package com.edge.twitter_research.topic_detection;
 import com.edge.twitter_research.core.CrisisMailer;
 import org.apache.log4j.Logger;
 import weka.classifiers.Evaluation;
-import weka.classifiers.trees.J48;
+import weka.classifiers.lazy.IBk;
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
 import weka.filters.Filter;
@@ -14,19 +14,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
-
-public class C4_5TweetTopicCategorization {
+public class NearestNeighborTweetTopicCategorization {
 
     public static void main(String[] args){
 
-        if (args.length < 1){
-            System.out.println("usage: C4_5TweetTopicCategorization <root_path>");
+        if (args.length < 2){
+            System.out.println("usage: NearestNeighborTweetTopicCategorization <root_path> <k>");
             System.exit(-1);
         }
 
         String rootPath = args[0];
         File dataFolder = new File(rootPath + "/data");
-        String resultFolderPath = rootPath + "/results/C4_5/";
+        String resultFolderPath = rootPath + "/results/NearestNeighbor/";
 
         CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
         Logger logger = Logger.getLogger(NaiveBayesTweetTopicCategorization.class);
@@ -74,17 +73,18 @@ public class C4_5TweetTopicCategorization {
                     System.exit(-1);
                 }
 
-                J48 j48Classifier = new J48();
+                IBk nearestNeighborClassifier = new IBk();
+                nearestNeighborClassifier.setKNN(Integer.parseInt(args[1]));
 
                 /*
                 FilteredClassifier filteredClassifier = new FilteredClassifier();
                 filteredClassifier.setFilter(stringToWordVectorFilter);
-                filteredClassifier.setClassifier(j48Classifier);
+                filteredClassifier.setClassifier(naiveBayesMultinomialClassifier);
                 */
 
                 try{
                     Evaluation eval = new Evaluation(vectorizedData);
-                    eval.crossValidateModel(j48Classifier, vectorizedData, 10,
+                    eval.crossValidateModel(nearestNeighborClassifier, vectorizedData, 10,
                             new Random(System.currentTimeMillis()));
 
                     FileOutputStream resultOutputStream =

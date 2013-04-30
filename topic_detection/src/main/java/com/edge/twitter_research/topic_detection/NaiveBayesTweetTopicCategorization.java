@@ -6,7 +6,6 @@ import com.edge.twitter_research.core.CrisisMailer;
 import org.apache.log4j.Logger;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
-import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
 import weka.filters.Filter;
