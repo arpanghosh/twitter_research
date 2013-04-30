@@ -48,6 +48,13 @@
           <scope>compile</scope>
       </dependency>
 
+      <dependency>
+          <groupId>nz.ac.waikato.cms.weka</groupId>
+          <artifactId>weka-stable</artifactId>
+          <version>3.6.7</version>
+          <scope>compile</scope>
+      </dependency>
+
 
   </dependencies>
 
