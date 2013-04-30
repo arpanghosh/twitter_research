@@ -29,7 +29,8 @@ public class CompanyUserListToCSV extends Configured {
 
 
     public CompanyUserListToCSV (String companyName,
-                                String rootPath){
+                                String rootPath,
+                                String threshold){
 
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTIES_FILE_PATH);
 
@@ -40,7 +41,7 @@ public class CompanyUserListToCSV extends Configured {
             hBaseConfiguration.set("company.name", companyName);
             //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
-            Path inputPath = new Path(rootPath + "/result/");
+            Path inputPath = new Path(rootPath + "/result_" + threshold);
             Path resultPath = new Path(rootPath + "/CSV/" + companyName);
 
             /*
@@ -82,19 +83,22 @@ public class CompanyUserListToCSV extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: CompanyUserListToCSV " +
                     "<company_name> " +
-                    "<HDFS_job_root_path>");
+                    "<HDFS_job_root_path> " +
+                    "<threshold>");
             return;
         }
 
         String companyName = args[0];
         String HDFSrootPath = args[1];
+        String threshold = args[2];
 
         CompanyUserListToCSV companyUserListToCSV =
                 new CompanyUserListToCSV(companyName,
-                                        HDFSrootPath);
+                                        HDFSrootPath,
+                                        threshold);
 
         boolean isSuccessful = false;
 
