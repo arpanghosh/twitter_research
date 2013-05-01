@@ -85,7 +85,7 @@ public class SpecificDateGatherer
 
                 if ((calendar.get(Calendar.MONTH) == monthOfYear) &&
                         (calendar.get(Calendar.DAY_OF_MONTH) == dayOfMonth)){
-                    String[] tokens = simpleTweet.getText().toString().split(" ");
+                    String[] tokens = simpleTweet.getText().toString().toLowerCase().split(" ");
 
                     for (String token : tokens){
 
