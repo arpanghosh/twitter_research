@@ -59,7 +59,10 @@ public class LogisticRegressionTweetRelevanceFilterLanguage {
                 data.deleteWithMissingClass();
                 data.deleteAttributeAt(0);
 
-                //System.out.println(data);
+                FileOutputStream resultOutputStream =
+                        new FileOutputStream(new File(resultFolderPath + dataSetName.getName()));
+
+                resultOutputStream.write(data.toSummaryString().getBytes());
 
 
                 SimpleLogistic logisticRegressionClassifier = new SimpleLogistic();
@@ -68,10 +71,6 @@ public class LogisticRegressionTweetRelevanceFilterLanguage {
                     Evaluation eval = new Evaluation(data);
                     eval.crossValidateModel(logisticRegressionClassifier, data, 5,
                             new Random(System.currentTimeMillis()));
-
-
-                    FileOutputStream resultOutputStream =
-                            new FileOutputStream(new File(resultFolderPath + dataSetName.getName()));
 
                     resultOutputStream.write(eval.toSummaryString("=== Summary ===", false).getBytes());
                     resultOutputStream.write(eval.toMatrixString().getBytes());

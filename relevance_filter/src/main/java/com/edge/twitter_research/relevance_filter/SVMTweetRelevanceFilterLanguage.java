@@ -56,7 +56,10 @@ public class SVMTweetRelevanceFilterLanguage {
                 data.deleteWithMissingClass();
                 data.deleteAttributeAt(0);
 
-                //System.out.println(data);
+                FileOutputStream resultOutputStream =
+                        new FileOutputStream(new File(resultFolderPath + dataSetName.getName()));
+
+                resultOutputStream.write(data.toSummaryString().getBytes());
 
 
                 SMO svmClassifier = new SMO();
@@ -66,9 +69,6 @@ public class SVMTweetRelevanceFilterLanguage {
                     eval.crossValidateModel(svmClassifier, data, 5,
                             new Random(System.currentTimeMillis()));
 
-
-                    FileOutputStream resultOutputStream =
-                            new FileOutputStream(new File(resultFolderPath + dataSetName.getName()));
 
                     resultOutputStream.write(eval.toSummaryString("=== Summary ===", false).getBytes());
                     resultOutputStream.write(eval.toMatrixString().getBytes());
