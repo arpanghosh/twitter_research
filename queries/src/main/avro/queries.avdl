@@ -14,6 +14,10 @@ protocol QueriesRecords {
     }
 
 
+    record WordCount {
+        string word;
+        long count;
+    }
 
 
 
