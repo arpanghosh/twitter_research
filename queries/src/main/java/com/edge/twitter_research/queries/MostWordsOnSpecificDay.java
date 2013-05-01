@@ -53,7 +53,7 @@ public class MostWordsOnSpecificDay extends Configured {
             //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
             Path intermediateFilePath = new Path(rootFilePath + "/intermediate");
-            Path resultFilePath = new Path(rootFilePath + "/result" );
+            Path resultFilePath = new Path(rootFilePath + "/result/" + monthOfYear+ "_" +dayOfMonth );
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
