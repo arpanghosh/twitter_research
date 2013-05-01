@@ -1,17 +1,14 @@
-    package com.edge.twitter_research.relevance_filter;
+package com.edge.twitter_research.relevance_filter;
 
 
 import com.edge.twitter_research.core.CrisisMailer;
 import org.apache.log4j.Logger;
 import weka.classifiers.Evaluation;
 
-import weka.classifiers.functions.LinearRegression;
-import weka.classifiers.functions.SimpleLinearRegression;
+
 import weka.classifiers.functions.SimpleLogistic;
-import weka.classifiers.trees.lmt.LogisticBase;
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
-import weka.filters.Filter;
 
 
 import java.io.File;
@@ -20,21 +17,21 @@ import java.io.IOException;
 import java.util.Random;
 
 
-public class LinearRegressionTweetRelevanceFilterLanguage {
+public class LogisticRegressionTweetRelevanceFilterLanguage {
 
     public static void main(String[] args){
 
         if (args.length < 1){
-            System.out.println("usage: LinearRegressionTweetRelevanceFilterLanguage <root_path>");
+            System.out.println("usage: LogisticRegressionTweetRelevanceFilterLanguage <root_path>");
             System.exit(-1);
         }
 
         String rootPath = args[0];
-        File dataFolder = new File(rootPath + "/data");
-        String resultFolderPath = rootPath + "/results/Regression/";
+        File dataFolder = new File(rootPath + "/data/language");
+        String resultFolderPath = rootPath + "/results/language/LogisticRegression/";
 
         CrisisMailer crisisMailer = CrisisMailer.getCrisisMailer();
-        Logger logger = Logger.getLogger(LinearRegressionTweetRelevanceFilterLanguage.class);
+        Logger logger = Logger.getLogger(LogisticRegressionTweetRelevanceFilterLanguage.class);
 
         File resultFolder = new File(resultFolderPath);
         if (!resultFolder.exists())
@@ -49,44 +46,42 @@ public class LinearRegressionTweetRelevanceFilterLanguage {
                 Instances data = null;
                 try{
                     csvLoader.setSource(dataSetName);
+                    csvLoader.setNominalAttributes("22");
                     data = csvLoader.getDataSet();
-                    System.out.println(data);
+
                 }catch (IOException ioe){
-                    ioe.printStackTrace();
-                    //crisisMailer.sendEmailAlert(ioe);
+                    logger.error(ioe);
+                    crisisMailer.sendEmailAlert(ioe);
                     System.exit(-1);
                 }
 
                 data.setClassIndex(data.numAttributes() - 1);
                 data.deleteWithMissingClass();
+                data.deleteAttributeAt(0);
+
+                //System.out.println(data);
 
 
                 SimpleLogistic logisticRegressionClassifier = new SimpleLogistic();
 
                 try{
                     Evaluation eval = new Evaluation(data);
-                    eval.crossValidateModel(logisticRegressionClassifier, data, 2,
+                    eval.crossValidateModel(logisticRegressionClassifier, data, 5,
                             new Random(System.currentTimeMillis()));
 
-                    /*
+
                     FileOutputStream resultOutputStream =
                             new FileOutputStream(new File(resultFolderPath + dataSetName.getName()));
-                    */
-                    /*
+
                     resultOutputStream.write(eval.toSummaryString("=== Summary ===", false).getBytes());
                     resultOutputStream.write(eval.toMatrixString().getBytes());
                     resultOutputStream.write(eval.toClassDetailsString().getBytes());
                     resultOutputStream.close();
-                    */
-
-                    System.out.println(eval.toSummaryString("=== Summary ===", false).getBytes());
-                    System.out.println(eval.toMatrixString().getBytes());
-                    System.out.println(eval.toClassDetailsString().getBytes());
 
 
                 }catch (Exception exception){
-                    exception.printStackTrace();
-                    //crisisMailer.sendEmailAlert(exception);
+                    logger.error(exception);
+                    crisisMailer.sendEmailAlert(exception);
                     System.exit(-1);
                 }
 

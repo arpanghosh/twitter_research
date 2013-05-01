@@ -167,16 +167,16 @@ public class TweetToFeatureVectorConverter extends Configured {
 
         for (KijiMapReduceJob mapReduceJob : tweetToFeatureVector.mapReduceJobs){
 
-        if (mapReduceJob != null){
-            try{
-                isSuccessful = mapReduceJob.run();
-                if (!isSuccessful)
-                    break;
-            }catch (Exception unknownException){
-                logger.error("Unknown Exception while running MapReduce Job", unknownException);
-                System.exit(1);
+            if (mapReduceJob != null){
+                try{
+                    isSuccessful = mapReduceJob.run();
+                    if (!isSuccessful)
+                        break;
+                }catch (Exception unknownException){
+                    logger.error("Unknown Exception while running MapReduce Job", unknownException);
+                    System.exit(1);
+                }
             }
-        }
         }
 
         String result = isSuccessful ? "Successful" : "Failure";
