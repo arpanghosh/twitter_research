@@ -67,8 +67,11 @@ public class BayesNetTweetRelevanceFilterTweet {
                 discretize.setInputFormat(data);
                 Instances discretizedData = Filter.useFilter(data, discretize);
 
-                //System.out.println(discretizedData);
 
+                FileOutputStream resultOutputStream =
+                        new FileOutputStream(new File(resultFolderPath + dataSetName.getName()));
+
+                resultOutputStream.write(discretizedData.toSummaryString().getBytes());
 
 
 
@@ -80,9 +83,6 @@ public class BayesNetTweetRelevanceFilterTweet {
                     eval.crossValidateModel(bayesNet, data, 5,
                             new Random(System.currentTimeMillis()));
 
-
-                    FileOutputStream resultOutputStream =
-                            new FileOutputStream(new File(resultFolderPath + dataSetName.getName()));
 
                     resultOutputStream.write(eval.toSummaryString("=== Summary ===", false).getBytes());
                     resultOutputStream.write(eval.toMatrixString().getBytes());

@@ -25,7 +25,7 @@ public class RIPPERTweetRelevanceFilterTweet {
     public static void main(String[] args){
 
         if (args.length < 1){
-            System.out.println("usage: PRISMTweetRelevanceFilterTweet <root_path>");
+            System.out.println("usage: RIPPERTweetRelevanceFilterTweet <root_path>");
             System.exit(-1);
         }
 
@@ -66,8 +66,11 @@ public class RIPPERTweetRelevanceFilterTweet {
                 discretize.setInputFormat(data);
                 Instances discretizedData = Filter.useFilter(data, discretize);
 
-                //System.out.println(discretizedData);
 
+                FileOutputStream resultOutputStream =
+                        new FileOutputStream(new File(resultFolderPath + dataSetName.getName()));
+
+                resultOutputStream.write(discretizedData.toSummaryString().getBytes());
 
 
 
@@ -80,8 +83,6 @@ public class RIPPERTweetRelevanceFilterTweet {
                             new Random(System.currentTimeMillis()));
 
 
-                    FileOutputStream resultOutputStream =
-                            new FileOutputStream(new File(resultFolderPath + dataSetName.getName()));
 
                     resultOutputStream.write(eval.toSummaryString("=== Summary ===", false).getBytes());
                     resultOutputStream.write(eval.toMatrixString().getBytes());
