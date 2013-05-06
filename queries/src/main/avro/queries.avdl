@@ -2,7 +2,6 @@
 
 protocol QueriesRecords {
 
-    /* A wrapper for date elements at different granularities*/
     record GranularDate {
         int year;
         int monthOfYear;
@@ -20,6 +19,16 @@ protocol QueriesRecords {
     }
 
 
+    record SortedWordCounts {
+        array<WordCount> sortedWordCounts;
+    }
+
+
+    record CompanyGranularDate {
+        GranularDate date;
+        string companyName;
+    }
+
 
     /* A wrapper for 2 int counter */
     record TweetTypes {
@@ -27,11 +36,12 @@ protocol QueriesRecords {
         int regularCount;
     }
 
+
     /** A wrapper for the number of occurrences of a company and the time unit in which they occur */
-        record CompanyTweetCountInTimeUnit {
-            GranularDate granularDate;
-            TweetTypes count;
-        }
+    record CompanyTweetCountInTimeUnit {
+        GranularDate granularDate;
+        TweetTypes count;
+    }
 
 
 
@@ -45,11 +55,11 @@ protocol QueriesRecords {
 
 
      /* A wrapper for CompanyData and the type of occurrence */
-        record CompanyOccurrenceType {
+    record CompanyOccurrenceType {
             string companyName;
             string companyArea;
             boolean isRetweet;
-        }
+    }
 
 
 
