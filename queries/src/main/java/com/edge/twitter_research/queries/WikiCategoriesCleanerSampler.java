@@ -43,8 +43,8 @@ public class WikiCategoriesCleanerSampler
         if (Math.random() < threshold){
 
             String[] tokens = row.toString().split(" ");
-            String article = tokens[0].substring(30, tokens[0].length() - 1);
-            String to = tokens[2].substring(39, tokens[2].length() - 1);
+            String article = tokens[0].substring(29, tokens[0].length() - 1);
+            String to = tokens[2].substring(38, tokens[2].length() - 1);
 
             context.write(new Text(article), new Text(to));
         }

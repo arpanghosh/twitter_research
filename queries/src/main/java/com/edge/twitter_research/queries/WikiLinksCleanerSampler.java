@@ -44,8 +44,8 @@ public class WikiLinksCleanerSampler
         if (Math.random() < threshold){
 
             String[] tokens = row.toString().split(" ");
-            String from = tokens[0].substring(30, tokens[0].length() - 1);
-            String to = tokens[2].substring(30, tokens[2].length() - 1);
+            String from = tokens[0].substring(29, tokens[0].length() - 1);
+            String to = tokens[2].substring(29, tokens[2].length() - 1);
 
             context.write(new Text(from), new Text(to));
         }

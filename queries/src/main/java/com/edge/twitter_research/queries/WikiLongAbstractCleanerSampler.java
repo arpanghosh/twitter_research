@@ -43,8 +43,8 @@ public class WikiLongAbstractCleanerSampler
         if (Math.random() < threshold){
 
             String[] tokens = row.toString().split(" <http://dbpedia.org/ontology/abstract> ");
-            String article = tokens[0].substring(30, tokens[0].length() - 1);
-            String shortAbstract = tokens[1].substring(1, tokens[1].length() - 4);
+            String article = tokens[0].substring(29, tokens[0].length() - 1);
+            String shortAbstract = tokens[1].substring(0, tokens[1].length() - 4);
 
             context.write(new Text(article), new Text(shortAbstract));
         }
