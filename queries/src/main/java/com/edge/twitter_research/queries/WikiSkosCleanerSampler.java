@@ -43,11 +43,15 @@ public class WikiSkosCleanerSampler
 
         if (Math.random() < threshold){
 
-            String[] tokens = row.toString().split(" ");
-            String category = tokens[0].substring(38, tokens[0].length() - 1);
-            String categoryBelongsTo = tokens[2].substring(38, tokens[2].length() - 1);
+            try{
+                String[] tokens = row.toString().split(" ");
+                String category = tokens[0].substring(38, tokens[0].length() - 1);
+                String categoryBelongsTo = tokens[2].substring(38, tokens[2].length() - 1);
 
-            context.write(new Text(category), new Text(categoryBelongsTo));
+                context.write(new Text(category), new Text(categoryBelongsTo));
+            }catch (Exception e){
+                return;
+            }
         }
     }
 }
