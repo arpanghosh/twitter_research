@@ -72,6 +72,41 @@ public class WikipediaCleanerSampler extends Configured {
                         .withOutput(new TextMapReduceJobOutput(resultFilePath, 1))
                         .addJarDirectory(new Path(additionalJarsPath))
                         .build();
+            }else if (dataSet.equals("categories")){
+
+                mapReduceJob = KijiMapReduceJobBuilder.create()
+                        .withConf(hBaseConfiguration)
+                        .withMapper(WikiCategoriesCleanerSampler.class)
+                        .withInput(new TextMapReduceJobInput(inputFilePath))
+                        .withOutput(new TextMapReduceJobOutput(resultFilePath, 1))
+                        .addJarDirectory(new Path(additionalJarsPath))
+                        .build();
+            }else if (dataSet.equals("skos")){
+
+                mapReduceJob = KijiMapReduceJobBuilder.create()
+                        .withConf(hBaseConfiguration)
+                        .withMapper(WikiSkosCleanerSampler.class)
+                        .withInput(new TextMapReduceJobInput(inputFilePath))
+                        .withOutput(new TextMapReduceJobOutput(resultFilePath, 1))
+                        .addJarDirectory(new Path(additionalJarsPath))
+                        .build();
+            }else if (dataSet.equals("short-abstract")){
+
+                mapReduceJob = KijiMapReduceJobBuilder.create()
+                        .withConf(hBaseConfiguration)
+                        .withMapper(WikiShortAbstractCleanerSampler.class)
+                        .withInput(new TextMapReduceJobInput(inputFilePath))
+                        .withOutput(new TextMapReduceJobOutput(resultFilePath, 1))
+                        .addJarDirectory(new Path(additionalJarsPath))
+                        .build();
+            }else if (dataSet.equals("long-abstract")){
+                mapReduceJob = KijiMapReduceJobBuilder.create()
+                        .withConf(hBaseConfiguration)
+                        .withMapper(WikiLongAbstractCleanerSampler.class)
+                        .withInput(new TextMapReduceJobInput(inputFilePath))
+                        .withOutput(new TextMapReduceJobOutput(resultFilePath, 1))
+                        .addJarDirectory(new Path(additionalJarsPath))
+                        .build();
             }
 
 
