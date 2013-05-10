@@ -51,6 +51,8 @@ public class TokenizeCompanyTweetsPerTimeGatherer
 
         stopWords = new StopWords();
 
+        granularDate.setHourOfDay(-1);
+
     }
 
 
@@ -82,7 +84,6 @@ public class TokenizeCompanyTweetsPerTimeGatherer
             granularDate.setDayOfYear(calendar.get(Calendar.DAY_OF_YEAR));
             granularDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
             granularDate.setDayOfWeek(calendar.get(Calendar.DAY_OF_WEEK));
-            granularDate.setHourOfDay(calendar.get(Calendar.HOUR_OF_DAY));
 
             for (CompanyData companyData : companies.values()){
 
