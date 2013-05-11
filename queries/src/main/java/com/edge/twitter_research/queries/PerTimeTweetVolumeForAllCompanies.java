@@ -45,7 +45,7 @@ public class PerTimeTweetVolumeForAllCompanies extends Configured {
             hBaseConfiguration.set("granularity", granularity);
 
             hBaseConfiguration.set("mapred.textoutputformat.separator", ",");
-            //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
+            hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
             Path intermediateFilePath = new Path(rootFilePath + "/intermediate");
             Path resultFilePath = new Path(rootFilePath + "/result/" + granularity );
