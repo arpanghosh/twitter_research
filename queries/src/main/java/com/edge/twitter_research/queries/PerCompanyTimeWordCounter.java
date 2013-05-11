@@ -22,6 +22,8 @@ public class PerCompanyTimeWordCounter
     private ArrayList<WordCount> sortedWordCountsList;
     private SortedWordCounts sortedWordCountsValue;
 
+    private StopWords stopWords;
+
 
     @Override
     public void setup (Context context)
@@ -31,6 +33,8 @@ public class PerCompanyTimeWordCounter
         wordCounts = new HashMap<String, Long>();
         sortedWordCountsList = new ArrayList<WordCount>();
         sortedWordCountsValue = new SortedWordCounts();
+
+        stopWords = new StopWords();
     }
 
 
@@ -79,10 +83,13 @@ public class PerCompanyTimeWordCounter
 
             String word = wordCount.getWord().toString();
 
-            if (wordCounts.containsKey(word)){
-                wordCounts.put(word, wordCounts.get(word) + 1);
-            }else{
-                wordCounts.put(word, wordCount.getCount());
+            if (!stopWords.isStopWord(word)){
+
+                if (wordCounts.containsKey(word)){
+                    wordCounts.put(word, wordCounts.get(word) + 1);
+                }else{
+                    wordCounts.put(word, wordCount.getCount());
+                }
             }
         }
 

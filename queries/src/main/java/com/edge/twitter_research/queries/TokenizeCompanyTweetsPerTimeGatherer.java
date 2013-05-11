@@ -52,6 +52,11 @@ public class TokenizeCompanyTweetsPerTimeGatherer
         stopWords = new StopWords();
 
         granularDate.setHourOfDay(-1);
+        granularDate.setYear(-1);
+        granularDate.setMonthOfYear(-1);
+        granularDate.setWeekOfYear(-1);
+        granularDate.setDayOfWeek(-1);
+        granularDate.setDayOfMonth(-1);
 
     }
 
@@ -78,12 +83,9 @@ public class TokenizeCompanyTweetsPerTimeGatherer
                 return;
             }
 
-            granularDate.setYear(calendar.get(Calendar.YEAR));
-            granularDate.setMonthOfYear(calendar.get(Calendar.MONTH));
-            granularDate.setWeekOfYear(calendar.get(Calendar.WEEK_OF_YEAR));
+
             granularDate.setDayOfYear(calendar.get(Calendar.DAY_OF_YEAR));
-            granularDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-            granularDate.setDayOfWeek(calendar.get(Calendar.DAY_OF_WEEK));
+
 
             for (CompanyData companyData : companies.values()){
 
@@ -91,16 +93,16 @@ public class TokenizeCompanyTweetsPerTimeGatherer
 
                 for (String token : tokens){
 
-                    if (!stopWords.isStopWord(token)){
-                        wordCount.setWord(token);
-                        wordCount.setCount(1L);
 
-                        companyGranularDate.setDate(granularDate);
-                        companyGranularDate.setCompanyName(companyData.getCompanyName());
+                    wordCount.setWord(token);
+                    wordCount.setCount(1L);
 
-                        context.write(new AvroKey<CompanyGranularDate>(companyGranularDate),
-                                new AvroValue<WordCount>(wordCount));
-                    }
+                    companyGranularDate.setDate(granularDate);
+                    companyGranularDate.setCompanyName(companyData.getCompanyName());
+
+                    context.write(new AvroKey<CompanyGranularDate>(companyGranularDate),
+                            new AvroValue<WordCount>(wordCount));
+
                 }
             }
         }

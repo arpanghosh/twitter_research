@@ -10,9 +10,12 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.kiji.mapreduce.KijiMapReduceJob;
+import org.kiji.mapreduce.KijiMapReduceJobBuilder;
 import org.kiji.mapreduce.gather.KijiGatherJobBuilder;
+import org.kiji.mapreduce.input.AvroKeyValueMapReduceJobInput;
 import org.kiji.mapreduce.output.AvroKeyValueMapReduceJobOutput;
 
+import org.kiji.mapreduce.output.TextMapReduceJobOutput;
 import org.kiji.schema.KijiURI;
 import org.kiji.schema.filter.HasColumnDataRowFilter;
 
@@ -45,7 +48,7 @@ public class PerDaySortedWordCount extends Configured {
             //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
             Path intermediateFilePath = new Path(rootFilePath + "/intermediate");
-            //Path resultFilePath = new Path(rootFilePath + "/result/" + monthOfYear+ "_" +dayOfMonth );
+            Path resultFilePath = new Path(rootFilePath + "/result");
 
             KijiURI tableUri =
                     KijiURI.newBuilder(String.format("kiji://.env/default/%s", inputTableName)).build();
@@ -82,8 +85,14 @@ public class PerDaySortedWordCount extends Configured {
             }
 
 
-
-
+            mapReduceJobs.add(KijiMapReduceJobBuilder.create()
+                    .withConf(hBaseConfiguration)
+                    .withMapper(SelectSortedWordCountsForCompany.class)
+                    .withReducer(EventDetector.class)
+                    .withInput(new AvroKeyValueMapReduceJobInput(intermediateFilePath))
+                    .withOutput(new TextMapReduceJobOutput(resultFilePath, numReducers))
+                    .addJarDirectory(new Path(additionalJarsPath))
+                    .build());
 
         }catch (IOException ioException){
             logger.error("IO Exception while configuring MapReduce Job", ioException);

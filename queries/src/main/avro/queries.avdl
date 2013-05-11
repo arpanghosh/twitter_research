@@ -24,6 +24,12 @@ protocol QueriesRecords {
     }
 
 
+    record GranularDateSortedWordCounts {
+        GranularDate granularDate;
+        SortedWordCounts sortedWordCounts;
+    }
+
+
     record CompanyGranularDate {
         GranularDate date;
         string companyName;
