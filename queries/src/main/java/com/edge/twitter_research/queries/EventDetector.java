@@ -11,6 +11,7 @@ import org.kiji.mapreduce.KijiReducer;
 import org.kiji.mapreduce.avro.AvroValueReader;
 
 import java.io.IOException;
+import java.lang.management.MemoryType;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -124,7 +125,7 @@ public class EventDetector
 
             if (newWordsLogProbabilities > 0.5 && day != 90){
                 StringBuilder stringBuilder = new StringBuilder(500);
-                for (WordCount wordCount : entry.getValue().getSortedWordCounts().subList(0, 100)){
+                for (WordCount wordCount : entry.getValue().getSortedWordCounts().subList(0, Math.min(100, entry.getValue().getSortedWordCounts().size()))){
                     stringBuilder.append(wordCount.getWord());
                     stringBuilder.append(" ");
                 }
