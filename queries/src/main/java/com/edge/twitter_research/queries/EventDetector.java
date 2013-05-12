@@ -129,7 +129,7 @@ public class EventDetector
 
             newWordsLogProbabilities = newWordsLogProbabilities * ((double)entry.getValue().getSortedWordCounts().size())/1000;
 
-            if (newWordsLogProbabilities > threshold && (day != 90 || day != 91)){
+            if (newWordsLogProbabilities > threshold && day > 91){
                 StringBuilder stringBuilder = new StringBuilder(500);
                 for (WordCount wordCount : entry.getValue().getSortedWordCounts().subList(0, Math.min(100, entry.getValue().getSortedWordCounts().size()))){
                     stringBuilder.append(wordCount.getWord());
