@@ -24,6 +24,8 @@ public class SimpleAvgWordLengthCalc {
             double notRelevantTotal = 0;
             int numNotRelevant = 0;
 
+            br.readLine();
+
             while ((strLine = br.readLine()) != null)   {
 
                 String[] tokens = strLine.split(",");
