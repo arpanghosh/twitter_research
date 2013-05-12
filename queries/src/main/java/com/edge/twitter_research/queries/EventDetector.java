@@ -6,6 +6,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.avro.Schema;
 import org.apache.avro.mapred.AvroValue;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.kiji.mapreduce.KijiReducer;
 import org.kiji.mapreduce.avro.AvroValueReader;
@@ -25,6 +26,7 @@ public class EventDetector
     private Cache<String, Double> dictionary;
     private Ticker dayTicker;
     private long day = 90;
+    private float threshold;
 
 
     @Override
@@ -52,6 +54,9 @@ public class EventDetector
                 .initialCapacity(1000)
                 .ticker(dayTicker)
                 .build();
+
+       Configuration configuration = context.getConfiguration();
+       threshold = configuration.getFloat("threshold", 0.5f);
     }
 
 
@@ -122,8 +127,9 @@ public class EventDetector
                 }
             }
 
+            newWordsLogProbabilities = newWordsLogProbabilities * ((double)entry.getValue().getSortedWordCounts().size())/1000;
 
-            if (newWordsLogProbabilities > 0.5 && day != 90){
+            if (newWordsLogProbabilities > threshold && (day != 90 || day != 91)){
                 StringBuilder stringBuilder = new StringBuilder(500);
                 for (WordCount wordCount : entry.getValue().getSortedWordCounts().subList(0, Math.min(100, entry.getValue().getSortedWordCounts().size()))){
                     stringBuilder.append(wordCount.getWord());

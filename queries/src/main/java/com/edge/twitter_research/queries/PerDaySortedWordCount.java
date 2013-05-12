@@ -34,7 +34,8 @@ public class PerDaySortedWordCount extends Configured {
 
     public PerDaySortedWordCount (String rootFilePath,
                                    String inputTableName,
-                                   int numReducers){
+                                   int numReducers,
+                                   float threshold){
 
         mapReduceJobs = new ArrayList<KijiMapReduceJob>();
 
@@ -44,6 +45,7 @@ public class PerDaySortedWordCount extends Configured {
             Configuration hBaseConfiguration =
                     HBaseConfiguration.addHbaseResources(new Configuration(true));
 
+            hBaseConfiguration.setFloat("threshold", threshold);
             //hBaseConfiguration.set("mapred.textoutputformat.separator", ",");
             //hBaseConfiguration.setInt("hbase.client.scanner.caching", 1000);
 
@@ -106,10 +108,11 @@ public class PerDaySortedWordCount extends Configured {
 
     public static void main(String[] args){
 
-        if (args.length < 2){
+        if (args.length < 3){
             System.out.println("Usage: PerDaySortedWordCount " +
                     "<HDFS_job_root_file_path> " +
-                    "<num_reducers>");
+                    "<num_reducers> " +
+                    "<threshold>");
             return;
         }
 
@@ -117,13 +120,14 @@ public class PerDaySortedWordCount extends Configured {
         String inputTableName = "filter_tweet_store";
         String HDFSjobRootFilePath = args[0];
         int numReducers = Integer.parseInt(args[1]);
-
+        float threshold = Float.parseFloat(args[2]);
 
 
         PerDaySortedWordCount perDaySortedWordCount =
                 new PerDaySortedWordCount(HDFSjobRootFilePath,
                         inputTableName,
-                        numReducers);
+                        numReducers,
+                        threshold);
 
 
         boolean isSuccessful = false;
