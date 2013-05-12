@@ -78,8 +78,8 @@ public class RIPPERTweetRelevanceFilterTweet {
                 JRip jRip = new JRip();
 
                 try{
-                    Evaluation eval = new Evaluation(data);
-                    eval.crossValidateModel(jRip, data, 5,
+                    Evaluation eval = new Evaluation(discretizedData);
+                    eval.crossValidateModel(jRip, discretizedData, 5,
                             new Random(System.currentTimeMillis()));
 
 
@@ -91,10 +91,10 @@ public class RIPPERTweetRelevanceFilterTweet {
 
 
                     InfoGainAttributeEval infoGainAttributeEval = new InfoGainAttributeEval();
-                    infoGainAttributeEval.buildEvaluator(data);
+                    infoGainAttributeEval.buildEvaluator(discretizedData);
 
                     Ranker ranker = new Ranker();
-                    ranker.search(infoGainAttributeEval, data);
+                    ranker.search(infoGainAttributeEval, discretizedData);
 
                     for (double[] attribute : ranker.rankedAttributes()){
                         for (double smt : attribute){

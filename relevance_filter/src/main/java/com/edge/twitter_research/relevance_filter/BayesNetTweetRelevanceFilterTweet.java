@@ -79,8 +79,8 @@ public class BayesNetTweetRelevanceFilterTweet {
                 BayesNet bayesNet = new BayesNet();
 
                 try{
-                    Evaluation eval = new Evaluation(data);
-                    eval.crossValidateModel(bayesNet, data, 5,
+                    Evaluation eval = new Evaluation(discretizedData);
+                    eval.crossValidateModel(bayesNet, discretizedData, 5,
                             new Random(System.currentTimeMillis()));
 
 
@@ -91,10 +91,10 @@ public class BayesNetTweetRelevanceFilterTweet {
 
 
                     InfoGainAttributeEval infoGainAttributeEval = new InfoGainAttributeEval();
-                    infoGainAttributeEval.buildEvaluator(data);
+                    infoGainAttributeEval.buildEvaluator(discretizedData);
 
                     Ranker ranker = new Ranker();
-                    ranker.search(infoGainAttributeEval, data);
+                    ranker.search(infoGainAttributeEval, discretizedData);
 
                     for (double[] attribute : ranker.rankedAttributes()){
                         for (double smt : attribute){
