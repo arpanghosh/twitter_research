@@ -28,6 +28,9 @@ public class SimpleAvgWordLengthCalc {
 
             while ((strLine = br.readLine()) != null)   {
 
+
+                try{
+
                 String[] tokens = strLine.split(",");
 
                 double avgWordLength = Double.parseDouble(tokens[12]);
@@ -40,6 +43,9 @@ public class SimpleAvgWordLengthCalc {
                     notRelevantTotal += avgWordLength;
                     numNotRelevant++;
 
+                }
+                }catch (Exception e){
+                    continue;
                 }
             }
 
