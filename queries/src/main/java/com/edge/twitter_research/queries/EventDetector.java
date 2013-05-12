@@ -46,8 +46,8 @@ public class EventDetector
         };
 
         dictionary = CacheBuilder.newBuilder()
-                .maximumSize(7000)
-                .expireAfterAccess(7, TimeUnit.NANOSECONDS)
+                .maximumSize(2000)
+                .expireAfterAccess(3, TimeUnit.NANOSECONDS)
                 .initialCapacity(1000)
                 .ticker(dayTicker)
                 .build();
@@ -98,17 +98,30 @@ public class EventDetector
             double totalWords = getTotalWords(entry.getValue());
 
             int newWords = 0;
+            double newWordsLogProbabilities = 0;
+
+
             for (WordCount wordCount : entry.getValue().getSortedWordCounts()){
 
-                if (dictionary.getIfPresent(wordCount.getWord().toString()) != null){
-                    dictionary.put(wordCount.getWord().toString(), wordCount.getCount()/totalWords);
+                Double wordProportion = dictionary.getIfPresent(wordCount.getWord().toString());
+                double currentWordProportion = wordCount.getCount()/totalWords;
+
+                if (wordProportion != null){
+
+                    newWordsLogProbabilities += Math.log(currentWordProportion - wordProportion);
+
+                    double newWordProportion = ((wordProportion * (day - 90)) +
+                            currentWordProportion)/(day - 90 + 1);
+                    dictionary.put(wordCount.getWord().toString(), newWordProportion);
                 }else{
                     newWords++;
-                    dictionary.put(wordCount.getWord().toString(), wordCount.getCount()/totalWords);
+                    newWordsLogProbabilities += Math.log(currentWordProportion);
+
+                    dictionary.put(wordCount.getWord().toString(), currentWordProportion);
                 }
             }
 
-            context.write(key, new Text(entry.getKey().getDayOfYear() + ":" + newWords));
+            context.write(key, new Text(entry.getKey().getDayOfYear() + ":" + newWordsLogProbabilities));
         }
     }
 
