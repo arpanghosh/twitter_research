@@ -3,6 +3,7 @@ package com.edge.twitter_research.relevance_filter;
 import cmu.arktweetnlp.Twokenize;
 import com.edge.twitter_research.core.GlobalConstants;
 import com.edge.twitter_research.core.SimpleTweet;
+import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -24,7 +25,7 @@ public class TokenGatherer
     public void gather(KijiRowData input, GathererContext<Text, Text> context)
             throws IOException {
 
-        String relevanceLabel = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
+        Utf8 relevanceLabel = input.getMostRecentValue(GlobalConstants.TWEET_OBJECT_COLUMN_FAMILY_NAME,
                 GlobalConstants.RELEVANCE_LABEL_COLUMN_NAME);
 
         if (relevanceLabel != null){
@@ -34,7 +35,7 @@ public class TokenGatherer
             List<String> tokens = Twokenize.tokenizeRawTweetText(tweet.getText().toString());
 
             for (String token : tokens){
-                context.write(new Text(relevanceLabel), new Text(token));
+                context.write(new Text(relevanceLabel.toString()), new Text(token));
             }
 
         }
