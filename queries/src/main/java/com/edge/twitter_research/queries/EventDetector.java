@@ -121,7 +121,9 @@ public class EventDetector
                 }
             }
 
-            context.write(key, new Text(entry.getKey().getDayOfYear() + ":" + newWordsLogProbabilities));
+
+            if (newWordsLogProbabilities > 0.5)
+                context.write(key, new Text(entry.getKey().getDayOfYear() + ":" + newWordsLogProbabilities));
         }
     }
 
