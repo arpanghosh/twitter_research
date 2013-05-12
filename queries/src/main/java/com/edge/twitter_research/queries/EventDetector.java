@@ -136,7 +136,7 @@ public class EventDetector
                     stringBuilder.append(" ");
                 }
 
-                context.write(key, new Text(entry.getKey().getDayOfYear() + ":" + newWordsLogProbabilities + ":" + stringBuilder.toString() + "\n\n\n"));
+                context.write(key, new Text(entry.getKey().getDayOfYear() + ":" + newWordsLogProbabilities + ":" + totalWords + ":" + stringBuilder.toString() + "\n\n\n"));
             }
         }
     }
