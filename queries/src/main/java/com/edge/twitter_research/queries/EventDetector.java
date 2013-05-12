@@ -114,7 +114,7 @@ public class EventDetector
 
                 if (wordProportion != null){
 
-                    newWordsLogProbabilities += Math.abs(currentWordProportion - wordProportion)/totalWords;
+                    newWordsLogProbabilities += (currentWordProportion - wordProportion)/totalWords;
 
                     double newWordProportion = ((wordProportion * (day - 90)) +
                             currentWordProportion)/(day - 90 + 1);
@@ -130,8 +130,8 @@ public class EventDetector
             newWordsLogProbabilities = newWordsLogProbabilities * ((double)entry.getValue().getSortedWordCounts().size())/1000;
 
             if (day > 91 &&
-                    (newWordsLogProbabilities > 0.8 ||
-                        ((newWordsLogProbabilities > threshold)))){
+                    (((newWordsLogProbabilities > 0.8) && (totalWords > 10000)) ||
+                        ((newWordsLogProbabilities > threshold) && (totalWords > 50000)))){
                 StringBuilder stringBuilder = new StringBuilder(500);
                 for (WordCount wordCount : entry.getValue().getSortedWordCounts().subList(0, Math.min(100, entry.getValue().getSortedWordCounts().size()))){
                     stringBuilder.append(wordCount.getWord());
