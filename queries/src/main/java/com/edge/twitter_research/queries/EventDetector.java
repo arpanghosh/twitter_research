@@ -104,7 +104,7 @@ public class EventDetector
             for (WordCount wordCount : entry.getValue().getSortedWordCounts()){
 
                 Double wordProportion = dictionary.getIfPresent(wordCount.getWord().toString());
-                double currentWordProportion = wordCount.getCount()/totalWords;
+                double currentWordProportion = wordCount.getCount();
 
                 if (wordProportion != null){
 
