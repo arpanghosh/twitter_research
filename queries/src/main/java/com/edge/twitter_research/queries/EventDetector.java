@@ -108,14 +108,14 @@ public class EventDetector
 
                 if (wordProportion != null){
 
-                    newWordsLogProbabilities += Math.log(Math.abs(currentWordProportion - wordProportion));
+                    newWordsLogProbabilities += (currentWordProportion - wordProportion)/totalWords;
 
                     double newWordProportion = ((wordProportion * (day - 90)) +
                             currentWordProportion)/(day - 90 + 1);
                     dictionary.put(wordCount.getWord().toString(), newWordProportion);
                 }else{
                     newWords++;
-                    newWordsLogProbabilities += Math.log(currentWordProportion);
+                    newWordsLogProbabilities += currentWordProportion/totalWords;
 
                     dictionary.put(wordCount.getWord().toString(), currentWordProportion);
                 }
