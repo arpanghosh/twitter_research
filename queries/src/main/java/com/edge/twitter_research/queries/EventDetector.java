@@ -114,7 +114,7 @@ public class EventDetector
 
                 if (wordProportion != null){
 
-                    //newWordsLogProbabilities += (currentWordProportion - wordProportion)/totalWords;
+                    newWordsLogProbabilities += Math.abs(currentWordProportion - wordProportion)/totalWords;
 
                     double newWordProportion = ((wordProportion * (day - 90)) +
                             currentWordProportion)/(day - 90 + 1);
