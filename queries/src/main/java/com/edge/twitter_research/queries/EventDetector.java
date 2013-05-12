@@ -122,8 +122,15 @@ public class EventDetector
             }
 
 
-            if (newWordsLogProbabilities > 0.5)
-                context.write(key, new Text(entry.getKey().getDayOfYear() + ":" + newWordsLogProbabilities));
+            if (newWordsLogProbabilities > 0.5 && day != 90){
+                StringBuilder stringBuilder = new StringBuilder(500);
+                for (WordCount wordCount : entry.getValue().getSortedWordCounts().subList(0, 100)){
+                    stringBuilder.append(wordCount.getWord());
+                    stringBuilder.append(" ");
+                }
+
+                context.write(key, new Text(entry.getKey().getDayOfYear() + ":" + newWordsLogProbabilities + ":" + stringBuilder.toString()));
+            }
         }
     }
 
